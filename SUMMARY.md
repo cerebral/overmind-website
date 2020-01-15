@@ -11,11 +11,11 @@
 * [State](features/defining-state.md)
 * [Actions](features/writing-application-logic.md)
 * [Effects](features/running-side-effects.md)
+* [Typescript](features/typescript.md)
 * [Operators](features/going-functional.md)
 * [Statecharts](features/statecharts.md)
 * [Server Side Rendering](features/server-side-rendering.md)
 * [Testing](features/testing.md)
-* [Typescript](features/typescript.md)
 * [GraphQL](features/graphql.md)
 
 ## View layers
@@ -30,10 +30,6 @@
 * [Connecting components](guides-1/connecting-components.md)
 * [Managing lists](guides-1/managing-lists.md)
 * [State first routing](guides-1/state-first-routing.md)
-
-## Videos
-
-* [Overmind introduction](https://youtu.be/82Aq_ujnBQw)
 
 ## API <a id="api-1"></a>
 

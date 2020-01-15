@@ -98,3 +98,9 @@ test('should get items', async () => {
 
 Overmind has you covered on typing. If you choose to use Typescript the whole API is built for excellent typing support. You will not spend time telling Typescript how your app works, Typescript will tell you!
 
+## RUNNING CODESANDBOX
+
+![](.gitbook/assets/256x256.png)
+
+Overmind is running the main application of [codesandbox.io](https://codesandbox.io). With its state and effects complexity Codesandbox benefits greatly by Overmind using Typescript.
+

@@ -102,5 +102,5 @@ Overmind has you covered on typing. If you choose to use Typescript the whole AP
 
 ![](.gitbook/assets/256x256.png)
 
-Overmind is running the main application of [codesandbox.io](https://codesandbox.io). With its state and effects complexity Codesandbox benefits greatly by Overmind using Typescript.
+Overmind is running the main application of [codesandbox.io](https://codesandbox.io). Codesandbox, with its state and effects complexity, benefits greatly combining Overmind and Typescript.
 

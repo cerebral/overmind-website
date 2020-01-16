@@ -19,15 +19,15 @@ If the count example above was the entire application it would not make any sens
 1. **You want to introduce an other component that needs to know about the current state of the count.** This new component can not be a parent of the component owning the count state. It can not be a sibling either. It has to be a child. If it is not an immediate child the count state has to be passed down the component tree until it reaches your new component.
 2. **You want to remember the count, even though it is not shown in the UI**. Your count is behind one of multiple tabs in the UI. When the user changes the tabs you do not want the count to reset. The only way to ensure this is to move the count state up to a parent component that is no longer a child of the tab and then pass the count state back down again.
 3. **You want to change the count from a side effect**. You have a websocket connection which changes the count when a message is received. If you want to avoid this websocket connection to open and close as the component mounts and unmounts you will have to move the websocket connection up the component tree.
-4. **You want to change the count as part of a flow**. When you click the increase count button you need to change both the count state and an other state related to a different part of the UI. To be able to change both states at the same time, they have to live inside the same component, which has to be a parent of both components using the state.
+4. **You want to change the count as part of multiple changes**. When you click the increase count button you need to change both the count state and an other state related to a different part of the UI. To be able to change both states at the same time, they have to live inside the same component, which has to be a parent of both components using the state.
 
 Introducing these scenarios we said: **You want**. In reality we rarely know exactly what we want. We do not know how our state and components will evolve. And this is the most important point. By using application state instead of component state you get flexibility to manage whatever comes down the road without having to refactor wrong assumptions.
 
-**So is component state bad?** No, certainly not. You do not want to overload your application state with state that could just as well have been component state. The tricky thing is to figure out when that is absolutely the case. For example:
+**So is component state bad?** No, certainly not. You do not want to overload your application state with state that could just as well have been inside a component. The tricky thing is to figure out when that is absolutely the case. For example:
 
 1. **Modals should certainly be component state?** Not all modals are triggered by a user interaction. A profile modal might be triggered by clicking a profile picture, but also open up when a user opens the application and is missing information.
 2. **The active tab should certainly be component state?** The active tab might be part of the url query, `/user?tab=count`. That means it should rather be a hyperlink where your application handles the routing and provides state to identify the active tab.
-3. **Inputs should certainly be component state?** If the input is part of an application flow, you might want to empty out the content of that input, or even change it to something else.
+3. **Inputs should certainly be component state?** If the input is part of an application flow, you might want to empty out the content of that input related to other changes, or even change it to something else.
 
 How you want to go about this is totally up to you. We are not telling you exactly how to separate application and component state. What we can tell you though; **“If you lean towards application state your are more flexible to future changes”**.
 
@@ -44,13 +44,13 @@ createOvermind({
 })
 ```
 
-This state object will hold all the application state, we call it a _single state tree_. That does not mean you define all the state in one file and we will talk more about that later. For now lets talk about what you put into this state tree.
+This state object will hold all the application state, we call it a _single state tree_. That does not mean you define all the state in one file and we will talk more about that later. For now let us talk about what you put into this state tree.
 
-A single state tree favours serializable state. That means state that can be `JSON.parse` and `JSON.stringify` back and forth. It can be safely passed between the client and the server, localStorage or to web workers. You will use **strings**, **numbers**, **booleans**, **arrays**, **objects** and **null**. Overmind does not prevent you from using other complex objects, but it is encouraged to use these core data types.
+A single state tree typically favours serializable state. That means state that can be `JSON.parse` and `JSON.stringify` back and forth. It can be safely passed between the client and the server, localStorage or to web workers. You will use **strings**, **numbers**, **booleans**, **arrays**, **objects** and **null**. Overmind also has the ability to allow you define state values as class instances, even serializing back and forth. You can read more about that in [State](features/defining-state.md).
 
 ## Defining actions
 
-When you need to change your state you define actions. Overmind only allows changing the state of the application inside the actions. An error will be thrown if you try to change the state inside a component. The actions are plain functions/methods. The only thing that makes them special is that they all receieve a preset first argument, called **the context**:
+When you need to change your state you define actions. Overmind only allows changing the state of the application inside the actions. An error will be thrown if you try to change the state inside a component. The actions are plain functions/methods. The only thing that makes them special is that they all receive a preset first argument, called **the context**:
 
 ```typescript
 createOvermind({
@@ -139,7 +139,7 @@ state.todos[myReference]
 delete state.todos[myReference]
 ```
 
-Using references also ensures that only one instance of any todo will live in your state tree. The todo itself lives on the **todos** state, while everything else in the state tree references a todo by using its id. For example our **editingTodoId** state uses the id of a todo to reference which todo is currently being edited.
+Using references also ensures that only one instance of any todo will live in your state tree. The todo itself lives on the **todos** state, while everything else in the state tree references a todo by using its id. For example our **editingTodoId** state uses the id of a todo to reference which todo is currently being edited. 
 
 ## Deriving state
 
@@ -177,7 +177,7 @@ createOvermind({
 
 Our state tree is concerned with state values that you will change using actions. But you can also automatically produce state values based on existing state. An example of this would be to list the **currentTodos**. It uses the todos and filter state to figure out what todos to actually display. Sometimes this is called computed state. We call it **derived** state.
 
-Any function you insert into the state tree is treated as derived state. That means these functions receives a preset first argument which is the immediate state, the state object the derived is attached to. In bigger applications you might also need to use the second argument, which is the root state of the application. It will automatically track whatever state you use and then flag itself as dirty whenever it changes. If derived state is used while being dirty, the function will run again. If it is not dirty a cached value is returned.
+Any function you insert into the state tree is treated as derived state. That means these functions receives a preset first argument which is the immediate state, the state object the derived is attached to. In bigger applications you might also need to use the second argument, which is the root state of the application. The derived will automatically track whatever state you use and then flag itself as dirty whenever it changes. If derived state is used while being dirty, the function will run again. If it is not dirty a cached value is returned.
 
 ## Effects
 
@@ -231,7 +231,7 @@ To scale up your code even more you can split it into **namespaces**. You can re
 
 ## Get to know Typescript
 
-Now that we have insight into the building blocks of Overmind it is time to introduce typing. If you are already familar with [TYPESCRIPT](https://www.typescriptlang.org/) you will certainly enjoy the minimal typing required to get full type safety across your application. If you are unfamiliar with Typescript Overmind is a great project to start using it, for the very same reason.
+Now that we have insight into the building blocks of Overmind it is time to introduce typing. If you are already familiar with [TYPESCRIPT](https://www.typescriptlang.org/) you will certainly enjoy the minimal typing required to get full type safety across your application. If you are unfamiliar with Typescript Overmind is a great project to start using it, for the very same reason.
 
 Have a look at this new project where we have typed the application:
 

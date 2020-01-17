@@ -9,29 +9,29 @@
 
 ## Core
 
-* [Configuration](core/structuring-the-app.md)
+* [Configuration](guides-1/structuring-the-app.md)
 * [State](core/defining-state.md)
 * [Actions](core/writing-application-logic.md)
 * [Effects](core/running-side-effects.md)
 * [Operators](core/going-functional.md)
-* [Statecharts](core/statecharts.md)
+* [Statecharts](features/statecharts.md)
 * [Typescript](core/typescript.md)
 
 ## Addons
 
-* [React](addons/react.md)
-* [Angular](addons/angular.md)
-* [Vue](addons/vue.md)
-* [GraphQL](addons/graphql.md)
+* [React](view-layers/react.md)
+* [Angular](view-layers/angular.md)
+* [Vue](view-layers/vue.md)
+* [GraphQL](features/graphql.md)
 
 ## Guides <a id="guides-1"></a>
 
 * [Connecting components](guides-1/connecting-components.md)
 * [Managing lists](guides-1/managing-lists.md)
 * [State first routing](guides-1/state-first-routing.md)
-* [Server Side Rendering](guides-1/server-side-rendering.md)
+* [Server Side Rendering](features/server-side-rendering.md)
 * [Move to Typescript](guides-1/move-to-typescript.md)
-* [Testing](guides-1/testing.md)
+* [Testing](features/testing.md)
 
 ## API <a id="api-1"></a>
 

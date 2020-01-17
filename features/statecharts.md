@@ -32,9 +32,9 @@ Let us imagine that we have a login flow. This login flow has 4 different **tran
 Let us do this properly and design this flow “top down”:
 
 {% tabs %}
-{% tab title="overmind/login/index.js" %}
+{% tab title="overmind/login/index.ts" %}
 ```typescript
-import {statechart } from 'overmind/config'
+import { Statechart, statechart } from 'overmind/config'
 import * as actions from './actions'
 import { state } from './state'
 
@@ -43,7 +43,12 @@ const config = {
   actions
 }
 
-const loginChart = {
+const loginChart: Statechart<typeof config, {
+  LOGIN: void
+  AUTHENTICATING: void
+  AUTHENTICATED: void
+  ERROR: void
+}> = {
   initial: 'LOGIN',
   states: {
     LOGIN: {
@@ -108,7 +113,9 @@ This approach has three benefits:
 What to take notice of is that the **action** causing the transition is run before the transition actually happens. That means the action runs in the context of the current transition state and any synchronous calls to another action will obey its rules. If the action does something asynchronous, like doing an HTTP request, the transition will be performed and the asynchronous logic will run in the context of the new transition state.
 
 ```typescript
-const myTransitionAction = async ({ actions }) => {
+import { AsyncAction } from 'overmind'
+
+const myTransitionAction: AsyncAction = async ({ actions }) => {
   // I am still in the current transition state
   actions.someOtherAction()
 
@@ -124,9 +131,9 @@ const myTransitionAction = async ({ actions }) => {
 With a more complicated UI we can create nested statecharts. An example of this would be a workspace UI with different tabs. You only want to allow certain actions when the related tab is active. Let us explore an example:
 
 {% tabs %}
-{% tab title="overmind/dashboard/index.js" %}
+{% tab title="overmind/dashboard/index.ts" %}
 ```typescript
-import { statechart } from 'overmind/config'
+import { Statechart, statechart } from 'overmind/config'
 import * as actions from './actions'
 import { state } from './state'
 
@@ -135,7 +142,11 @@ const config = {
   actions
 }
 
-const issuesChart = {
+const issuesChart: Statechart<typeof config, {
+  LOADING: void
+  LIST: void
+  ERROR: void
+}> = {
   initial: 'LOADING',
   states: {
     LOADING: {
@@ -159,7 +170,11 @@ const issuesChart = {
   }
 }
 
-const projectsChart = {
+const projectsChart: Statechart<typeof config, {
+  LOADING: void
+  LIST: void
+  ERROR: void
+}> = {
   initial: 'LOADING',
   states: {
     LOADING: {
@@ -183,7 +198,10 @@ const projectsChart = {
   }
 }
 
-const dashboardChart = {
+const dashboardChart: Statechart<typeof config, {
+  ISSUES: typeof issuesChart
+  PROJECTS: typeof projectsChart
+}> = {
   initial: 'ISSUES',
   states: {
     ISSUES: {
@@ -226,9 +244,9 @@ export default statechart(config, {
 In our chart above we let the user log in even though there is no **username** or **password**. That seems a bit silly. In statecharts you can define conditions. These conditions receives the state of the configuration and returns true or false.
 
 {% tabs %}
-{% tab title="overmind/login/index.js" %}
+{% tab title="overmind/login/index.ts" %}
 ```typescript
-import {statechart } from 'overmind/config'
+import { Statechart, statechart } from 'overmind/config'
 import * as actions from './actions'
 import { state } from './state'
 
@@ -237,7 +255,12 @@ const config = {
   actions
 }
 
-const loginChart = {
+const loginChart: Statechart<typeof config, {
+  LOGIN: void
+  AUTHENTICATING: void
+  AUTHENTICATED: void
+  ERROR: void
+}> = {
   initial: 'LOGIN',
   states: {
     LOGIN: {
@@ -266,9 +289,21 @@ Now the **login** action can only be executed when there is a username and passw
 Our initial state defined for this configuration is:
 
 {% tabs %}
-{% tab title="overmind/login/state.js" %}
+{% tab title="overmind/login/state.ts" %}
 ```typescript
-export const state = {
+export type User = {
+  id: string
+  name: string
+}
+
+type State = {
+  username: string
+  password: string
+  user: User
+  authenticationError: string
+}
+
+export const state: State = {
   username: '',
   password: '',
   user: null,
@@ -349,17 +384,20 @@ const isOnlyDownloading = state.files.matches({
 Our actions are defined something like:
 
 {% tabs %}
-{% tab title="overmind/login/actions.js" %}
+{% tab title="overmind/login/actions.ts" %}
 ```typescript
-export const changeUsername = ({ state }, username) => {
+import { Action, AsyncAction } from 'overmind'
+import { User } from './state'
+
+export const changeUsername: Action<string> = ({ state }, username) => {
   state.login.username = username
 }
 
-export const changePassword = ({ state }, password) => {
+export const changePassword: Action<string> = ({ state }, password) => {
   state.login.password = password
 }
 
-export const login = ({ state, actions, effects }) => {
+export const login: AsyncAction = ({ state, actions, effects }) => {
   try {
     const user = await effects.api.login(state.username, state.password)
     actions.login.resolveUser(user)
@@ -368,24 +406,24 @@ export const login = ({ state, actions, effects }) => {
   }
 }
 
-export const resolveUser = ({ state }, user) => {
+export const resolveUser: Action<User> = ({ state }, user) => {
   state.login.user = user
 }
 
-export const rejectUser = ({ state }, error) => {
+export const rejectUser: Action<Error> = ({ state }, error) => {
   state.login.authenticationError = error.message
 }
 
-export const logout = ({ effects }) => {
+export const logout: Action = ({ effects }) => {
   effects.api.logout()
 }
 
-export const tryAgain = () => {}
+export const tryAgain: Action = () => {}
 ```
 {% endtab %}
 {% endtabs %}
 
-What to take notice of here is that with traditional Overmind we would most likely just set the **user** or the **authenticationError** directly in the **login** action. That is not the case with statcharts because our actions are the triggers for transitions. That means whenever we want to deal with transitions we create an action for it, even completely empty actions like **tryAgain**. This simplifies our chart definition and also we avoid having a generic **transition** action that would not be typed in TypeScript.
+What to take notice of here is that with traditional Overmind we would most likely just set the **user** or the **authenticationError** directly in the **login** action. That is not the case with statcharts because our actions are the triggers for transitions. That means whenever we want to deal with transitions we create an action for it, even completely empty actions like **tryAgain**. This simplifies our chart definition and also we avoid having a generic **transition** action that would not be typed in TypeScript etc.
 
 Now these two charts would operate individually. This is also the case for the **chart** property on the states of a chart.
 

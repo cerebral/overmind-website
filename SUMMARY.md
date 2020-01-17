@@ -12,17 +12,15 @@
 * [Actions](core/writing-application-logic.md)
 * [Effects](core/running-side-effects.md)
 * [Operators](core/going-functional.md)
-* [Statecharts](core/statecharts.md)
+* [Statecharts](features/statecharts.md)
 * [Typescript](core/typescript.md)
-
-## Features
 
 ## Addons
 
-* [React](view-layers/react.md)
+* [React](addons/react.md)
 * [Angular](view-layers/angular.md)
-* [Vue](view-layers/vue.md)
-* [GraphQL](features/graphql.md)
+* [Vue](addons/vue.md)
+* [GraphQL](addons/graphql.md)
 
 ## Guides <a id="guides-1"></a>
 

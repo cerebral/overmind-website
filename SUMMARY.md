@@ -12,7 +12,7 @@
 * [Actions](core/writing-application-logic.md)
 * [Effects](core/running-side-effects.md)
 * [Operators](core/going-functional.md)
-* [Statecharts](features/statecharts.md)
+* [Statecharts](core/statecharts.md)
 * [Typescript](core/typescript.md)
 
 ## Features

@@ -8,13 +8,13 @@ description: frictionless state management
 
 ## APPLICATION INSIGHT
 
-Develop the application state, effects and actions without leaving [VS Code](https://code.visualstudio.com/), or use the standalone development tool. Everything that happens in your app is tracked and you can seamlessly code and run logic to verify that everything works as expected without necessarily having to implement UI.
+Develop the application state, effects and actions without leaving [VS Code](https://code.visualstudio.com/), or use the standalone development tool. Everything that happens in your app is tracked and you can seamlessly code and run logic to verify that everything works as expected without having to implement UI.
 
 ![](.gitbook/assets/amazing_devtools.png)
 
 ## A SINGLE STATE TREE
 
-Building your application with a single state tree is the most straight forward mental model. You get a complete overview, but can still organize the state by namespacing it into domains. The devtools allows you to edit and mock out state.
+Building your application as a single state tree is the most straight forward mental model. You get a complete overview, but can still organize the state by namespacing it into domains. The devtools allows you to edit and mock out state.
 
 ```typescript
 {
@@ -32,26 +32,15 @@ Building your application with a single state tree is the most straight forward 
 
 Separate 3rd party APIs and logic not specific to your application by using **effects**. This will keep your application logic pure and without low level APIs cluttering your code.
 
-{% tabs %}
-{% tab title="api.ts" %}
 ```typescript
-export const fetchItems = async (): Promise<Item[]> {
+export const api = {
+  async fetchItems(): Promise<Item[]> {
     const response = await fetch('/api/items')
 
     return response.json()
   }
 }
 ```
-{% endtab %}
-
-{% tab title="actions.ts" %}
-```typescript
-export const loadApp: AsyncAction = ({ state, effects }) => {
-  state.items = await effects.api.fetchItems()
-}
-```
-{% endtab %}
-{% endtabs %}
 
 ## SAFE AND PREDICTABLE CHANGES
 
@@ -65,12 +54,10 @@ export const getItems: AsyncAction = async ({ state, effects }) => {
 }
 ```
 
-## COMPLEXITY TOOLS
+## FUNCTIONAL ACTIONS
 
-Even though Overmind can create applications with only plain **state** and **actions**, you can use **opt-in** tools like **functional operators**, **statecharts** and state values defined as a **class,** to manage complexities of your application.
+When pieces of logic become complex it is beneficial to write functional code. Overmind provides an API named **operators** which gives you functional power. Ignore it, use it where it makes sense or make your whole codebase functional. It is up to you!
 
-{% tabs %}
-{% tab title="Operators" %}
 ```typescript
 export const search: Operator<string> = pipe(
   mutate(({ state }, query) => {
@@ -85,79 +72,6 @@ export const search: Operator<string> = pipe(
   })
 )
 ```
-{% endtab %}
-
-{% tab title="Statechart" %}
-```typescript
-const loginChart: Statechart<
-  typeof config,
-  {
-    LOGIN: void
-    AUTHENTICATING: void
-    AUTHENTICATED: void
-    ERROR: void
-  }
-> = {
-  initial: 'LOGIN',
-  states: {
-    LOGIN: {
-      on: {
-        changeUsername: null,
-        changePassword: null,
-        login: 'AUTHENTICATING'
-      }
-    },
-    AUTHENTICATING: {
-      on: {
-        resolveUser: 'AUTHENTICATED',
-        rejectUser: 'ERROR'
-      }
-    },
-    AUTHENTICATED: {
-      on: {
-        logout: 'LOGIN'
-      }
-    },
-    ERROR: {
-      on: {
-        tryAgain: 'LOGIN'
-      }
-    }
-  }
-}
-```
-{% endtab %}
-
-{% tab title="Class state" %}
-```typescript
-class LoginForm() {
-  private username: string = ''
-  private password: string = ''
-  private validationError: string = ''
-  changeUsername(username: string) {
-    this.username = username
-  }
-  changePassword(password: string) {
-    if (!password.match([0-9]) {
-      this.validationError = 'You need some numbers in your password'
-    }
-    this.password = password
-  }
-  isValid() {
-    return Boolean(this.username && this.password) 
-  }
-}
-
-type State = {
-  loginForm: LoginForm
-}
-
-export const state: State = {
-  loginForm: new LoginForm()
-}
-```
-{% endtab %}
-{% endtabs %}
 
 ## SNAPSHOT TESTING OF LOGIC
 
@@ -188,5 +102,5 @@ Overmind has you covered on typing. If you choose to use Typescript the whole AP
 
 ![](.gitbook/assets/256x256.png)
 
-Overmind is running the main application of [codesandbox.io](https://codesandbox.io). Codesandbox, with its state and effects complexity, benefits greatly combining Overmind and Typescript.
+Overmind is running the main application of [codesandbox.io](https://codesandbox.io). With its state and effects complexity Codesandbox benefits greatly by Overmind using Typescript.
 

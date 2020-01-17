@@ -2,9 +2,25 @@
 
 From the command line install the Overmind package:
 
-```text
-npm install overmind
+{% tabs %}
+{% tab title="React" %}
 ```
+npm install overmind overmind-react
+```
+{% endtab %}
+
+{% tab title="Vue" %}
+```
+npm install overmind overmind-vue
+```
+{% endtab %}
+
+{% tab title="Angular" %}
+```text
+npm install overmind overmind-angular
+```
+{% endtab %}
+{% endtabs %}
 
 ### Setup
 

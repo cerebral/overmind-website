@@ -17,14 +17,14 @@
 
 ## Addons
 
-* [React](addons/react.md)
+* [React](view-layers/react.md)
 * [Angular](view-layers/angular.md)
-* [Vue](addons/vue.md)
-* [GraphQL](addons/graphql.md)
+* [Vue](view-layers/vue.md)
+* [GraphQL](features/graphql.md)
 
 ## Guides <a id="guides-1"></a>
 
-* [Testing](features/testing.md)
+* [Testing](guides-1/testing.md)
 * [Structuring the app](guides-1/structuring-the-app.md)
 * [Connecting components](guides-1/connecting-components.md)
 * [Managing lists](guides-1/managing-lists.md)

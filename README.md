@@ -33,9 +33,9 @@ Building your application with a single state tree is the most straight forward 
 Separate 3rd party APIs and logic not specific to your application by using **effects**. This will keep your application logic pure and without low level APIs cluttering your code.
 
 {% tabs %}
-{% tab title="api.ts" %}
-```typescript
-export const fetchItems = async (): Promise<Item[]> {
+{% tab title="api.js" %}
+```javascript
+export const fetchItems = async () {
     const response = await fetch('/api/items')
 
     return response.json()
@@ -44,9 +44,9 @@ export const fetchItems = async (): Promise<Item[]> {
 ```
 {% endtab %}
 
-{% tab title="actions.ts" %}
+{% tab title="actions.js" %}
 ```typescript
-export const loadApp: AsyncAction = ({ state, effects }) => {
+export const loadApp = ({ state, effects }) => {
   state.items = await effects.api.fetchItems()
 }
 ```
@@ -57,8 +57,8 @@ export const loadApp: AsyncAction = ({ state, effects }) => {
 
 When you build applications that perform many state changes things can get out of hand. In Overmind you can only perform state changes from **actions** and all changes are tracked by the development tool.
 
-```typescript
-export const getItems: AsyncAction = async ({ state, effects }) => {
+```javascript
+export const getItems = async ({ state, effects }) => {
   state.isLoadingItems = true
   state.items = await effects.api.fetchItems()
   state.isLoadingItems = false
@@ -71,8 +71,8 @@ Even though Overmind can create applications with only plain **state** and **act
 
 {% tabs %}
 {% tab title="Operators" %}
-```typescript
-export const search: Operator<string> = pipe(
+```javascript
+export const search = pipe(
   mutate(({ state }, query) => {
     state.query = query
   }),
@@ -88,16 +88,8 @@ export const search: Operator<string> = pipe(
 {% endtab %}
 
 {% tab title="Statechart" %}
-```typescript
-const loginChart: Statechart<
-  typeof config,
-  {
-    LOGIN: void
-    AUTHENTICATING: void
-    AUTHENTICATED: void
-    ERROR: void
-  }
-> = {
+```javascript
+const loginChart = {
   initial: 'LOGIN',
   states: {
     LOGIN: {
@@ -129,15 +121,15 @@ const loginChart: Statechart<
 {% endtab %}
 
 {% tab title="Class state" %}
-```typescript
+```javascript
 class LoginForm() {
-  private username: string = ''
-  private password: string = ''
-  private validationError: string = ''
-  changeUsername(username: string) {
+  private username = ''
+  private password = ''
+  private validationError = ''
+  changeUsername(username) {
     this.username = username
   }
-  changePassword(password: string) {
+  changePassword(password) {
     if (!password.match([0-9]) {
       this.validationError = 'You need some numbers in your password'
     }
@@ -148,11 +140,7 @@ class LoginForm() {
   }
 }
 
-type State = {
-  loginForm: LoginForm
-}
-
-export const state: State = {
+export const state = {
   loginForm: new LoginForm()
 }
 ```
@@ -163,7 +151,7 @@ export const state: State = {
 
 Bring in your application configuration of state, effects and actions. Create mocks for any effects. Take a snapshot of mutations performed in an action to ensure all intermediate states are met.
 
-```typescript
+```javascript
 import { createOvermindMock } from 'overmind'
 import { config } from './'
 

@@ -46,7 +46,7 @@ createOvermind({
 
 This state object will hold all the application state, we call it a _single state tree_. That does not mean you define all the state in one file and we will talk more about that later. For now let us talk about what you put into this state tree.
 
-A single state tree typically favours serializable state. That means state that can be `JSON.parse` and `JSON.stringify` back and forth. It can be safely passed between the client and the server, localStorage or to web workers. You will use **strings**, **numbers**, **booleans**, **arrays**, **objects** and **null**. Overmind also has the ability to allow you define state values as class instances, even serializing back and forth. You can read more about that in [State](features/defining-state.md).
+A single state tree typically favours serializable state. That means state that can be `JSON.parse` and `JSON.stringify` back and forth. It can be safely passed between the client and the server, localStorage or to web workers. You will use **strings**, **numbers**, **booleans**, **arrays**, **objects** and **null**. Overmind also has the ability to allow you define state values as class instances, even serializing back and forth. You can read more about that in [State](core/defining-state.md).
 
 ## Defining actions
 

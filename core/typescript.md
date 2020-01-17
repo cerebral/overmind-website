@@ -2,7 +2,9 @@
 
 Overmind is written in Typescript and it is written with a focus on you dedicating as little time as possible to help Typescript understand what your app is all about. Typescript will spend a lot more time helping you. If you are not a Typescript developer Overmind is a really great project to start learning it as you will get the most out of the little typing you have to do.
 
-## Two typing approaches
+## Configuration
+
+First we need to define the typing of our configuration and there are two approaches to that.
 
 ### 1. Declare module
 
@@ -74,31 +76,77 @@ You only have to set up these types once, where you bring your configuration tog
 
 Now you only have to make sure that you import your types from this file, instead of directly from the Overmind package.
 
+{% hint style="info" %}
+The Overmind documentation is written for implicit typing. That means whenever you see a type import directly from the Overmind package, you should rather import from your own defined types.
+{% endhint %}
+
+## State
+
+The state you define in Overmind is just an object where you type that object.
+
 {% tabs %}
-{% tab title="overmind/actions.ts" %}
+{% tab title="overmind/state.ts" %}
 ```typescript
-import { Action } from './'
+type State = {
+  foo: string
+  bar: boolean
+  baz: string[]
+  user: User
+}
 
-const doThis: Action = () => {}
-```
-{% endtab %}
-
-{% tab title="overmind/someNamespace/actions.ts" %}
-```typescript
-import { Action } from '../'
-
-const doThis: Action = () => {}
+export const state: State = {
+  foo: 'bar',
+  bar: true,
+  baz: [],
+  user: new User()
+}
 ```
 {% endtab %}
 {% endtabs %}
 
 {% hint style="info" %}
-The Overmind documentation is written for implicit typing. That means whenever you see a type import directly from the Overmind package, you should rather import from your own defined types.
+It is important that you use a **type** and not an **interface.** This has to do with the way Overmind resolves the state typing. ****
 {% endhint %}
 
-## Linting
+### Getter
 
-When you are using TSLint it is important that you use the official [MICROSOFT EXTENSION](https://marketplace.visualstudio.com/items?itemName=ms-vscode.vscode-typescript-tslint-plugin) for VS Code.
+{% tabs %}
+{% tab title="overmind/state.ts" %}
+```typescript
+type State = {
+  foo: string
+  shoutedFoo string
+}
+
+export const state: State = {
+  foo: 'bar',
+  get shoutedFoo(this: State) {
+    return this.foo + '!!!'
+  }
+}
+```
+{% endtab %}
+{% endtabs %}
+
+### Derived
+
+{% tabs %}
+{% tab title="overmind/state.ts" %}
+```typescript
+import { Derived } from 'overmind'
+
+type State = {
+  foo: string
+  shoutedFoo Derived<State, string>
+}
+
+export const state: State = {
+  foo: 'bar',
+  shoutedFoo: state => state.foo + '!!!'
+}
+```
+{% endtab %}
+{% endtabs %}
 
 ## Actions
 
@@ -128,7 +176,7 @@ export const argWithReturnTypeAction: Action<string, string> = (context, value) 
 }
 ```
 
-You also have an **async** version of this type. You use this when you want to define an **async** function, which implicitly returns a promise, or a function that explicitly returns a promise.
+You also have an **async** version of this type. You use this when you want to define an **async** function, which implicitly returns a promise, or use it on a function that explicitly returns a promise.
 
 ```typescript
 import { AsyncAction } from 'overmind'
@@ -153,6 +201,24 @@ export const argWithReturnTypeAction: AsyncAction<string, string> = (context, va
   return Promise.resolve(value + '!!!')
 } // returns Promise<string>
 ```
+
+## Effects
+
+There are no Overmind specific types related to effects, you just type them in general.
+
+{% tabs %}
+{% tab title="overmind/effects.ts" %}
+```typescript
+export const api = {
+  getUser: async (): Promise<User> => {
+    const response = await fetch('/user')
+    
+    return response.json()
+  }
+}
+```
+{% endtab %}
+{% endtabs %}
 
 ## Operators
 
@@ -298,4 +364,85 @@ export const filterAwesome: <T extends { isAwesome: boolean }>() => Operator<T> 
 {% endtabs %}
 
 That means this operator can handle any type that matches an **isAwesome** property, though will pass the original type through.
+
+## Statecharts
+
+To type a statechart you use the **Statechart** type:
+
+{% tabs %}
+{% tab title="overmind/someNamespace/index.ts" %}
+```typescript
+import { Statechart, statechart } from 'overmind/config'
+import * as actions from './actions'
+import { state } from './state'
+
+const config = {
+  state,
+  actions
+}
+
+const someChart: Statechart<typeof config, {
+  FOO: void
+  BAR: void
+}> = {
+  initial: 'FOO',
+  states: {
+    FOO: {},
+    BAR: {}
+  }
+}
+
+export default statechart(config, someChart)
+```
+{% endtab %}
+{% endtabs %}
+
+The **void** type just defines that there are no nested charts. All the states and points of inserting an action name is now typed. Also the **condition** callback is typed. Even the **matches** API is typed correctly.
+
+### Nested chart
+
+{% tabs %}
+{% tab title="overmind/someNamespace/index.ts" %}
+```typescript
+import { Statechart, statechart } from 'overmind/config'
+import * as actions from './actions'
+import { state } from './state'
+
+const config = {
+  state,
+  actions
+}
+
+const someNestedChart: Statechart<typeof config, {
+  NESTED_FOO: void
+  NESTED_BAR: void
+}> = {
+  initial: 'NESTED_FOO',
+  states: {
+    NESTED_FOO: {},
+    NESTED_BAR: {}
+  }
+}
+
+const someChart: Statechart<typeof config, {
+  FOO: typeof someNestedChart
+  BAR: void
+}> = {
+  initial: 'FOO',
+  states: {
+    FOO: {
+      chart: someNestedChart
+    },
+    BAR: {}
+  }
+}
+
+export default statechart(config, someChart)
+```
+{% endtab %}
+{% endtabs %}
+
+## Linting
+
+When you are using TSLint it is important that you use the official [MICROSOFT EXTENSION](https://marketplace.visualstudio.com/items?itemName=ms-vscode.vscode-typescript-tslint-plugin) for VS Code.
 

@@ -35,7 +35,7 @@ How you want to go about this is totally up to you. We are not telling you exact
 
 As you can see in the count example we added a state object when we created the instance.
 
-```typescript
+```javascript
 createOvermind({
   state: {
     count: 0
@@ -46,13 +46,13 @@ createOvermind({
 
 This state object will hold all the application state, we call it a _single state tree_. That does not mean you define all the state in one file and we will talk more about that later. For now let us talk about what you put into this state tree.
 
-A single state tree typically favours serializable state. That means state that can be `JSON.parse` and `JSON.stringify` back and forth. It can be safely passed between the client and the server, localStorage or to web workers. You will use **strings**, **numbers**, **booleans**, **arrays**, **objects** and **null**. Overmind also has the ability to allow you define state values as class instances, even serializing back and forth. You can read more about that in [State](features/defining-state.md).
+A single state tree typically favours serializable state. That means state that can be `JSON.parse` and `JSON.stringify` back and forth. It can be safely passed between the client and the server, localStorage or to web workers. You will use **strings**, **numbers**, **booleans**, **arrays**, **objects** and **null**. Overmind also has the ability to allow you define state values as class instances, even serializing back and forth. You can read more about that in [State](core/defining-state.md).
 
 ## Defining actions
 
 When you need to change your state you define actions. Overmind only allows changing the state of the application inside the actions. An error will be thrown if you try to change the state inside a component. The actions are plain functions/methods. The only thing that makes them special is that they all receive a preset first argument, called **the context**:
 
-```typescript
+```javascript
 createOvermind({
   state: {
     count: 0
@@ -70,7 +70,7 @@ createOvermind({
 
 Here we can see that we [DESTRUCTURE](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment) the context to grab the **state**. You can also access other actions on the context:
 
-```typescript
+```javascript
 createOvermind({
   state: {
     count: 0
@@ -101,7 +101,7 @@ We have now separated out the Overmind related logic into its own file, **app.js
 
 What to take notice of is how we store the **todos** of this application.
 
-```typescript
+```javascript
 createOvermind({
   state: {
     ...
@@ -114,7 +114,7 @@ createOvermind({
 
 It is just an empty object. You might intuitively think of a list of todos as an array. Not blaming you, it makes total sense. That said, when you work with entities that has a unique identifier, typically an _id_ property, you are better off storing them in an object. Each key in this object will be the unique identifier of a todo. For example:
 
-```typescript
+```javascript
 {
   'todo-1': {
     id: 'todo-1',
@@ -133,7 +133,7 @@ When you need to reference a todo, for example a component wants to reference a 
 
 Working with references this way avoids logic where you need to **find** a todo in an array or **filter**/**splice** out a todo to delete it from an array. You simply just point to the todos state to grab or delete it:
 
-```typescript
+```javascript
 state.todos[myReference]
 
 delete state.todos[myReference]
@@ -145,7 +145,7 @@ Using references also ensures that only one instance of any todo will live in yo
 
 Looking through the example you have probably noticed these:
 
-```typescript
+```javascript
 createOvermind({
   state: {
     ...,
@@ -187,7 +187,7 @@ Now let us move into an even more complex application. Here we have added **effe
 
 You can think of effects as a contract between your application and the outside world. You write an effect API of **what** your application needs and some 3rd party tool or native JavaScript API will implement **how** to provide it. Let us look at the router:
 
-```typescript
+```javascript
 createOvermind({
   ...,
   effects: {
@@ -209,7 +209,7 @@ createOvermind({
 
 The router uses the [PAGE](https://www.npmjs.com/package/page) tool to manage routing. It takes a “url to action” option that makes sense for this application, but you could define this however you wanted.
 
-```typescript
+```javascript
 effects.router.initialize({
   '/': () => actions.changeFilter('all'),
   '/active': () => actions.changeFilter('active'),
@@ -265,7 +265,7 @@ export type State = {
 
 You can now visit the **actions.ts** file and the **AddTodo.tsx** component. As you can see Typescript yells because the typing is now wrong. This is very powerful in complex projects which moves fast. The reason being that you can safely rename and refactor without worrying about breaking the code.
 
-To learn more about Overmind and Typescript read the [TYPESCRIPT](https://www.overmindjs.org/guides/beginner/05_typescript) guide.
+To learn more about Overmind and Typescript read the [TYPESCRIPT](https://www.overmindjs.org/guides/beginner/05_typescript) documentation.
 
 ## Development tool
 

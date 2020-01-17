@@ -9,8 +9,8 @@
 ## Core
 
 * [State](core/defining-state.md)
-* [Actions](features/writing-application-logic.md)
-* [Effects](features/running-side-effects.md)
+* [Actions](core/writing-application-logic.md)
+* [Effects](core/running-side-effects.md)
 * [Operators](core/going-functional.md)
 * [Statecharts](features/statecharts.md)
 * [Typescript](core/typescript.md)

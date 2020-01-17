@@ -32,11 +32,11 @@ What we see here is an action trying to express a search. We only want to search
 If we were to do this in a functional style it would look more like this:
 
 {% tabs %}
-{% tab title="overmind/actions.ts" %}
+{% tab title="overmind/actions.js" %}
 ```typescript
-import { Operator, pipe, debounce, mutate, filter } from 'overmind'
+import { pipe, debounce, mutate, filter } from 'overmind'
 
-export const search: Operator<string> = pipe(
+export const search = pipe(
   mutate(({ state }, value) => {
     state.query = value
   }),

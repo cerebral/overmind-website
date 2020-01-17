@@ -227,7 +227,7 @@ Defining all the state, actions and effects on one object would not work very we
 
 Also notice that we have split up the instantiation of Overmind from the definition of the application. What this allows us to do is reuse the same application configuration for testing purposes and/or server side rendering. We separate the definition from the instantiation.
 
-To scale up your code even more you can split it into **namespaces**. You can read more about that in the [STRUCTURING THE APP](guides-1/structuring-the-app.md) guide.
+To scale up your code even more you can split it into **namespaces**. You can read more about that in the [STRUCTURING THE APP](core/structuring-the-app.md) guide.
 
 ## Get to know Typescript
 

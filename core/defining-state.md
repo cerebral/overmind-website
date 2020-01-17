@@ -240,7 +240,7 @@ const overmind = createOvermind(config)
 {% endtabs %}
 
 {% hint style="info" %}
-For scalability you can define **namespaces** for multiple configurations. Read more about that in [Structuring the app](../guides-1/structuring-the-app.md)
+For scalability you can define **namespaces** for multiple configurations. Read more about that in [Structuring the app](structuring-the-app.md)
 {% endhint %}
 
 ## Summary

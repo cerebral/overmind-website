@@ -7,7 +7,7 @@ There are two approaches to connecting Overmind to Vue.
 Vue has a plugin system that allows us to expose Overmind to all components. This allows minimum configuration and you just use state etc. from any component.
 
 {% tabs %}
-{% tab title="overmind/index.ts" %}
+{% tab title="overmind/index.js" %}
 ```typescript
 import { createOvermind } from 'overmind'
 import { createPlugin } from 'overmind-vue'
@@ -25,7 +25,7 @@ export const OvermindPlugin = createPlugin(overmind)
 ```
 {% endtab %}
 
-{% tab title="index.ts" %}
+{% tab title="index.js" %}
 ```typescript
 import Vue from 'vue/dist/vue'
 import { OvermindPlugin } from './overmind'
@@ -50,7 +50,7 @@ Vue.use(OvermindPlugin)
 If you rather want to expose state, actions and effects differently you can configure that.
 
 {% tabs %}
-{% tab title="index.ts" %}
+{% tab title="index.js" %}
 ```typescript
 import Vue from 'vue/dist/vue'
 import { OvermindPlugin } from './overmind'
@@ -161,7 +161,7 @@ export default connect({
 If you want more manual control of what components connect to Overmind you can use the connector.
 
 {% tabs %}
-{% tab title="overmind/index.ts" %}
+{% tab title="overmind/index.js" %}
 ```typescript
 import { createOvermind } from 'overmind'
 import { createConnect } from 'overmind-vue'
@@ -221,9 +221,11 @@ You can now access the **admin** state and actions directly with **state** and *
 
 ## Computed
 
-Vue has its own observable concept that differs from Overmind. That means you can not use Overmind state inside a computed and expect the computed cache to be busted when the Overmind state changes. But computeds are really for caching expensive computation, which you will not do inside a component using Overmind anyways.
+Vue has its own observable concept that differs from Overmind. That means you can not use Overmind state inside a computed and expect the computed cache to be busted when the Overmind state changes. But computeds are really for caching expensive computation, which you will rather do inside Overmind using **derived** anyways.
 
-What you might want is to introduce some logic, maybe combine some data from props. You can do so using a getter on your **data**.
+## Using props
+
+You can combine Overmind state with props to dynamically extract state.
 
 {% tabs %}
 {% tab title="components/SomeComponent.vue" %}

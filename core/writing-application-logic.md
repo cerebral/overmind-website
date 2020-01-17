@@ -1,32 +1,24 @@
 # Actions
 
-Overmind has a concept of an **action**. An action is just a method where the first argument is injected. This first argument is called the **context** and it holds the state of the application, whatever effects you have defined and references to the other actions.
+Overmind has a concept of an **action**. An action is just a function where the first argument is injected. This first argument is called the **context** and it holds the state of the application, whatever effects you have defined and references to the other actions.
 
 You define actions under the **actions** key of your application configuration.
 
 {% tabs %}
-{% tab title="overmind/actions.ts" %}
+{% tab title="overmind/actions.js" %}
 ```typescript
-import { Action } from 'overmind'
-
-export const myAction: Action = (context) => {
+export const myAction = (context) => {
 
 }
 ```
 {% endtab %}
 
-{% tab title="overmind/index.ts" %}
+{% tab title="overmind/index.js" %}
 ```typescript
-import { IConfig } from 'overmind'
 import * as actions from './actions'
 
 export const config = {
   actions
-}
-
-// For explicit typing check the Typescript guide
-declare module 'overmind' {
-  interface Config extends IConfig<typeof config> {}
 }
 ```
 {% endtab %}
@@ -36,15 +28,15 @@ declare module 'overmind' {
 
 The context has three parts: **state**, **effects** and **actions**. Typically you destructure the context to access these pieces directly:
 
-{% code title="overmind/actions.ts" %}
-```typescript
-import { Action } from 'overmind'
-
-export const myAction: Action = ({ state, effects, actions }) => {
+{% tabs %}
+{% tab title="overmind/actions.js" %}
+```javascript
+export const myAction = ({ state, effects, actions }) => {
 
 }
 ```
-{% endcode %}
+{% endtab %}
+{% endtabs %}
 
 When you point to either of these you will always point to the “top of the application. That means if you use namespaces or other nested structures the context is always the root context of the application.
 
@@ -56,44 +48,46 @@ The reason Overmind only has a root context is because having isolated contexts/
 
 When you call actions you can pass a single value. This value appears as the second argument, after the context.
 
-{% code title="overmind/actions.ts" %}
+{% tabs %}
+{% tab title="overmind/actions.js" %}
 ```typescript
-import { Action } from 'overmind'
-
-export const myAction: Action = ({ state, effects, actions }, value) => {
+export const myAction = ({ state, effects, actions }, value) => {
 
 }
 ```
-{% endcode %}
+{% endtab %}
+{% endtabs %}
 
 When you call an action from an action you do so by using the **actions** passed on the context, as this is the evaluated action that can be called.
 
-{% code title="overmind/actions.ts" %}
-```typescript
-import { Action } from 'overmind'
-
-export const myAction: Action = ({ state, effects, actions }) => {
+{% tabs %}
+{% tab title="overmind/actions.js" %}
+```javascript
+export const myAction = ({ state, effects, actions }) => {
   actions.myOtherAction('foo')
 }
 
-export const myOtherAction: Action<string> = ({ state, effects, actions }, value) {
+export const myOtherAction = ({ state, effects, actions }, value) {
 
 }
 ```
-{% endcode %}
+{% endtab %}
+{% endtabs %}
 
 ## Organizing actions
 
-Some of your actions will be called from the outside, publically, maybe from a component. Other actions are only used internally, either being passed to an effect or just holding some piece of logic you want to reuse. The convention to separate these two actions is to use a namespace of **internal**.
+Some of your actions will be called from the outside, publicly, maybe from a component. Other actions are only used internally, either being passed to an effect or just holding some piece of logic you want to reuse. 
+
+There are two conventions to choose from:
+
+### Namespace
 
 {% tabs %}
-{% tab title="overmind/internalActions.ts" %}
+{% tab title="overmind/internalActions.js" %}
 ```typescript
-import { Action, AsyncAction } from 'overmind'
+export const internalActionA = ({ state, effects, actions }, value) {}
 
-export const internalActionA: Action<string> = ({ state, effects, actions }, value) {}
-
-export const internalActionB: AsyncAction = async ({ state, effects, actions }) {}
+export const internalActionB = async ({ state, effects, actions }) {}
 ```
 {% endtab %}
 
@@ -108,6 +102,23 @@ export const myAction: Action = ({ state, effects, actions }) => {
   actions.internal.internalActionA('foo')
   actions.internal.internalActionB()
 }
+```
+{% endtab %}
+{% endtabs %}
+
+### Underscore
+
+{% tabs %}
+{% tab title="overmind/actions.js" %}
+```typescript
+export const myAction: Action = ({ state, effects, actions }) => {
+  actions.internal._internalActionA('foo')
+  actions.internal._internalActionB()
+}
+
+export const _internalActionA = ({ state, effects, actions }, value) {}
+
+export const _internalActionB = async ({ state, effects, actions }) {}
 ```
 {% endtab %}
 {% endtabs %}

@@ -108,6 +108,28 @@ export const state: State = {
 It is important that you use a **type** and not an **interface.** This has to do with the way Overmind resolves the state typing. ****
 {% endhint %}
 
+When writing Typescript you should **not** use optional values for your state \(**?**\), or use **undefined** in a union type. In a serializable state store world **null** is the value indicating _“there is no value”._
+
+```typescript
+type State = {
+  // Do not do this
+  foo?: string
+
+  // Do not do this
+  foo: string | undefined
+
+  // Do this
+  foo: string | null
+
+  // Or this, if there always will be a value there
+  foo: string
+}
+
+export const state: State = {
+  foo: null
+}
+```
+
 ### Getter
 
 {% tabs %}

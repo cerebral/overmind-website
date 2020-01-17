@@ -9,9 +9,9 @@
 ## Core
 
 * [State](core/defining-state.md)
-* [Actions](core/writing-application-logic.md)
-* [Effects](core/running-side-effects.md)
-* [Operators](features/going-functional.md)
+* [Actions](features/writing-application-logic.md)
+* [Effects](features/running-side-effects.md)
+* [Operators](core/going-functional.md)
 * [Statecharts](features/statecharts.md)
 * [Typescript](core/typescript.md)
 
@@ -32,6 +32,7 @@
 * [Managing lists](guides-1/managing-lists.md)
 * [State first routing](guides-1/state-first-routing.md)
 * [Server Side Rendering](features/server-side-rendering.md)
+* [Move to Typescript](guides-1/move-to-typescript.md)
 
 ## API <a id="api-1"></a>
 

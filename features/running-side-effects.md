@@ -15,14 +15,15 @@ Developing applications is not only about managing state, but also managing side
 Let us just expose the [AXIOS](https://github.com/axios/axios) library as an **http** effect.
 
 {% tabs %}
-{% tab title="overmind/effects.js" %}
+{% tab title="overmind/effects.ts" %}
 ```typescript
 export { default as http } from 'axios'
 ```
 {% endtab %}
 
-{% tab title="overmind/index.js" %}
+{% tab title="overmind/index.ts" %}
 ```typescript
+import { IConfig } from 'overmind'
 import { state } from './state'
 import * as actions from './actions'
 import * as effects from './effects'
@@ -31,6 +32,11 @@ export const config = {
   state,
   actions,
   effects
+}
+
+// For explicit typing check the Typescript guide
+declare module 'overmind' {
+  interface Config extends IConfig<typeof config> {}
 }
 ```
 {% endtab %}
@@ -41,10 +47,13 @@ We are just exporting the existing library from our effects file and including i
 Let us put it to use in an action that grabs the current user of the application.
 
 {% tabs %}
-{% tab title="overmind/actions.js" %}
+{% tab title="overmind/actions.ts" %}
 ```typescript
-export const loadApp = async ({ effects, state }) => {
-  state.currentUser = await effects.http.get('/user')
+import { AsyncAction } from 'overmind'
+import { User } from './state'
+
+export const getCurrentUser: AsyncAction = async ({ effects, state }) => {
+  state.currentUser = await effects.http.get<User>('/user')
 }
 ```
 {% endtab %}
@@ -57,9 +66,10 @@ That was basically it. As you can see we are exposing some low level details lik
 It is highly encouraged that you avoid exposing tools with their generic APIs. Rather build your own APIs that are more closely related to the domain of your application. Maybe you have an endpoint for fetching the current user. Create that as an API for your app.
 
 {% tabs %}
-{% tab title="overmind/effects.js" %}
+{% tab title="overmind/effects.ts" %}
 ```typescript
 import * as axios from 'axios'
+import { User } from './state'
 
 export const api = {
   getCurrentUser() {
@@ -75,7 +85,9 @@ Now you can see how clean your application logic becomes:
 {% tabs %}
 {% tab title="overmind/actions.ts" %}
 ```typescript
-export const loadApp = async ({ effects, state }) => {
+import { AsyncAction } from 'overmind'
+
+export const loadApp: AsyncAction = async ({ effects, state }) => {
   state.currentUser = await effects.api.getCurrentUser()
 }
 ```
@@ -90,6 +102,7 @@ It can be a good idea to not allow your side effects to initialize when they are
 {% tab title="overmind/effects.ts" %}
 ```typescript
 import * as firebase from 'firebase'
+import { Post } from './state'
 
 export const api = (() => {
   let app
@@ -98,7 +111,7 @@ export const api = (() => {
     initialize() {
       app = firebase.initializeApp(...)      
     },
-    async getPosts() {
+    async getPosts(): Promise<Post[]> {
       const snapshot = await app.database().ref('/posts').once('value')
 
       return snapshot.val()
@@ -117,9 +130,11 @@ We are doing two things here:
 Example of initializing the effect:
 
 {% tabs %}
-{% tab title="overmind/onInitialize.js" %}
+{% tab title="overmind/onInitialize.ts" %}
 ```typescript
-export const onInitialize = async ({ effects }) => {
+import { OnInitialize } from 'overmind'
+
+export const onInitialize: OnInitialize = async ({ effects }) => {
   effects.api.initialize()
   state.posts = await effects.api.getPosts()
 }
@@ -132,9 +147,11 @@ export const onInitialize = async ({ effects }) => {
 Typically you explicitly communicate with effects from actions, by calling methods. But sometimes you need effects to know about the state of the application, or maybe some internal state in the effect should be exposed on your application state. Again we can take advantage of an **initialize** method on the effect:
 
 {% tabs %}
-{% tab title="overmind/onInitialize.js" %}
+{% tab title="overmind/onInitialize.ts" %}
 ```typescript
-export const onInitialize = async ({ state, effects, actions }) => {
+import { OnInitialize } from 'overmind'
+
+export const onInitialize: OnInitialize = async ({ state, effects, actions }) => {
   effects.socket.initialize({
     onMessage: actions.onMessage,
     onStatusChange: actions.onSocketStatusChange,
@@ -154,8 +171,10 @@ Here we are passing in actions that can be triggered by the effect to expose int
 You can also lazily load your effects in the **initialize** method. Let us say we wanted to load Firebase and its API on demand, or maybe just split out the code to make our app start faster.
 
 {% tabs %}
-{% tab title="overmind/effects.js" %}
+{% tab title="overmind/effects.ts" %}
 ```typescript
+import { Post } from './state'
+
 export const api = (() => {
   let app
 
@@ -165,7 +184,7 @@ export const api = (() => {
 
       app = firebase.initializeApp(...)
     },
-    async getPosts() {
+    async getPosts(): Promise<Post[]> {
       const snapshot = await app.database().ref('/posts').once('value')
 
       return snapshot.val()
@@ -179,9 +198,11 @@ export const api = (() => {
 In our initialize\(\) we would just have to wait for the initialization to finish before using the API:
 
 {% tabs %}
-{% tab title="overmind/onInitialize.js" %}
+{% tab title="overmind/onInitialize.ts" %}
 ```typescript
-export const onInitialize = async ({ effects }) => {
+import { OnInitialize } from 'overmind'
+
+export const onInitialize: OnInitialize = async ({ effects }) => {
   await effects.api.initialize()
   state.posts = await effects.api.getPosts()
 }
@@ -199,15 +220,20 @@ By defining a class we can improve testability, allow using environment variable
 {% tab title="overmind/effects.ts" %}
 ```typescript
 import axios from 'axios'
+import { User } from './state'
+
+interface IRequest {
+  get<T>(url: string): Promise<T>
+}
 
 export class Api {
-  private baseUrl
-  private request
-  constructor (baseUrl, request) {
+  private baseUrl: string
+  private request: IRequest
+  constructor (baseUrl: string, request: IRequest) {
     this.baseUrl = baseUrl
     this.request = request
   }
-  getCurrentUser()  {
+  getCurrentUser(): Promise<User>  {
     return this.request.get(`${this.baseUrl}/user`)
   }
 }

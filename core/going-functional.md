@@ -5,12 +5,10 @@ You get very far building your application with straightforward imperative actio
 Let us look at a concrete example of how messy an imperative approach would be compared to a functional approach.
 
 {% tabs %}
-{% tab title="overmind/actions.ts" %}
+{% tab title="overmind/actions.js" %}
 ```typescript
-import { Action } from 'overmind'
-
 let debounce
-export const search: Action<Event> = ({ state, effects }, event) => {
+export const search = ({ state, effects }, event) => {
   state.query = event.currentTarget.value
 
   if (query.length < 3) return

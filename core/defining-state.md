@@ -19,6 +19,30 @@ You might wonder why **undefined** is not part of the core value types. Well, th
 1. It is not a serializable value. That means if you explicitly set a value to _undefined_ it will not show up in the devtools
 2. Undefined values can not be tracked. That means if you were to iterate an object and look at the keys of that object, any undefined values will not be tracked. This can cause unexpected behaviour
 
+{% hint style="info" %}
+When writing Typescript you should **not** use optional values for your state \(**?**\), or use **undefined** in a union type. In a serializable state store world **null** is the value indicating _“there is no value”_.
+
+```typescript
+type State = {
+  // Do not do this
+  foo?: string
+
+  // Do not do this
+  foo: string | undefined
+
+  // Do this
+  foo: string | null
+
+  // Or this, if there always will be a value there
+  foo: string
+}
+
+export const state: State = {
+  foo: null
+}
+```
+{% endhint %}
+
 ### Naming
 
 Each value needs to sit behind a name. Naming can be difficult, but we have some help. Even though we eventually do want to consume our application through a user interface we ideally want to avoid naming things specifically related to the environment where we show the user interface. Things like **page**, **tabs**, **modal** etc. are specific to a browser experience, maybe related to a certain size. We want to avoid those names as they should not dictate which elements are to be used with the state, that is up to the user interface to decide later. So here are some generic terms to use instead:
@@ -31,7 +55,7 @@ Each value needs to sit behind a name. Naming can be difficult, but we have some
 
 The root value of your state tree is an object, because objects are great for holding other values. An object has keys that point to values. Most of these keys point to values that are the actual state of the application, but these keys can also represent domains of the application. A typical state structure could be:
 
-```javascript
+```typescript
 {
   modes: ['issues', 'admin'],
   currentModeIndex: 0,
@@ -60,7 +84,7 @@ Arrays are similar to objects in the sense that they hold other values, but inst
 
 Strings are of course used to represent text values. Names, descriptions and whatnot. But strings are also used for ids, types, etc. Strings can be used as values to reference other values. This is an important part in structuring state. For example in our **objects** example above we chose to use an array to represent the modes, using an index to point to the current mode, but we could also do:
 
-```javascript
+```typescript
 {
   modes: {
     issues: 0,
@@ -91,38 +115,53 @@ All values, with the exception of booleans, can also be **null**. Non-existing. 
 
 A concept in Javascript called a [GETTER](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/get) allows you to intercept accessing a property in an object. A getter is just like a plain value, it can be added or removed at any point. Getters do **not** cache the result for that very reason, but whatever state they access is tracked.
 
-{% tabs %}
-{% tab title="overmind/state.js" %}
-```javascript
-export const state = {
+{% code title="overmind/state.ts" %}
+```typescript
+export type User = {
+  id: number
+  firstName: string
+  lastName: string
+  readonly fullName: string
+}
+
+export type State = {
+  user: User
+}
+
+export const state: State = {
   user: {
     id: 1,
     firstName: 'Bob',
     lastName: 'Jackson',
-    jwt: '1234567'
-  },
-  get isLoggedIn() {
-    return Boolean(this.user && this.user.jwt)
+    get fullName(this: User) {
+      return this.firstName + ' ' + this.lastName
+    }
   }
 }
 ```
-{% endtab %}
-{% endtabs %}
+{% endcode %}
 
 ### Cached getter
 
 When you need to do more heavy calculation or combine state from different parts of the tree you can use a plain function instead. Overmind treats these functions like a **getter**, but the returned value is cached and they can also access the root state of the application. A simple example of this would be:
 
-{% tabs %}
-{% tab title="overmind/state.js" %}
 ```typescript
+import { Derive } from 'overmind'
+
+export type State = {
+  title: string
+  upperTitle: Derive<State, string>
+}
+
 export const state: State = {
   title: 'My awesome title',
   upperTitle: state => state.title.toUpperCase()
 }
 ```
-{% endtab %}
-{% endtabs %}
+
+{% hint style="info" %}
+Is is important that you define your state with a **type**, do **NOT** use an **interface**
+{% endhint %}
 
 The first argument of the function is the state the derived function is attached to. A second argument is also passed and that is the root state of the application, allowing you to access whatever you would need. Two important traits of the derived function is:
 
@@ -137,20 +176,31 @@ Even though derived state is defined as functions you consume them as plain valu
 
 ### Dynamic getter
 
-Sometimes you want to derive state based on some value coming from the user interface. You can do this by creating a function that returns a function. This can be useful for helper functions:
+Sometimes you want to derive state based on some value coming from the user interface. You can do this by creating a function that returns a function. For example you want to be able to select records in a table and calculate some data based on that:
 
-{% tabs %}
-{% tab title="overmind/state.js" %}
-```javascript
-export const state = {
-  users: {},
-  userById: ({ users }) => id => users[id]
+{% code title="overmind/state.ts" %}
+```typescript
+import { Derive } from 'overmind'
+
+export type State = {
+  counts: {
+    [id: string]: number
+  }
+  totalCountBy: Derive<State, (ids: string[]) => number>
 }
 
-// state.userById('123')
+export const state: State = {
+  counts: {
+    a: 2,
+    b: 3,
+    c: 5
+  },
+  totalCountBy: state => ids => ids.reduce((aggr, id) => aggr + state.counts[id], 0)
+}
+
+// state.totalCountBy(['a', 'b'])
 ```
-{% endtab %}
-{% endtabs %}
+{% endcode %}
 
 ## References
 
@@ -159,18 +209,32 @@ When you add objects and arrays to your state tree, they are labeled with an “
 So this is an example of how you would **not** want to do it:
 
 {% tabs %}
-{% tab title="overmind/state.js" %}
+{% tab title="overmind/state.ts" %}
 ```typescript
-export const state = {
+export type User = {
+  id: string
+  username: string
+}
+
+export type State = {
+  users: {
+    [id: string]: User
+  }
+  currentUser: User
+}
+
+export const state: State = {
   users: {},
   currentUser: null
 }
 ```
 {% endtab %}
 
-{% tab title="overmind/actions.js" %}
+{% tab title="overmind/actions.ts" %}
 ```typescript
-export const setUser = ({ state }, id) => {
+import { Action } from 'overmind'
+
+export const setUser: Action<string> = ({ state }, id) => {
   state.currentUser = state.users[id]
 }
 ```
@@ -180,21 +244,36 @@ export const setUser = ({ state }, id) => {
 You’d rather have a reference to the user id, and for example use a **getter** to grab the actual user:
 
 {% tabs %}
-{% tab title="overmind/state.js" %}
+{% tab title="overmind/state.ts" %}
 ```typescript
-export const state = {
+export type User = {
+  id: string
+  username: string
+}
+
+export type State = {
+  users: {
+    [id: string]: User
+  }
+  currentUserId: string
+  currentUser: User
+}
+
+export const state: State = {
   users: {},
   currentUserId: null,
-  get currentUser(this) {
+  get currentUser(this: State) {
     return this.users[this.currentUserId]
   } 
 }
 ```
 {% endtab %}
 
-{% tab title="overmind/actions.js" %}
+{% tab title="overmind/actions.ts" %}
 ```typescript
-export const setUser = ({ state }, id) => {
+import { Action } from 'overmind'
+
+export const setUser: Action<string> = ({ state }, id) => {
   state.currentUserId = id
 }
 ```
@@ -205,31 +284,43 @@ export const setUser = ({ state }, id) => {
 
 We define the state of the application in **state** files. For example, the top level state could be defined as:
 
-{% tabs %}
-{% tab title="overmind/state.js" %}
-```javascript
-export const state = {
+{% code title="overmind/state.ts" %}
+```typescript
+export type User = {
+  username: string
+  bio: string
+}
+
+export type State = {
+  isLoading: boolean
+  user: User
+}
+
+export const state: State = {
   isLoading: false,
   user: null
 }
 ```
-{% endtab %}
-{% endtabs %}
+{% endcode %}
 
 To expose the state on the instance you can follow this recommended pattern:
 
 {% tabs %}
-{% tab title="overmind/index.js" %}
+{% tab title="overmind/index.ts" %}
 ```typescript
 import { state } from './state'
 
 export const config = {
   state
 }
+
+declare module 'overmind' {
+  interface Config extends IConfig<typeof config> {}
+}
 ```
 {% endtab %}
 
-{% tab title="index.js" %}
+{% tab title="index.ts" %}
 ```typescript
 import { createOvermind } from 'overmind'
 import { config } from './overmind'
@@ -238,10 +329,6 @@ const overmind = createOvermind(config)
 ```
 {% endtab %}
 {% endtabs %}
-
-{% hint style="info" %}
-For scalability you can define **namespaces** for multiple configurations. Read more about that in [Structuring the app](../guides-1/structuring-the-app.md)
-{% endhint %}
 
 ## Summary
 

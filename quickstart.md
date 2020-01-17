@@ -27,9 +27,13 @@ npm install overmind overmind-angular
 Now set up a simple application like this:
 
 {% tabs %}
-{% tab title="overmind/state.js" %}
-```javascript
-export const state = {
+{% tab title="overmind/state.ts" %}
+```typescript
+type State = {
+  title: string
+}
+
+export const state: State = {
   title: 'My App'
 }
 ```
@@ -37,11 +41,26 @@ export const state = {
 
 {% tab title="overmind/index.ts" %}
 ```typescript
+import { IConfig } from 'overmind'
 import { state } from './state'
 
 export const config = {
   state
 }
+
+// For explicit typing check the Typescript guide
+declare module 'overmind' {
+  interface Config extends IConfig<typeof config> {}
+}
+```
+{% endtab %}
+
+{% tab title="index.ts" %}
+```typescript
+import { createOvermind } from 'overmind'
+import { config } from './overmind'
+
+const overmind = createOvermind(config)
 ```
 {% endtab %}
 {% endtabs %}

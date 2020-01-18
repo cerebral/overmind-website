@@ -34,7 +34,7 @@
 * [State first routing](guides-1/state-first-routing.md)
 * [Server Side Rendering](guides-1/server-side-rendering.md)
 * [Move to Typescript](guides-1/move-to-typescript.md)
-* [Testing](guides-1/testing.md)
+* [Testing](features/testing.md)
 
 ## API <a id="api-1"></a>
 

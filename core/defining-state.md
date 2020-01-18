@@ -6,26 +6,11 @@ The mechanism of communicating from the application to the user interface is cal
 
 ![](../.gitbook/assets/state-ui.png)
 
-## The values
+## Core values
 
 In JavaScript we can create all sorts of abstractions to describe values, but in Overmind we lean on the core serializable values. These are **objects**, **arrays**, **strings**, **numbers**, **booleans** and **null**. Serializable values means that we can easily convert the state into a string and back again. This is fundamental for creating great developer experiences, passing state between client and server and other features. You can describe any application state with these core values.
 
 Let us talk a little bit about what each value helps us represent in our application.
-
-### Undefined
-
-You might wonder why **undefined** is not part of the core value types. Well, there are two reasons:
-
-1. It is not a serializable value. That means if you explicitly set a value to _undefined_ it will not show up in the devtools
-2. Undefined values can not be tracked. That means if you were to iterate an object and look at the keys of that object, any undefined values will not be tracked. This can cause unexpected behaviour
-
-### Naming
-
-Each value needs to sit behind a name. Naming can be difficult, but we have some help. Even though we eventually do want to consume our application through a user interface we ideally want to avoid naming things specifically related to the environment where we show the user interface. Things like **page**, **tabs**, **modal** etc. are specific to a browser experience, maybe related to a certain size. We want to avoid those names as they should not dictate which elements are to be used with the state, that is up to the user interface to decide later. So here are some generic terms to use instead:
-
-* page: **mode**
-* tabs: **sections**
-* modal: **editUser.active**
 
 ### Objects
 
@@ -84,6 +69,216 @@ Are things loading or not, is the user logged in or not? These are typical uses 
 ### Null
 
 All values, with the exception of booleans, can also be **null**. Non-existing. You can have a non-existing object, array, string or number. It means that if we haven’t selected a mode, both the string version and number version would have the value **null**.
+
+## Class values
+
+Overmind also supports using class instances as state values. Depending on your preference this can be a powerful tool to organize your logic. What classes provide is a way to co locate state and logic for changing and deriving that state. In functional programming the state and the logic is separated and it can be difficult to find a good way to organize the logic operating on that state.
+
+It can be a good idea to think about your classes as models. They model some state.
+
+{% tabs %}
+{% tab title="overmind/models.js" %}
+```javascript
+class LoginForm {
+  constructor() {
+    this.username = ''
+    this.password = ''
+  }
+  isValid() {
+    return Boolean(this.username && this.password)
+  }
+  reset() {
+    this.username = ''
+    this.password = ''
+  }
+}
+```
+{% endtab %}
+
+{% tab title="overmind/state.js" %}
+```javascript
+import { LoginForm } from './models'
+
+export const state = {
+  loginForm: new LoginForm()
+}
+```
+{% endtab %}
+{% endtabs %}
+
+You can now use this instance as normal and of course create new ones.
+
+{% hint style="info" %}
+Even though you can use **getters** as normal, they do not cache like **derived**. **Derived** is a concept of the state tree itself. It is unlikely that you need heavy computation within a single class instance though, it is typically across class instances
+{% endhint %}
+
+### Serializing class values
+
+If you have an application that needs to serialize the state, for example to local storage or server side rendering, you can still use class instances with Overmind. Overmind exposes a symbol called **SERIALIZE** that you can attach to your class.
+
+```typescript
+import { SERIALIZE } from 'overmind'
+
+class User {
+  [SERIALIZE]
+  constructor() {
+    this.username = ''
+    this.jwt = ''
+  }
+}
+```
+
+There are two purposes to using **SERIALIZE**.
+
+1. When using Typescript you will be able to get type safety in your rehydration of state
+2. The devtools requires this to properly display values as class instances
+
+You can also safely use **toJSON**, though the for the two reasons above you want to add **SERIALIZE**:
+
+```typescript
+import { SERIALIZE } from 'overmind'
+
+class User {
+  constructor() {
+    this.username = ''
+    this.jwt = ''
+  }
+  toJSON() {
+    return {
+      [SERIALIZE]: true,
+      username: this.username
+    }
+  }
+}
+```
+
+{% hint style="info" %}
+The **SERIALIZE** symbol will not be part of the actual serialization done with **JSON.stringify**
+{% endhint %}
+
+### Rehydrating classes
+
+The [**rehydrate**](../api-1/rehydrate.md) ****utility of Overmind allows you to rehydrate state either by a list of mutations or a state object, like the following:
+
+{% tabs %}
+{% tab title="overmind/actions.js" %}
+```typescript
+import { rehydrate } from 'overmind'
+
+export const updateState = ({ state }) => {
+  rehydrate(state, {
+    user: {
+      username: 'jenny',
+      jwt: '123'
+    }
+  })    
+}
+```
+{% endtab %}
+{% endtabs %}
+
+Since our user is a class instance we can tell rehydrate what to do, where it is typical to give the class a static **fromJSON** method:
+
+{% tabs %}
+{% tab title="overmind/models.js" %}
+```typescript
+import { SERIALIZE } from 'overmind'
+
+class User {
+  [SERIALIZE]
+  constructor() {
+    this.username = ''
+    this.jwt = ''
+  }
+  fromJSON(json) {
+    return Object.assign(new User(), json)
+  }
+}
+```
+{% endtab %}
+
+{% tab title="overmind/actions.js" %}
+```typescript
+import { rehydrate } from 'overmind'
+
+export const updateState = ({ state }) => {
+  rehydrate(
+    state,
+    {
+      user: {
+        username: 'jenny',
+        jwt: '123'
+      }
+    },
+    {
+      user: User.fromJSON
+    }
+  )    
+}
+```
+{% endtab %}
+{% endtabs %}
+
+It does not matter if the state is a value, an array of values or a dictionary of values, rehydrate will understand it.
+
+That means the following will behave as expected:
+
+{% tabs %}
+{% tab title="overmind/state.js" %}
+```typescript
+import { User } from './models'
+
+export const state = {
+  user: null, // Expecting a single value
+  usersList: [], // Expecting an array of values
+  usersDictionary: {} // Expecting a dictionary of values
+}
+```
+{% endtab %}
+
+{% tab title="overmind/actions.js" %}
+```typescript
+import { rehydrate } from 'overmind'
+
+export const updateState = ({ state }) => {
+  rehydrate(
+    state,
+    {
+      user: {
+        username: 'jenny',
+        jwt: '123'
+      },
+      usersList: [{...}, {...}],
+      usersDictionary: {
+        'jenny': {...},
+        'bob': {...}
+      }
+    },
+    {
+      user: User.fromJSON,
+      usersList: User.fromJSON,
+      usersDictionary: User.fromJSON
+    }
+  )    
+}
+```
+{% endtab %}
+{% endtabs %}
+
+## Naming
+
+Each value needs to sit behind a name. Naming can be difficult, but we have some help. Even though we eventually do want to consume our application through a user interface we ideally want to avoid naming things specifically related to the environment where we show the user interface. Things like **page**, **tabs**, **modal** etc. are specific to a browser experience, maybe related to a certain size. We want to avoid those names as they should not dictate which elements are to be used with the state, that is up to the user interface to decide later. So here are some generic terms to use instead:
+
+* page: **mode**
+* tabs: **sections**
+* modal: **editUser.active**
+
+## Undefined
+
+You might wonder why **undefined** is not part of the core value types. Well, there are two reasons:
+
+1. It is not a serializable value. That means if you explicitly set a value to _undefined_ it will not show up in the devtools
+2. Undefined values can not be tracked. That means if you were to iterate an object and look at the keys of that object, any undefined values will not be tracked. This can cause unexpected behaviour
 
 ## Deriving state
 

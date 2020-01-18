@@ -11,7 +11,7 @@ You can also do **unit testing** of actions and effects. This will cover expecte
 When you write tests you will create many instances of a mocked version of Overmind with the configuration you have created. To ensure that this configuration can be used many times we have to separate our configuration from the instantiation of the actual app.
 
 {% tabs %}
-{% tab title="overmind/index.js" %}
+{% tab title="overmind/index.ts" %}
 ```typescript
 import { IConfig } from 'overmind'
 import { state } from './state'
@@ -19,10 +19,14 @@ import { state } from './state'
 export const config = {
   state
 }
+
+declare module 'overmind' {
+  interface Config extends IConfig<typeof config> {}
+}
 ```
 {% endtab %}
 
-{% tab title="index.js" %}
+{% tab title="index.ts" %}
 ```typescript
 import { createOvermind } from 'overmind'
 import { config } from './overmind'
@@ -39,9 +43,11 @@ Now we are free to import our configuration without touching the application ins
 When testing an action you’ll want to verify that changes to state are performed as expected. To give you the best possible testing experience Overmind comes with a mocking tool called **createOvermindMock**. It takes your application configuration and allows you to run actions as if they were run from components.
 
 {% tabs %}
-{% tab title="overmind/actions.js" %}
+{% tab title="overmind/actions.ts" %}
 ```typescript
-export const getPost = async ({ state, api }, id) {
+import { AsyncAction } from 'overmind'
+
+export const getPost: AsyncAction<string> = async ({ state, api }, id) {
   state.isLoadingPost = true
   try {
     state.currentPost = await api.getPost(id)
@@ -57,7 +63,7 @@ export const getPost = async ({ state, api }, id) {
 You might want to test if a thrown error is handled correctly here. This is an example of how you could do that:
 
 {% tabs %}
-{% tab title="overmind/actions.test.js" %}
+{% tab title="overmind/actions.test.ts" %}
 ```typescript
 import { createOvermindMock } from 'overmind'
 import { config } from './'
@@ -108,7 +114,7 @@ If your actions can result in multiple scenarios a unit test is beneficial. But 
 You do not have to explicitly write the expected state. You can also use for example [JEST](https://www.overmindjs.org/guides/intermediate/05_writingtests?view=react&typescript=true) for snapshot testing. The mock instance has a list of mutations performed. This is perfect for snapshot testing.
 
 {% tabs %}
-{% tab title="overmind/actions.test.js" %}
+{% tab title="overmind/actions.test.ts" %}
 ```typescript
 import { createOvermindMock } from 'overmind'
 import { config } from './'
@@ -156,7 +162,7 @@ In this scenario we would also ensure that the **isLoadingPost** state indeed fl
 The **onInitialize** hook will not trigger during testing. To test this action you have to trigger it yourself.
 
 {% tabs %}
-{% tab title="overmind/onInitialize.test.js" %}
+{% tab title="overmind/onInitialize.test.ts" %}
 ```typescript
 import { createOvermindMock } from 'overmind'
 import { config } from './'
@@ -191,17 +197,29 @@ A simple example of this is doing requests. Maybe you want to use e.g. [AXIOS](h
 This is just an example showing you how you can structure your code for optimal testability. You might prefer a different approach or maybe rely on integration tests for this. No worries, you do what makes most sense for your application:
 
 {% tabs %}
-{% tab title="overmind/effects.js" %}
+{% tab title="overmind/effects.ts" %}
 ```typescript
 import * as axios from 'axios'
+import { Post } from './state'
+
+interface IRequest {
+  get<T>(url: string): Promise<T>
+}
+
+interface IOptions {
+  authToken: string
+  baseUrl: string
+}
 
 // This is the class we can create new instances of when testing
 export class Api {
-  constructor(request, options) {
+  request: IRequest
+  options: IOptions
+  constructor(request: IRequest, options: IOptions) {
     this.request = request
     this.options = options
   }
-  async getPost(id: string) {
+  async getPost(id: string): Promise<Post> {
     try {
       const response = await this.request.get(this.options.baseUrl + '/posts/' + id, {
         headers: {
@@ -229,7 +247,7 @@ export const api = new Api(axios, {
 Let’s see how you could write a test for it:
 
 {% tabs %}
-{% tab title="overmind/effects.test.js" %}
+{% tab title="overmind/effects.test.ts" %}
 ```typescript
 import { Api } from './effects'
 

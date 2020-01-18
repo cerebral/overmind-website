@@ -6,12 +6,12 @@ By installing the view layer of choice you will be able to connect it to your Ov
 
 {% tabs %}
 {% tab title="React" %}
-{% code title="App.tsx" %}
+{% code title="App.jsx" %}
 ```typescript
 import * as React from 'react'
 import { useOvermind } from '../../overmind'
 
-const App: React.FunctionComponent = () => {
+const App = () => {
   const { state } = useOvermind()
 
   if (state.isLoading) {
@@ -83,7 +83,7 @@ When we just access an array in a component it will re-render if the array itsel
 import * as React from 'react'
 import { useOvermind } from '../overmind'
 
-const List: React.FunctionComponent = () => {
+const List = () => {
   const { state } = useOvermind()
 
   return (
@@ -130,7 +130,7 @@ But what happens if we iterate the array and access a property on each item?
 import * as React from 'react'
 import { useOvermind } from '../overmind'
 
-const List: React.FunctionComponent = () => {
+const List = () => {
   const { state } = useOvermind()
 
   return (
@@ -196,7 +196,7 @@ Objects are similar to arrays. If you access an object you track if that object 
 import * as React from 'react'
 import { useOvermind } from '../overmind'
 
-const List: React.FunctionComponent = () => {
+const List = () => {
   const { state } = useOvermind()
 
   return (
@@ -239,16 +239,12 @@ And just like an array you can iterate the object keys to pass items to a child 
 
 {% tabs %}
 {% tab title="React" %}
-{% code title="Item.tsx" %}
+{% code title="Item.jsx" %}
 ```typescript
 import * as React from 'react'
 import { useOvermind } from '../overmind'
 
-type Props = {
-  item: { title: string }
-}
-
-const Item: React.FunctionComponent<Props> = ({ item }) => {
+const Item = ({ item }) => {
   useOvermind()
 
   return (
@@ -301,13 +297,13 @@ export default {
 
 {% tabs %}
 {% tab title="React" %}
-{% code title="List.tsx" %}
+{% code title="List.jsx" %}
 ```typescript
 import * as React from 'react'
 import { useOvermind } from '../overmind'
 import Item from './Item'
 
-const List: React.FunctionComponent = () => {
+const List = () => {
   const { state } = useOvermind()
 
   return (
@@ -373,11 +369,9 @@ export default {
 All the actions defined in the Overmind application are available to connected components.
 
 {% tabs %}
-{% tab title="overmind/actions.ts" %}
+{% tab title="overmind/actions.js" %}
 ```typescript
-import { Action } from 'overmind'
-
-export const toggleAwesomeApp: Action = ({ state }) =>
+export const toggleAwesomeApp = ({ state }) =>
   state.isAwesome = !state.isAwesome
 ```
 {% endtab %}
@@ -389,7 +383,7 @@ export const toggleAwesomeApp: Action = ({ state }) =>
 import * as React from 'react'
 import { useOvermind } from '../overmind'
 
-const App: React.FunctionComponent = () => {
+const App = () => {
   const { actions } = useOvermind()
 
   return (
@@ -450,7 +444,7 @@ This example shows how you can scroll to the top of the page every time you chan
 import * as React from 'react'
 import { useOvermind } from '../../overmind'
 
-const Article: React.FunctionComponent = () => {
+const Article = () => {
   const { reaction } = useOvermind()
 
   React.useEffect(() => reaction(

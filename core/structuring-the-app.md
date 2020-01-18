@@ -1,12 +1,10 @@
-# Structuring the app
+# Configuration
 
-You will quickly see the need to give more structure to your application. The base structure of
+Overmind is based on a core concept of:
 
 `{ state, actions, effects }`
 
-does not scale very well.
-
-The abovementioned base structure is called **the configuration** of your application and tools are provided to create more complex configurations. But before we look at those tools, let’s talk about file structure.
+This data structure is called **the configuration** of your application. If it is a simple application you might have a single configuration, but typically you will create multiple of them and use tools to merge them together into one big configuration. But before we look at the scalability of Overmind, let’s talk about file structure.
 
 ## Domains
 
@@ -20,7 +18,7 @@ overmind/
   index.ts
 ```
 
-In this structure we are splitting up the different components of the base structure. This is a good first step. The **index** file acts as the file that brings the state, actions and effects together.
+In this structure we are splitting up the different components of the configuration. This is a good first step. The **index** file acts as the file that brings the **state**, **actions** and **effects** together.
 
 But if we want to split up into actual domains it would look more like this:
 
@@ -39,45 +37,23 @@ overmind/
   index.ts
 ```
 
-In this case each domain **index** file bring its own state, actions and effects together and the **overmind/index** file is responsible for bringing the configuration together.
-
-{% hint style="info" %}
-Note that you do not define a **Config**, **Action** etc. type for each domain of your application. Only the main file that instantiates Overmind has this typing. This allows all the domains of the application to know about each other.
-{% endhint %}
+In this case each domain **index** file bring its own state, actions and effects together and the **overmind/index** file is responsible for bringing the whole configuration together.
 
 ## The state file
 
 You will typically define your **state** file by exporting a single constant named _state_.
 
 {% tabs %}
-{% tab title="overmind/posts/state.ts" %}
+{% tab title="overmind/posts/state.js" %}
 ```typescript
-export type Post = {
-  id: number
-  title: string
-}
-
-export type State = {
-  posts: Post[]
-}
-
-export const state: State = {
+export const state = {
   posts: []
 }
 ```
 {% endtab %}
 
-{% tab title="overmind/admin/state.ts" %}
+{% tab title="overmind/admin/state.js" %}
 ```typescript
-export type User = {
-  id: number
-  name: string
-}
-
-export type State = {
-  users: User[]
-}
-
 export const state: State = {
   users: []
 }
@@ -87,67 +63,66 @@ export const state: State = {
 
 ## The actions file
 
-The actions are exported individually by giving them a name and a definition. Actions that are considered private are typically put into their own file named **internalActions**.
+The actions are exported individually by giving them a name and a definition.
 
 {% tabs %}
-{% tab title="overmind/posts/internalActions.ts" %}
+{% tab title="overmind/posts/actions.js" %}
 ```typescript
-import { Action } from 'overmind'
+export const getPosts = async () => {}
 
-export const handleError: Action = ({ state }) => {
-  // All actions can access all state
-  state.posts
-  state.admin
-}
+export const addNewPost = async () => {}
 ```
 {% endtab %}
 
-{% tab title="overmind/posts/actions.ts" %}
+{% tab title="overmind/admin/actions.js" %}
 ```typescript
-import { AsyncAction } from 'overmind'
-import * as internalActions from './internalActions'
+export const getUsers = async () => {}
 
-export const internal = internalActions
-
-export const getPosts: AsyncAction = async () => {}
-
-export const addNewPost: AsyncAction = async () => {}
-```
-{% endtab %}
-
-{% tab title="overmind/admin/actions.ts" %}
-```typescript
-import { AsyncAction } from 'overmind'
-
-export const getUsers: AsyncAction = async () => {}
-
-export const changeUserAccess: AsyncAction = async () => {}
+export const changeUserAccess = async () => {}
 ```
 {% endtab %}
 {% endtabs %}
-
-{% hint style="info" %}
-Note that there are two action types, **Action** and **AsyncAction**
-{% endhint %}
 
 ## The effects file
 
 The effects are also exported individually where you would typically organize the methods in an object, but this could have been a class instance or just a plain function as well.
 
 {% tabs %}
-{% tab title="overmind/posts/effects.ts" %}
+{% tab title="overmind/posts/effects.js" %}
 ```typescript
 export const postsApi = {
-  getPostsFromServer(): Promise<Post[]> {}
+  getPostsFromServer() {}
 }
 ```
 {% endtab %}
 
-{% tab title="overmind/admin/effects.ts" %}
+{% tab title="overmind/admin/effects.js" %}
 ```typescript
 export const adminApi = {
-  getUsersFromServer(): Promise<User[]> {}
+  getUsersFromServer() {}
 }
+```
+{% endtab %}
+{% endtabs %}
+
+You might find it more useful to define a single effects file at the root of your application and rather create a file for each effect.
+
+{% tabs %}
+{% tab title="overmind/effects/index.js" %}
+```typescript
+import * as api from './api'
+
+export {
+  api
+}
+```
+{% endtab %}
+
+{% tab title="overmind/effects/api.js" %}
+```typescript
+export const getUser = async () => {}
+
+export const getPosts = async () => {}
 ```
 {% endtab %}
 {% endtabs %}
@@ -157,7 +132,7 @@ export const adminApi = {
 Now let us export the state, actions and effects for each module and bring it all together into a **namespaced** configuration.
 
 {% tabs %}
-{% tab title="overmind/posts/index.ts" %}
+{% tab title="overmind/posts/index.js" %}
 ```typescript
 import { state } from './state'
 import * as actions from './actions'
@@ -171,7 +146,7 @@ export {
 ```
 {% endtab %}
 
-{% tab title="overmind/admin/index.ts" %}
+{% tab title="overmind/admin/index.js" %}
 ```typescript
 import { state } from './state'
 import * as actions from './actions'
@@ -185,9 +160,8 @@ export {
 ```
 {% endtab %}
 
-{% tab title="overmind/index.ts" %}
+{% tab title="overmind/index.js" %}
 ```typescript
-import { IConfig } from 'overmind'
 import { namespaced } from 'overmind/config'
 import * as posts from './posts'
 import * as admin from './admin'
@@ -196,10 +170,6 @@ export const config = namespaced({
   posts,
   admin
 })
-
-declare module 'overmind' {
-  interface Config extends IConfig<typeof config> {}
-}
 ```
 {% endtab %}
 {% endtabs %}
@@ -209,9 +179,8 @@ We used the **namespaced** function to put the state, actions and effects from e
 You can also combine this with the **merge** tool to have a top level domain.
 
 {% tabs %}
-{% tab title="overmind/index.ts" %}
+{% tab title="overmind/index.js" %}
 ```typescript
-import { IConfig } from 'overmind'
 import { merge, namespaced } from 'overmind/config'
 import { state } from './state'
 import * as posts from './posts'
@@ -226,10 +195,6 @@ export const config = merge(
     admin
   })
 )
-
-declare module 'overmind' {
-  interface Config extends IConfig<typeof config> {}
-}
 ```
 {% endtab %}
 {% endtabs %}

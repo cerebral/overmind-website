@@ -7,53 +7,8 @@ When you connect Overmind to a component you ensure that whenever any tracked st
 ## Hook
 
 {% tabs %}
-{% tab title="Javascript" %}
+{% tab title="overmind/index.ts" %}
 ```typescript
-// overmind/index.js
-import { createHook } from 'overmind-react'
-import { state } from './state'
-import * as actions from './actions'
-
-export const config = {
-  state,
-  actions
-}
-
-export const useOvermind = createHook()
-
-// index.js
-import * as React from 'react'
-import { render } from 'react-dom'
-import { createOvermind } from 'overmind'
-import { Provider } from 'overmind-react'
-import { config } from './overmind'
-import App from './components/App'
-
-const overmind = createOvermind(config)
-
-render((
-  <Provider value={overmind}>
-    <App />
-  </Provider>
-), document.querySelector('#app'))
-
-// components/App.jsx
-import * as React from 'react'
-import { useOvermind } from '../overmind'
-
-const App = () => {
-  const { state, actions, effects, reaction } = useOvermind()
-
-  return <div />
-}
-
-export default App
-```
-{% endtab %}
-
-{% tab title="Typescript" %}
-```typescript
-// overmind/index.ts
 import { IConfig } from 'overmind'
 import { createHook } from 'overmind-react'
 import { state } from './state'
@@ -69,8 +24,11 @@ declare module 'overmind' {
 }
 
 export const useOvermind = createHook<typeof config>()
+```
+{% endtab %}
 
-// index.tsx
+{% tab title="index.tsx" %}
+```typescript
 import * as React from 'react'
 import { render } from 'react-dom'
 import { createOvermind } from 'overmind'
@@ -85,13 +43,16 @@ render((
     <App />
   </Provider>
 ), document.querySelector('#app'))
+```
+{% endtab %}
 
-// components/App.tsx
+{% tab title="components/App.tsx" %}
+```typescript
 import * as React from 'react'
 import { useOvermind } from '../overmind'
 
 const App: React.FunctionComponent = () => {
-  const { state, actions, effects, reaction } = useOvermind()
+  const { state, actions, effects, addMutationListener } = useOvermind()
 
   return <div />
 }
@@ -110,42 +71,8 @@ When you use the Overmind hook it will ensure that the component will render whe
 If you pass a state object or array as a property to a child component you will also in the child component need to use the **useOvermind** hook to ensure that it is tracked within that component, even though you do not access any state or actions. The devtools will help you identify where any components are left “unconnected”.
 
 {% tabs %}
-{% tab title="Javascript" %}
+{% tab title="components/Todos.tsx" %}
 ```typescript
-// components/Todos.jsx
-import * as React from 'react'
-import { useOvermind } from '../overmind'
-import Todo from './Todo'
-
-const Todos = () => {
-  const { state } = useOvermind()
-
-  return (
-    <ul>
-      {state.todos.map(todo => <Todo key={todo.id} todo={todo} />)}
-    </ul<
-  )
-}
-
-export default Todos
-
-// components/Todo.jsx
-import * as React from 'react'
-import { useOvermind } from '../overmind'
-
-const Todo = ({ todo }) => {
-  useOvermind()
-
-  return <li>{todo.title}</li>
-}
-
-export default Todo
-```
-{% endtab %}
-
-{% tab title="Typescript" %}
-```typescript
-// components/Todos.tsx
 import * as React from 'react'
 import { useOvermind } from '../overmind'
 import Todo from './Todo'
@@ -161,8 +88,11 @@ const Todos: React.FunctionComponent = () => {
 }
 
 export default Todos
+```
+{% endtab %}
 
-// components/Todo.tsx
+{% tab title="components/Todo.tsx" %}
+```typescript
 import * as React from 'react'
 import { useOvermind } from '../overmind'
 
@@ -186,30 +116,8 @@ export default Todo
 The hook effect of React gives a natural point of running effects related to state changes. An example of this is from the Overmind website, where we scroll to the top of the page whenever the current page state changes.
 
 {% tabs %}
-{% tab title="Javascript" %}
+{% tab title="components/App.tsx" %}
 ```typescript
-// components/App.jsx
-import * as React from 'react'
-import { useEffect } from 'react'
-import { useOvermind } from '../overmind'
-
-const App = () => {
-  const { state } = useOvermind()
-
-  useEffect(() => {
-    document.querySelector('#app').scrollTop = 0
-  }, [state.currentPage])
-
-  return <div />
-}
-
-export default App
-```
-{% endtab %}
-
-{% tab title="Typescript" %}
-```javascript
-// components/App.tsx
 import * as React from 'react'
 import { useEffect } from 'react'
 import { useOvermind } from '../overmind'
@@ -232,33 +140,8 @@ export default App
 Here you can also use the traditional approach of subscribing to updates.
 
 {% tabs %}
-{% tab title="Javascript" %}
+{% tab title="components/App.tsx" %}
 ```typescript
-// components/App.jsx
-import * as React from 'react'
-import { useEffect } from 'react'
-import { useOvermind } from '../overmind'
-
-const Todos = () => {
-  const { reaction } = useOvermind()
-
-  useEffect(() => {
-    return reaction(
-      ({ currentPage }) => currentPage,
-      () => document.querySelector('#app').scrollTop = 0
-    })
-  }, [])
-
-  return <div />
-}
-
-export default Todos
-```
-{% endtab %}
-
-{% tab title="Typescript" %}
-```javascript
-// components/App.tsx
 import * as React from 'react'
 import { useEffect } from 'react'
 import { useOvermind } from '../overmind'
@@ -284,53 +167,8 @@ export default Todos
 ## Higher Order Component
 
 {% tabs %}
-{% tab title="Javascript" %}
+{% tab title="overmind/index.ts" %}
 ```typescript
-// overmind/index.js
-import { createConnect } from 'overmind-react'
-import { state } from './state'
-import * as actions from './actions'
-
-export const config = {
-  state,
-  actions
-}
-
-export const connect = createConnect()
-
-// index.jsx
-import * as React from 'react'
-import { render } from 'react-dom'
-import { createOvermind } from 'overmind'
-import { Provider } from 'overmind-react'
-import { config } from './overmind'
-import App from './components/App'
-
-const overmind = createOvermind(config)
-
-render((
-  <Provider value={overmind}>
-    <App />
-  </Provider>
-), document.querySelector('#app'))
-
-// components/App.jsx
-import * as React from 'react'
-import { connect, Connect } from '../overmind'
-
-const App = ({ overmind }) => {
-  const { state, actions, effects, addMutationListener } = overmind
-
-  return <div />
-}
-
-export default connect(App)
-```
-{% endtab %}
-
-{% tab title="Typescript" %}
-```typescript
-// overmind/index.ts
 import { IConfig } from 'overmind'
 import { createConnect, IConnect } from 'overmind-react'
 import { state } from './state'
@@ -348,8 +186,11 @@ declare module 'overmind' {
 export interface Connect extends IConnect<typeof config> {}
 
 export const connect = createConnect<typeof config>()
+```
+{% endtab %}
 
-// index.tsx
+{% tab title="index.tsx" %}
+```typescript
 import * as React from 'react'
 import { render } from 'react-dom'
 import { createOvermind } from 'overmind'
@@ -364,8 +205,11 @@ render((
     <App />
   </Provider>
 ), document.querySelector('#app'))
+```
+{% endtab %}
 
-// components/App.tsx
+{% tab title="components/App.tsx" %}
+```typescript
 import * as React from 'react'
 import { connect, Connect } from '../overmind'
 
@@ -387,28 +231,8 @@ export default connect(App)
 When you connect a component with the **connect HOC** it will be responsible for tracking and trigger a render when the tracked state is updated. The **overmind** prop passed to the component you defined holds the state and actions. If you want to detect inside your component that it was indeed an Overmind state change causing the render you can compare the **overmind** prop itself.
 
 {% tabs %}
-{% tab title="Javascript" %}
+{% tab title="components/App.tsx" %}
 ```typescript
-// components/App.jsx
-import * as React from 'react'
-import { connect } from '../overmind'
-
-class App extends React.Component {
-  shouldComponentUpdate(nextProps) {
-    return this.props.overmind !== nextProps.overmind
-  }
-  render() {
-    return <div />
-  }
-}
-
-export default connect(App)
-```
-{% endtab %}
-
-{% tab title="Typescript" %}
-```typescript
-// components/App.tsx
 import * as React from 'react'
 import { connect, Connect } from '../overmind'
 
@@ -437,40 +261,8 @@ If you previously used **componentDidUpdate** to trigger an effect, that is no l
 If you pass a state object or array as a property to a child component you will also in the child component need to **connect**. This ensures that the property you passed is tracked within that component, even though you do not access any state or actions from Overmind. The devtools will help you identify where any components are left “unconnected”.
 
 {% tabs %}
-{% tab title="Javascript" %}
+{% tab title="components/Todos.tsx" %}
 ```typescript
-// components/Todos.jsx
-import * as React from 'react'
-import { connect } from '../overmind'
-import Todo from './Todo'
-
-const Todos = ({ overmind }) => {
-  const { state } = overmind
-
-  return (
-    <ul>
-      {state.todos.map(todo => <Todo key={todo.id} todo={todo} />)}
-    </ul<
-  )
-}
-
-export default connect(Todos)
-
-// components/Todo.tsx
-import * as React from 'react'
-import { connect } from '../overmind'
-
-const Todo = ({ todo }) => {
-  return <li>{todo.title}</li>
-}
-
-export default connect(Todo)
-```
-{% endtab %}
-
-{% tab title="Typescript" %}
-```typescript
-// components/Todos.tsx
 import * as React from 'react'
 import { connect, Connect } from '../overmind'
 import Todo from './Todo'
@@ -488,8 +280,11 @@ const Todos: React.FunctionComponent<Props> = ({ overmind }) => {
 }
 
 export default connect(Todos)
+```
+{% endtab %}
 
-// components/Todo.tsx
+{% tab title="components/Todo.tsx" %}
+```typescript
 import * as React from 'react'
 import { connect, Connect } from '../overmind'
 
@@ -511,44 +306,15 @@ export default connect(Todo)
 To run reactions in components based on changes to state you use the **reaction** function in the lifecycle hooks of React.
 
 {% tabs %}
-{% tab title="Javascript" %}
+{% tab title="components/App.tsx" %}
 ```typescript
-// components/App.jsx
-import * as React from 'react'
-import { connect } from '../overmind'
-
-class App extends React.Component {
-  private disposeReaction
-  componentDidMount() {
-    this.disposeReaction = this.props.overmind.reaction(
-      (state) => state.currentPage,
-      () => document.querySelector('#app').scrollTop = 0
-    )
-  }
-  componentWillUnmount() {
-    this.disposeReaction()
-  }
-  render() {
-    const { state, actions } = this.props.overmind
-
-    return <div />
-  }
-}
-
-export default connect(App)
-```
-{% endtab %}
-
-{% tab title="Typescript" %}
-```typescript
-// components/App.tsx
 import * as React from 'react'
 import { connect, Connect } from '../overmind'
 
 type Props = {} & Connect
 
 class App extends React.Component<Props> {
-  disposeReaction: () => void
+  disposeMutationListener: () => void
   componentDidMount() {
     this.disposeReaction = this.props.overmind.reaction(
       (state) => state.currentPage,

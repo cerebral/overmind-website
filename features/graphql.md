@@ -1,5 +1,7 @@
 # GraphQL
 
+
+
 Using Graphql with Overmind gives you the following benefits:
 
 * **Query:** The query for data is run with the rest of your application logic, unrelated to mounting components
@@ -23,7 +25,7 @@ npm install overmind-graphql
 The Graphql package is a _configuration factory_. That means you need some existing configuration before going:
 
 {% tabs %}
-{% tab title="overmind/index.js" %}
+{% tab title="overmind/index.ts" %}
 ```typescript
 import { state } from './state'
 
@@ -33,10 +35,16 @@ export const config = {
 ```
 {% endtab %}
 
-{% tab title="overmind/state.js" %}
+{% tab title="overmind/state.ts" %}
 ```typescript
+// We will talk about this one soon :)
+import { Post } from './graphql-types'
 
-export const state = {
+type State = {
+  posts: Post[]
+}
+
+export const state: State = {
   posts: []
 }
 ```
@@ -48,7 +56,7 @@ export const state = {
 Now let us introduce the factory:
 
 {% tabs %}
-{% tab title="overmind/index.js" %}
+{% tab title="overmind/index.ts" %}
 ```typescript
 import { graphql } from 'overmind-graphql'
 import * as queries from './queries'
@@ -65,11 +73,12 @@ export const config = graphql({
 ```
 {% endtab %}
 
-{% tab title="overmind/queries.js" %}
+{% tab title="overmind/queries.ts" %}
 ```typescript
-import { gql } from 'overmind-graphql'
+import { Query, gql } from 'overmind-graphql'
+import { Posts } from './graphql-types'
 
-export const posts = gql`
+export const posts: Query<Posts> = gql`
   query Posts {
     posts {
       id
@@ -80,11 +89,12 @@ export const posts = gql`
 ```
 {% endtab %}
 
-{% tab title="overmind/mutations.js" %}
+{% tab title="overmind/mutations.ts" %}
 ```typescript
-import { gql } from 'overmind-graphql'
+import { Query, gql } from 'overmind-graphql'
+import { CreatePost, CreatePostVariables } from './graphql-types'
 
-export const createPost = gql`
+export const createPost: Query<CreatePost, CreatePostVariables> = gql`
   mutation CreatePost($title: String!) {
     createPost(title: $title) {
       id
@@ -102,7 +112,7 @@ You define **queries** and **mutations** as part of the second argument to the f
 To call a query you will typically use an action. Let us create an action that uses our **posts** query.
 
 {% tabs %}
-{% tab title="overmind/index.js" %}
+{% tab title="overmind/index.ts" %}
 ```typescript
 import { graphql } from 'overmind-graphql'
 import * as actions from './actions'
@@ -121,9 +131,11 @@ export const config = graphql({
 ```
 {% endtab %}
 
-{% tab title="overmind/actions.js" %}
+{% tab title="overmind/actions.ts" %}
 ```typescript
-export const getPosts = async ({ state, effects }) => {
+import { AsyncAction } from 'overmind'
+
+export const getPosts: AsyncAction = async ({ state, effects }) => {
   const { posts } = await effects.queries.posts()
 
   state.posts = posts
@@ -137,15 +149,17 @@ export const getPosts = async ({ state, effects }) => {
 Mutation queries are basically the same as normal queries. You would typically also call these from an action.
 
 {% tabs %}
-{% tab title="overmind/actions.js" %}
+{% tab title="overmind/actions.ts" %}
 ```typescript
-export const getPosts = async ({ state, effects }) => {
+import { AsyncAction } from 'overmind'
+
+export const getPosts: AsyncAction = async ({ state, effects }) => {
   const { posts } = await effects.queries.posts()
 
   state.posts = posts
 }
 
-export const addPost = async ({ effects }, title) => {
+export const addPost: AsyncAction<string> = async ({ effects }, title) => {
   await effects.mutations.createPost({ title })
 }
 ```
@@ -161,15 +175,17 @@ Now that we have the data from our query in the state, we can decide ourselves w
 Again, since our data is just part of our state we are in complete control of optimistically adding new data. Let us create an optimistic post.
 
 {% tabs %}
-{% tab title="overmind/actions.js" %}
+{% tab title="overmind/actions.ts" %}
 ```typescript
-export const getPosts = async ({ state, effects }) => {
+import { AsyncAction } from 'overmind'
+
+export const getPosts: AsyncAction = async ({ state, effects }) => {
   const { posts } = await effects.queries.posts()
 
   state.posts = posts
 }
 
-export const addPost = async ({ state, effects }, title) => {
+export const addPost: AsyncAction<string> = async ({ state, effects }, title) => {
   const optimisticId = String(Date.now())
 
   state.posts.push({
@@ -193,7 +209,7 @@ There are two points of options in the Graphql factory. The **headers** and the 
 The headers option is a function which receives the state of the application. That means you can produce request headers dynamically. This can be useful related to authentciation.
 
 {% tabs %}
-{% tab title="overmind/index.js" %}
+{% tab title="overmind/index.ts" %}
 ```typescript
 import { graphql } from 'overmind-graphql'
 import * as queries from './queries'
@@ -217,7 +233,7 @@ export const config = graphql({
 The options are the options passed to [GRAPHQL-REQUEST](https://github.com/prisma-labs/graphql-request).
 
 {% tabs %}
-{% tab title="overmind/index.js" %}
+{% tab title="overmind/index.ts" %}
 ```typescript
 import { graphql } from 'overmind-graphql'
 import * as queries from './queries'
@@ -242,50 +258,7 @@ export const config = graphql({
 {% endtab %}
 {% endtabs %}
 
-## Typescript
-
-There is only a single type exposed by the library, **Query**. It is used for both queries and mutations.
-
-{% tabs %}
-{% tab title="overmind/queries.ts" %}
-```typescript
-import { Query, gql } from 'overmind-graphql'
-// You will understand this very soon
-import { Posts } from './graphql-types'
-
-export const posts: Query<Posts> = gql`
-  query Posts {
-    posts {
-      id
-      title
-    }
-  }
-`;
-```
-{% endtab %}
-{% endtabs %}
-
-The first **Query** argument is the result of the query. There is also a second query argument which is the payload to the query, as seen here.
-
-{% tabs %}
-{% tab title="overmind/mutations.ts" %}
-```typescript
-import { Query, gql } from 'overmind-graphql'
-// You will understand this very soon
-import { CreatePost, CreatePostVariables } from './graphql-types'
-
-export const createPost: Query<CreatePost, CreatePostVariables> = gql`
-  mutation CreatePost($title: String!) {
-    createPost(title: $title) {
-      id
-    }
-  }
-`
-```
-{% endtab %}
-{% endtabs %}
-
-### Generate typings
+## Generate typings
 
 It is possible to generate all the typings for the queries and mutations. This is done by using the [APOLLO](https://www.apollographql.com/) project CLI. Install it with:
 
@@ -310,10 +283,6 @@ npm run schema
 ```
 
 Apollo will look for queries defined with the **gql** template tag and automatically produce the typings. That means whenever you add, remove or update a query in your code you should run this script to update the typings. It also produces what is called **graphql-global-types**. These are types related to fields on your queries, which can be used in your state definition and/or actions.
-
-{% hint style="info" %}
-Note that initially you have to define your queries without types and after running the script you can start typing them to get typing in your app and ensure that your app does not break when you change the queries either in the client or on the server
-{% endhint %}
 
 ## Optimize query
 

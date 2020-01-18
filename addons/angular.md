@@ -17,7 +17,9 @@ declare module 'overmind' {
   interface Config extends IConfig<typeof config> {}
 }
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class Store extends OvermindService<typeof config> {}
 ```
 {% endtab %}

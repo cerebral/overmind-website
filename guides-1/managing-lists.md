@@ -29,9 +29,23 @@ But we still want to use an array when we transform the state into a UI. Let us 
 In Overmind it is encouraged that you derive these dictionaries of entities to a list by deriving the state. The most simple way to do this is:
 
 {% tabs %}
-{% tab title="overmind/state.js" %}
+{% tab title="overmind/state.ts" %}
 ```typescript
-export const state = {
+import { Derive } from 'overmind'
+
+export type Post {
+  id: string
+  title: string
+  body: string
+  datetime: number
+}
+
+export type State = {
+  posts: { [id: string] : Post }
+  postsList: Derive<State, Post[]>
+}
+
+export const state: State = {
   posts: {}
   postsList: state => Object.values(state.posts)
 }
@@ -46,9 +60,23 @@ Now when we point to **state.postsList** we get an array of posts. What is impor
 Now we have optimally stored our posts in a dictionary for easy access by id. We have also created a derived state which converts this dictionary to an array whenever the source dictionary changes. Though most likely you want to sort the list. Typically lists are sorted chronologically and our posts item has a **datetime** field.
 
 {% tabs %}
-{% tab title="overmind/state.js" %}
+{% tab title="overmind/state.ts" %}
 ```typescript
-export const state = {
+import { Derive } from 'overmind'
+
+export type Post {
+  id: string
+  title: string
+  body: string
+  datetime: number
+}
+
+export type State = {
+  posts: { [id: string] : Post }
+  postsList: Derive<State, Post[]>
+}
+
+export const state: State = {
   posts: {}
   postsList: state =>
     Object.values(state.posts)

@@ -69,6 +69,29 @@ export class AppComponent {
 }
 ```
 {% endtab %}
+
+{% tab title="main.ts" %}
+```typescript
+import { enableProdMode } from "@angular/core";
+import { platformBrowserDynamic } from "@angular/platform-browser-dynamic";
+
+import { AppModule } from "./app/app.module";
+import { environment } from "./environments/environment";
+
+if (environment.production) {
+  enableProdMode();
+}
+
+platformBrowserDynamic()
+  .bootstrapModule(AppModule, {
+    // We do not need zones, we rather use the tracking
+    // directive, which gives us a huge optimization
+    ngZone: "noop"
+  })
+  .catch(err => console.log(err));
+
+```
+{% endtab %}
 {% endtabs %}
 
 The **service** is responsible for exposing the configuration of your application. The **\*track** directive is what does the actual tracking. Just put it at the top of your template and whatever state you access will be optimally tracked. You can also select a namespace from your state to expose to the component:

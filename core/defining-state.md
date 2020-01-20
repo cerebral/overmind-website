@@ -109,31 +109,12 @@ export const state = {
 You can now use this instance as normal and of course create new ones.
 
 {% hint style="info" %}
-Even though you can use **getters** as normal, they do not cache like **derived**. **Derived** is a concept of the state tree itself. It is unlikely that you need heavy computation within a single class instance though, it is typically across class instances
+Even though you can use **getters** as normal, they do not cache like **derived**. **Derived** is a concept of the state tree itself. It is unlikely that you need heavy computation within a single class instance though, it is typically across class instances, where **derived** fits the bill
 {% endhint %}
 
 ### Serializing class values
 
-If you have an application that needs to serialize the state, for example to local storage or server side rendering, you can still use class instances with Overmind. Overmind exposes a symbol called **SERIALIZE** that you can attach to your class.
-
-```typescript
-import { SERIALIZE } from 'overmind'
-
-class User {
-  [SERIALIZE]
-  constructor() {
-    this.username = ''
-    this.jwt = ''
-  }
-}
-```
-
-There are two purposes to using **SERIALIZE**.
-
-1. When using Typescript you will be able to get type safety in your rehydration of state
-2. The devtools requires this to properly display values as class instances
-
-You can also safely use **toJSON**, though the for the two reasons above you want to add **SERIALIZE**:
+If you have an application that needs to serialize the state, for example to local storage or server side rendering, you can still use class instances with Overmind. This works out of the box except when you add the **toJSON** method to a class. In that case you will need to add a symbol called **SERIALIZE**:
 
 ```typescript
 import { SERIALIZE } from 'overmind'
@@ -149,6 +130,18 @@ class User {
       username: this.username
     }
   }
+}
+```
+
+If you use **Typescript** you want to add **SERIALIZE** to the class itself as this will give you type safety when rehydrating the state.
+
+```typescript
+import { SERIALIZE } from 'overmind'
+
+class User {
+  [SERIALIZE] = true
+  username = ''
+  jwt = ''
 }
 ```
 
@@ -185,7 +178,6 @@ Since our user is a class instance we can tell rehydrate what to do, where it is
 import { SERIALIZE } from 'overmind'
 
 class User {
-  [SERIALIZE]
   constructor() {
     this.username = ''
     this.jwt = ''
@@ -219,7 +211,7 @@ export const updateState = ({ state }) => {
 {% endtab %}
 {% endtabs %}
 
-It does not matter if the state is a value, an array of values or a dictionary of values, rehydrate will understand it.
+It does not matter if the state value is a class instance, an array of class instances or a dictionary of class instances, rehydrate will understand it.
 
 That means the following will behave as expected:
 
@@ -229,7 +221,7 @@ That means the following will behave as expected:
 import { User } from './models'
 
 export const state = {
-  user: null, // Expecting a single value
+  user: null, // Expecting an instance or null
   usersList: [], // Expecting an array of values
   usersDictionary: {} // Expecting a dictionary of values
 }
@@ -265,9 +257,23 @@ export const updateState = ({ state }) => {
 {% endtab %}
 {% endtabs %}
 
+{% hint style="info" %}
+Note that **rehydrate** gives you full type safety when adding the **SERIALIZE**  symbol to your classes. This is a huge benefit as Typescript will yell at you when the state structure changes, related to the rehydration
+{% endhint %}
+
 ## Naming
 
 Each value needs to sit behind a name. Naming can be difficult, but we have some help. Even though we eventually do want to consume our application through a user interface we ideally want to avoid naming things specifically related to the environment where we show the user interface. Things like **page**, **tabs**, **modal** etc. are specific to a browser experience, maybe related to a certain size. We want to avoid those names as they should not dictate which elements are to be used with the state, that is up to the user interface to decide later. So here are some generic terms to use instead:
+
+
+
+{% hint style="info" %}
+
+{% endhint %}
+
+{% hint style="info" %}
+
+{% endhint %}
 
 * page: **mode**
 * tabs: **sections**

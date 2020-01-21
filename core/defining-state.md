@@ -114,7 +114,7 @@ Even though you can use **getters** as normal, they do not cache like **derived*
 
 ### Serializing class values
 
-If you have an application that needs to serialize the state, for example to local storage or server side rendering, you can still use class instances with Overmind. This works out of the box except when you add the **toJSON** method to a class. In that case you will need to add a symbol called **SERIALIZE**:
+If you have an application that needs to serialize the state, for example to local storage or server side rendering, you can still use class instances with Overmind. By default you really do not have to do anything, but if you use **Typescript** or you choose to use **toJSON** on your classesOvermind exposes a symbol called **SERIALIZE** that you can attach to your class.
 
 ```typescript
 import { SERIALIZE } from 'overmind'
@@ -178,11 +178,12 @@ Since our user is a class instance we can tell rehydrate what to do, where it is
 import { SERIALIZE } from 'overmind'
 
 class User {
+  [SERIALIZE]
   constructor() {
     this.username = ''
     this.jwt = ''
   }
-  fromJSON(json) {
+  static fromJSON(json) {
     return Object.assign(new User(), json)
   }
 }
@@ -221,7 +222,7 @@ That means the following will behave as expected:
 import { User } from './models'
 
 export const state = {
-  user: null, // Expecting an instance or null
+  user: null, // Can be existing class instance or null
   usersList: [], // Expecting an array of values
   usersDictionary: {} // Expecting a dictionary of values
 }
@@ -261,23 +262,132 @@ export const updateState = ({ state }) => {
 Note that **rehydrate** gives you full type safety when adding the **SERIALIZE**  symbol to your classes. This is a huge benefit as Typescript will yell at you when the state structure changes, related to the rehydration
 {% endhint %}
 
-## Naming
+## Statemachines
 
-Each value needs to sit behind a name. Naming can be difficult, but we have some help. Even though we eventually do want to consume our application through a user interface we ideally want to avoid naming things specifically related to the environment where we show the user interface. Things like **page**, **tabs**, **modal** etc. are specific to a browser experience, maybe related to a certain size. We want to avoid those names as they should not dictate which elements are to be used with the state, that is up to the user interface to decide later. So here are some generic terms to use instead:
+Very often you get into a situation where you define states as **isLoading**, **hasError** etc. Having these kinds of state can cause **impossible states**. For example:
 
+```typescript
+const state = {
+  isAuthenticated: true,
+  isAuthenticating: true
+}
+```
 
+You can not be authenticating and be authenticated at the same time. This kind of logic very often causes bugs in applications. That is why Overmind allows you to define statemachines. It sounds complicated, but is actually very simple.
+
+### Defining
+
+{% tabs %}
+{% tab title="overmind/state.js" %}
+```typescript
+import { statemachine } from 'overmind'
+
+export const state = {
+  mode: statemachine({
+    initial: 'unauthenticated',
+    states: {
+      unauthenticated: ['authenticating'],
+      authenticating: ['unauthenticated', 'authenticated'],
+      authenticated: ['unauthenticating'],
+      unauthenticating: ['unauthenticated', 'authenticated']
+    }
+  }),
+  user: null,
+  error: null
+}
+```
+{% endtab %}
+{% endtabs %}
+
+### Transitioning
+
+{% tabs %}
+{% tab title="overmind/actions.js" %}
+```typescript
+export const login = async ({ state, effects }) => {
+  return state.mode.authenticating(async () => {
+    try {
+      const user = await effects.api.getUser()
+      state.mode.authenticated(() => {
+        state.user = user
+      })
+    } catch (error) {
+      state.mode.unauthenticated(() => {
+        state.error = error
+      })    
+    }
+  })
+}
+
+export const logout = async ({ state, effects }) => {
+  return state.mode.unauthenticating(async () => {
+    try {
+      await effects.api.logout()
+      state.mode.unauthenticated()
+    } catch (error) {
+      state.mode.authenticated(() => {
+        state.error = error
+      })    
+    }
+  })
+}
+```
+{% endtab %}
+{% endtabs %}
 
 {% hint style="info" %}
-
+If your transition runs asynchronously you should return the transition to ensure that the action execution is tracked
 {% endhint %}
 
-{% hint style="info" %}
+What is important to realize here is that our logic is separated into **allowable** transitions. That means when we are waiting for the user on **line 4** and some other logic has changed the state to **unauthenticated** in the meantime, the user will not be set, as the **authenticated** transition is now not possible. This is what state machines do. They group logic into states that are allowed to run, preventing invalid logic to run.
 
-{% endhint %}
+### Current state
 
-* page: **mode**
-* tabs: **sections**
-* modal: **editUser.active**
+The current state is accessed, related to this example, by:
+
+```typescript
+state.mode.current
+```
+
+### Exit
+
+It is also possible to run logic when a transition exits. An example of this is for example if a transition sets up a subscription. This subscription can be disposed when the transition is exited.
+
+{% tabs %}
+{% tab title="overmind/actions.js" %}
+```typescript
+export const login = async ({ state, effects }) => {
+  return state.mode.authenticating(async () => {
+    try {
+      const user = await effects.api.getUser()
+      let disposeSubscription
+      state.mode.authenticated(
+        () => {
+          disposeSubscription = effects.api.subscribeNotifications()
+          state.user = user
+        },
+        () => {
+          disposeSubscription()
+        }
+      )
+    } catch (error) {
+      state.mode.unauthenticated(() => {
+        state.error = error
+      })    
+    }
+  })
+}
+```
+{% endtab %}
+{% endtabs %}
+
+### Reset
+
+You can reset the state of a statemachine, which also runs the exit of the current transition:
+
+```typescript
+state.mode.reset()
+```
 
 ## Undefined
 

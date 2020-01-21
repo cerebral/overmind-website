@@ -387,7 +387,43 @@ export const filterAwesome: <T extends { isAwesome: boolean }>() => Operator<T> 
 
 That means this operator can handle any type that matches an **isAwesome** property, though will pass the original type through.
 
-## Statecharts
+## Statemachine
+
+Statemachines exposes a type called **Statemachine**, though it is strictly not necessary to use as it is recommended to separate your machine definition from your state using the factory:
+
+{% tabs %}
+{% tab title="overmind/state.ts" %}
+```typescript
+import {statemachine } from 'overmind'
+
+type Modes =
+  | 'unauthenticated'
+  | 'authenticating'
+  | 'authenticated'
+  | 'unauthenticating'
+  
+const mode = statemachine<Modes>({
+  initial: 'unauthenticated',
+  states: {
+    unauthenticated: ['authenticating'],
+    authenticating: ['unauthenticated', 'authenticated'],
+    authenticated: ['unauthenticating'],
+    unauthenticating: ['unauthenticated', 'authenticated']
+  }
+})
+
+type State = {
+  mode: typeof mode
+}
+
+export const state: State = {
+  mode
+}
+```
+{% endtab %}
+{% endtabs %}
+
+## Statechart
 
 To type a statechart you use the **Statechart** type:
 

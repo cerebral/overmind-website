@@ -70,6 +70,13 @@ Are things loading or not, is the user logged in or not? These are typical uses 
 
 All values, with the exception of booleans, can also be **null**. Non-existing. You can have a non-existing object, array, string or number. It means that if we haven’t selected a mode, both the string version and number version would have the value **null**.
 
+## Undefined
+
+You might wonder why **undefined** is not part of the core value types. Well, there are two reasons:
+
+1. It is not a serializable value. That means if you explicitly set a value to _undefined_ it will not show up in the devtools
+2. Undefined values can not be tracked. That means if you were to iterate an object and look at the keys of that object, any undefined values will not be tracked. This can cause unexpected behaviour
+
 ## Class values
 
 Overmind also supports using class instances as state values. Depending on your preference this can be a powerful tool to organize your logic. What classes provide is a way to co locate state and logic for changing and deriving that state. In functional programming the state and the logic is separated and it can be difficult to find a good way to organize the logic operating on that state.
@@ -388,13 +395,6 @@ You can reset the state of a statemachine, which also runs the exit of the curre
 ```typescript
 state.mode.reset()
 ```
-
-## Undefined
-
-You might wonder why **undefined** is not part of the core value types. Well, there are two reasons:
-
-1. It is not a serializable value. That means if you explicitly set a value to _undefined_ it will not show up in the devtools
-2. Undefined values can not be tracked. That means if you were to iterate an object and look at the keys of that object, any undefined values will not be tracked. This can cause unexpected behaviour
 
 ## Deriving state
 

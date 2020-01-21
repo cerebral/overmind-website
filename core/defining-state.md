@@ -373,6 +373,8 @@ export const state = {
 {% endtab %}
 {% endtabs %}
 
+You set an **initial** state and then you create a relationship between the different states and what states they can transition into. So when **unauthenticated** is the state, only logic triggered with an **authenticating** transition will run, any other transition triggered will not run its logic.
+
 ### Transitioning
 
 {% tabs %}

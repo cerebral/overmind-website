@@ -67,7 +67,7 @@ export const getItems = async ({ state, effects }) => {
 
 ## COMPLEXITY TOOLS
 
-Even though Overmind can create applications with only plain **state** and **actions**, you can use **opt-in** tools like **functional operators**, **statecharts** and state values defined as a **class,** to manage complexities of your application.
+Even though Overmind can create applications with only plain **state** and **actions**, you can use **opt-in** tools like **functional operators**, **statecharts, statemachines** and state values defined as a **class,** to manage complexities of your application.
 
 {% tabs %}
 {% tab title="Operators" %}
@@ -116,6 +116,24 @@ const loginChart = {
       }
     }
   }
+}
+```
+{% endtab %}
+
+{% tab title="Statemachines" %}
+```typescript
+export const state = {
+  mode: statemachine({
+    initial: 'unauthenticated',
+    states: {
+      unauthenticated: ['authenticating'],
+      authenticating: ['unauthenticated', 'authenticated'],
+      authenticated: ['unauthenticating'],
+      unauthenticating: ['unauthenticated', 'authenticated']
+    }
+  }),
+  user: null,
+  error: null
 }
 ```
 {% endtab %}

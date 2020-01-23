@@ -103,3 +103,55 @@ export const onInitialize: OnInitialize = ({ state }) => {
 If you are using state first routing, make sure you prevent the router from firing off the initial route, as this is not needed.
 {% endhint %}
 
+## OnInitialize
+
+The `onInitialized` action does not run on the server. The reason is that it is considered a side effect you might not want to run, so we do not force it. If you do want to run an action as Overmind fires up both on the client and the server you can rather create a custom action for it.
+
+{% tabs %}
+{% tab title="overmind/actions.js" %}
+```javascript
+export const initialize = () => {
+  // Whatever...
+}
+```
+{% endtab %}
+
+{% tab title="client/index.js" %}
+```typescript
+import { createOvermind } from 'overmind'
+import { config } from './overmind'
+
+const overmind = createOvermind(config)
+overmind.actions.initialize()
+```
+{% endtab %}
+
+{% tab title="server/index.js" %}
+```javascript
+import { createOvermindSSR } from 'overmind'
+import { config } from '../client/overmind'
+
+export default async (req, res) => {
+  const overmind = createOvermindSSR(config)
+  await overmind.actions.initialize()
+
+  const html = renderToString(
+    // Whatever implementation your view layer provides
+  )
+
+  res.send(`
+<html>
+  <body>
+    <div id="app">${html}</div>
+    <script>
+      window.__OVERMIND_MUTATIONS = ${JSON.stringify(overmind.hydrate())}
+    </script>
+    <script src="/scripts/app.js"></script>
+  </body>
+</html>
+`)
+}
+```
+{% endtab %}
+{% endtabs %}
+

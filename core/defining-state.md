@@ -387,7 +387,7 @@ You set an **initial** state and then you create a relationship between the diff
 export const login = async ({ state, effects }) => {
   return state.mode.authenticating(async () => {
     try {
-      const user = effects.api.getUser()
+      const user = await effects.api.getUser()
       return state.mode.authenticated(() => {
         state.user = user
       })
@@ -418,8 +418,8 @@ export const logout = async ({ state, effects }) => {
 {% hint style="warning" %}
 There are two important rules for predictable transitions:
 
-1. The transition should always **return**
-2. **Async** transitions should not **mutate** state
+1. The transition should always be **returned**
+2. A transition can either run **async** OR **mutate**, not both
 {% endhint %}
 
 What is important to realize here is that our logic is separated into **allowable** transitions. That means when we are waiting for the user on **line 4** and some other logic has changed the state to **unauthenticated** in the meantime, the user will not be set, as the **authenticated** transition is now not possible. This is what state machines do. They group logic into states that are allowed to run, preventing invalid logic to run.

@@ -31,6 +31,7 @@
 ## Guides <a id="guides-1"></a>
 
 * [Connecting components](guides-1/connecting-components.md)
+* [Connecting to React Native](https://dev.to/brasilikum/how-to-setup-overmind-with-react-native-expo-optional-4mk5)
 * [Managing lists](guides-1/managing-lists.md)
 * [State first routing](guides-1/state-first-routing.md)
 * [Server Side Rendering](guides-1/server-side-rendering.md)

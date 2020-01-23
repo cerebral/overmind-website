@@ -419,7 +419,7 @@ export const logout = async ({ state, effects }) => {
 There are two important rules for predictable transitions:
 
 1. The transition should always be **returned**
-2. A transition can either run **async** OR **mutate**, not both
+2. Only **synchronous** transitions can mutate the state
 {% endhint %}
 
 What is important to realize here is that our logic is separated into **allowable** transitions. That means when we are waiting for the user on **line 4** and some other logic has changed the state to **unauthenticated** in the meantime, the user will not be set, as the **authenticated** transition is now not possible. This is what state machines do. They group logic into states that are allowed to run, preventing invalid logic to run.

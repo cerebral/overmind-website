@@ -132,6 +132,35 @@ export const onInitialize = async ({ effects }) => {
 Typically you explicitly communicate with effects from actions, by calling methods. But sometimes you need effects to know about the state of the application, or maybe some internal state in the effect should be exposed on your application state. Again we can take advantage of an **initialize** method on the effect:
 
 {% tabs %}
+{% tab title="overmind/effects.js" %}
+```javascript
+// We use an IIFE to isolate some variables
+export const socket = (() => {
+  _options
+  _ws
+  return {
+    initialize(options) {
+      _options = options
+      _ws = new WebSocket('ws://...')
+      _ws.onclose = () => options.onStatusChange('close')
+      _ws.onopen = () => options.onStatusChange('open')
+      _ws.addEventListener(
+        'message',
+        (event) => options.onMessage(event.data)
+      )
+    },
+    send(type, data) {
+      _ws.postMessage({
+        type,
+        data,
+        token: _options.getToken()
+      })
+    }
+  }
+})()
+```
+{% endtab %}
+
 {% tab title="overmind/onInitialize.js" %}
 ```typescript
 export const onInitialize = async ({ state, effects, actions }) => {

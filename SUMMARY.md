@@ -9,11 +9,11 @@
 
 ## Core
 
+* [Devtools](core/devtools.md)
 * [Configuration](core/structuring-the-app.md)
 * [State](core/defining-state.md)
 * [Actions](core/writing-application-logic.md)
 * [Effects](core/running-side-effects.md)
-* [Devtools](core/devtools.md)
 * [Operators](core/going-functional.md)
 * [Statecharts](core/statecharts.md)
 * [Typescript](core/typescript.md)

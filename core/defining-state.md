@@ -113,10 +113,6 @@ export const state = {
 {% endtab %}
 {% endtabs %}
 
-{% hint style="warning" %}
-It is import that you do **NOT** use arrow functions on your methods. The reason is that this binds the context of the method to the instance itself, meaning that Overmind is unable to proxy access and allow you to do tracked mutations
-{% endhint %}
-
 You can now use this instance as normal and of course create new ones.
 
 {% hint style="info" %}
@@ -388,11 +384,11 @@ export const login = async ({ state, effects }) => {
   return state.mode.authenticating(async () => {
     try {
       const user = await effects.api.getUser()
-      return state.mode.authenticated(() => {
+      state.mode.authenticated(() => {
         state.user = user
       })
     } catch (error) {
-      return state.mode.unauthenticated(() => {
+      state.mode.unauthenticated(() => {
         state.error = error
       })    
     }
@@ -403,9 +399,9 @@ export const logout = async ({ state, effects }) => {
   return state.mode.unauthenticating(async () => {
     try {
       await effects.api.logout()
-      return state.mode.unauthenticated()
+      state.mode.unauthenticated()
     } catch (error) {
-      return state.mode.authenticated(() => {
+      state.mode.authenticated(() => {
         state.error = error
       })    
     }
@@ -415,11 +411,8 @@ export const logout = async ({ state, effects }) => {
 {% endtab %}
 {% endtabs %}
 
-{% hint style="warning" %}
-There are two important rules for predictable transitions:
-
-1. The transition should always be **returned**
-2. Only **synchronous** transitions can mutate the state
+{% hint style="info" %}
+If your transition runs asynchronously you should return the transition to ensure that the action execution is tracked
 {% endhint %}
 
 What is important to realize here is that our logic is separated into **allowable** transitions. That means when we are waiting for the user on **line 4** and some other logic has changed the state to **unauthenticated** in the meantime, the user will not be set, as the **authenticated** transition is now not possible. This is what state machines do. They group logic into states that are allowed to run, preventing invalid logic to run.

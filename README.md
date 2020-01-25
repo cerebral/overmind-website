@@ -6,6 +6,8 @@ description: frictionless state management
 
 > Web application development is about **defining**, **changing** and **consuming state** to produce a user experience. Overmind aims for a developer experience where that is all you focus on, reducing the orchestration of state management to a minimum. Making you a **happier** and more **productive** developer!
 
+{% embed url="https://overmindjs.changefeed.app/general/v22.0.0" %}
+
 ## APPLICATION INSIGHT
 
 Develop the application state, effects and actions without leaving [VS Code](https://code.visualstudio.com/), or use the standalone development tool. Everything that happens in your app is tracked and you can seamlessly code and run logic to verify that everything works as expected without necessarily having to implement UI.

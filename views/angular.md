@@ -39,7 +39,7 @@ import { AppComponent } from './app.component';
   declarations: [ AppComponent ],
   bootstrap: [ AppComponent ],
   providers: [
-    { provide: OVERMIND_INSTANCE, useValue: createOvermind(config) },
+    { provide: OVERMIND_INSTANCE, useFactory: () => createOvermind(config) },
     { provide: Store, useExisting: OvermindService }
 ]
 })
@@ -85,7 +85,9 @@ if (environment.production) {
 platformBrowserDynamic()
   .bootstrapModule(AppModule, {
     // We do not need zones, we rather use the tracking
-    // directive, which gives us a huge optimization
+    // directive, which gives us a pretty signifcant performance
+    // boost. Note that 3rd party libraries might need ngZone,
+    // in which case you can not set it to "noop"
     ngZone: "noop"
   })
   .catch(err => console.log(err));
@@ -124,7 +126,7 @@ You can now access the **admin** state and actions directly with **state** and *
 
 ## NgZone
 
-Since Overmind knows when your components should update you can safely turn **ngZone** to `"noop"`. Note that other 3rd party libraries may not support this.
+The Overmind **\*track** directive knows when your components should update, and so is much more efficient at change detection than Angular's default NgZone. In order to take advantage of the efficiency provided by the \***track** directive, you _must_ set **ngZone** to "noop". Note that other 3rd party libraries may not support this. If for any reason you can't set **ngZone** to "noop", then the \***track** directive is redundant, and you can safely exclude it from your templates.
 
 ## Rendering
 

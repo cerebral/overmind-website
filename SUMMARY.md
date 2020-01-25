@@ -16,6 +16,7 @@
 * [Effects](core/running-side-effects.md)
 * [Operators](core/going-functional.md)
 * [Statecharts](core/statecharts.md)
+* [Server Side Rendering](core/server-side-rendering.md)
 * [Typescript](core/typescript.md)
 
 ## views
@@ -34,9 +35,8 @@
 * [Connecting to React Native](https://dev.to/brasilikum/how-to-setup-overmind-with-react-native-expo-optional-4mk5)
 * [Managing lists](guides-1/managing-lists.md)
 * [State first routing](guides-1/state-first-routing.md)
-* [Server Side Rendering](guides-1/server-side-rendering.md)
 * [Move to Typescript](guides-1/move-to-typescript.md)
-* [Testing](features/testing.md)
+* [Testing](guides-1/testing.md)
 
 ## API <a id="api-1"></a>
 

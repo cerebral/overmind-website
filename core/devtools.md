@@ -42,6 +42,25 @@ npm install overmind-devtools concurrently
 ```
 {% endcode %}
 
+## Connecting from the application
+
+When you create your application it will automatically connect through **localhost:3031**, meaning that everything should just work out of the box. If you need to change the port, connect the application over a network \(mobile development\) or similar, you can configure how the application connects:
+
+```javascript
+import { createOvermind } from 'overmind'
+import { config } from './overmind'
+
+const overmind = createOvermind(config, {
+  devtools: '10.0.0.1:3031'
+})
+```
+
+### Connecting on Chromebook
+
+ChromeOS does not expose localhost as normal. That means you need to connect with **penguin.termina.linux.test:3031**, or you can use the following plugin to forward **localhost:**
+
+{% embed url="https://chrome.google.com/webstore/detail/connection-forwarder/ahaijnonphgkgnkbklchdhclailflinn/related?hl=en-US" %}
+
 ## Hot Module Replacement
 
 A popular concept introduced by Webpack is [HMR](https://webpack.js.org/concepts/hot-module-replacement/). It allows you to make changes to your code without having to refresh. Overmind automatically supports HMR. That means when **HMR** is activated Overmind will make sure it updates and manages its state, actions and effects. Even the devtools will be updated as you make changes.

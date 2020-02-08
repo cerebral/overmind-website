@@ -15,8 +15,12 @@ If you are using the **Insiders** version of VSCode the extension will not work.
 Alternatively you can install the standalone application of the devtools. You can start it with the NPM executor as:
 
 ```javascript
-npx overmind-devtools
+npx overmind-devtools@latest
 ```
+
+{% hint style="info" %}
+Adding **@latest** just ensures that you break any caching, meaning you will always run the latest version
+{% endhint %}
 
 You can also install the devtools with your project, allowing you to lock a specific version of the devtools to your project:
 

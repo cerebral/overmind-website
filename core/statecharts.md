@@ -34,7 +34,7 @@ Let us do this properly and design this flow “top down”:
 {% tabs %}
 {% tab title="overmind/login/index.js" %}
 ```typescript
-import {statechart } from 'overmind/config'
+import { statechart } from 'overmind/config'
 import * as actions from './actions'
 import { state } from './state'
 

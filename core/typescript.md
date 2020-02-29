@@ -150,16 +150,16 @@ export const state: State = {
 {% endtab %}
 {% endtabs %}
 
-### Derived
+### Derive
 
 {% tabs %}
 {% tab title="overmind/state.ts" %}
 ```typescript
-import { Derived } from 'overmind'
+import { Derive } from 'overmind'
 
 type State = {
   foo: string
-  shoutedFoo Derived<State, string>
+  shoutedFoo Derive<State, string>
 }
 
 export const state: State = {

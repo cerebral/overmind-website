@@ -164,7 +164,7 @@ type State = {
 
 export const state: State = {
   foo: 'bar',
-  shoutedFoo: derived<State>(state => state.foo + '!!!')
+  shoutedFoo: derived<State, string>(state => state.foo + '!!!')
 }
 ```
 {% endtab %}
@@ -187,7 +187,7 @@ type State = {
 export const state: State = {
   foo: 'bar',
   nested: {
-    shoutedFoo: derived<State['nested']>(state => state.foo + '!!!')
+    shoutedFoo: derived<State['nested'], string>(state => state.foo + '!!!')
   }
 }
 ```

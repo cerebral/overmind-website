@@ -170,6 +170,30 @@ export const state: State = {
 {% endtab %}
 {% endtabs %}
 
+Note that the type argument you pass is the object the derived is attached to, so with nested derived:
+
+{% tabs %}
+{% tab title="overmind/state.ts" %}
+```typescript
+import { derived } from 'overmind'
+
+type State = {
+  foo: string
+  nested: {
+    shoutedFoo string
+  }
+}
+
+export const state: State = {
+  foo: 'bar',
+  nested: {
+    shoutedFoo: derived<State['nested']>(state => state.foo + '!!!')
+  }
+}
+```
+{% endtab %}
+{% endtabs %}
+
 ## Actions
 
 The action type takes either an input type, an output type, or both.

@@ -194,6 +194,10 @@ export const state: State = {
 {% endtab %}
 {% endtabs %}
 
+{% hint style="warning" %}
+Note that with **Explicit Typing** you need to also pass the a third argument to the **derived** function, the **Config** type created in your main **index.ts** file.
+{% endhint %}
+
 ## Actions
 
 The action type takes either an input type, an output type, or both.

@@ -6,29 +6,23 @@ The mechanism of communicating from the application to the user interface is cal
 
 ![](../.gitbook/assets/state-ui.png)
 
-## Core values
+## State tree
 
-In JavaScript we can create all sorts of abstractions to describe values, but in Overmind we lean on the core serializable values. These are **objects**, **arrays**, **strings**, **numbers**, **booleans** and **null**. Serializable values means that we can easily convert the state into a string and back again. This is fundamental for creating great developer experiences, passing state between client and server and other features. You can describe any application state with these core values.
-
-Let us talk a little bit about what each value helps us represent in our application.
-
-### Objects
-
-The root value of your state tree is an object, because objects are great for holding other values. An object has keys that point to values. Most of these keys point to values that are the actual state of the application, but these keys can also represent domains of the application. A typical state structure could be:
+Overmind is structured as a single state tree. That means all of your state can be accessed through a single object, called the **state**. This state tree will hold values which describes different states of your application. The tree branches out using plain objects. That means you can consider plain objets as **branches** of your state tree.
 
 ```javascript
-{
+{ // branch
   modes: ['issues', 'admin'],
   currentModeIndex: 0,
-  admin: {
+  admin: { // branch
     currentUserId: null,
-    users: {
+    users: { // branch
       isLoading: false,
       data: {},
       error: null
     },
   },
-  issues: {
+  issues: { // branch
     sortBy: 'name',
     isLoading: false,
     data: {},
@@ -36,6 +30,14 @@ The root value of your state tree is an object, because objects are great for ho
   }
 }
 ```
+
+## State tree values
+
+The following are values to be used with the state tree.
+
+### Objects
+
+The plain objects are what **branches** out the tree. It is not really considered a value in itself, it is a state branch holding values.
 
 ### Arrays
 
@@ -70,14 +72,28 @@ Are things loading or not, is the user logged in or not? These are typical uses 
 
 All values, with the exception of booleans, can also be **null**. Non-existing. You can have a non-existing object, array, string or number. It means that if we haven’t selected a mode, both the string version and number version would have the value **null**.
 
-## Undefined
+### Derived
 
-You might wonder why **undefined** is not part of the core value types. Well, there are two reasons:
+When you need to derive state you can add a function to your tree. Overmind treats these functions like a **getter**, but the returned value is cached and they can also access the root state of the application. A simple example of this would be:
 
-1. It is not a serializable value. That means if you explicitly set a value to _undefined_ it will not show up in the devtools
-2. Undefined values can not be tracked. That means if you were to iterate an object and look at the keys of that object, any undefined values will not be tracked. This can cause unexpected behaviour
+{% tabs %}
+{% tab title="overmind/state.js" %}
+```typescript
+export const state: State = {
+  title: 'My awesome title',
+  upperTitle: state => state.title.toUpperCase()
+}
+```
+{% endtab %}
+{% endtabs %}
 
-## Class values
+The first argument of the function is the state the derived function is attached to. A second argument is also passed and that is the root state of the application, allowing you to access whatever you would need. 
+
+{% hint style="info" %}
+Even though derived state is defined as functions you consume them as plain values. You do not have to call the derived function to get the value. Derived functions can also be dynamically added.
+{% endhint %}
+
+### Class instances
 
 Overmind also supports using class instances as state values. Depending on your preference this can be a powerful tool to organize your logic. What classes provide is a way to co locate state and logic for changing and deriving that state. In functional programming the state and the logic is separated and it can be difficult to find a good way to organize the logic operating on that state.
 
@@ -91,7 +107,7 @@ class LoginForm {
     this.username = ''
     this.password = ''
   }
-  isValid() {
+  get isValid() {
     return Boolean(this.username && this.password)
   }
   reset() {
@@ -114,16 +130,12 @@ export const state = {
 {% endtabs %}
 
 {% hint style="warning" %}
-It is import that you do **NOT** use arrow functions on your methods. The reason is that this binds the context of the method to the instance itself, meaning that Overmind is unable to proxy access and allow you to do tracked mutations
+It is import that you do **NOT** use arrow functions on your methods. The reason is that this binds the context of the method to the instance itself, meaning that Overmind is unable to proxy access and track mutations
 {% endhint %}
 
 You can now use this instance as normal and of course create new ones.
 
-{% hint style="info" %}
-Even though you can use **getters** as normal, they do not cache like **derived**. **Derived** is a concept of the state tree itself. It is unlikely that you need heavy computation within a single class instance though, it is typically across class instances, where **derived** fits the bill
-{% endhint %}
-
-### Serializing class values
+#### Serializing class values
 
 If you have an application that needs to serialize the state, for example to local storage or server side rendering, you can still use class instances with Overmind. By default you really do not have to do anything, but if you use **Typescript** or you choose to use **toJSON** on your classesOvermind exposes a symbol called **SERIALIZE** that you can attach to your class.
 
@@ -160,7 +172,7 @@ class User {
 The **SERIALIZE** symbol will not be part of the actual serialization done with **JSON.stringify**
 {% endhint %}
 
-### Rehydrating classes
+#### Rehydrating classes
 
 The [**rehydrate**](../api-1/rehydrate.md) ****utility of Overmind allows you to rehydrate state either by a list of mutations or a state object, like the following:
 
@@ -273,50 +285,7 @@ export const updateState = ({ state }) => {
 Note that **rehydrate** gives you full type safety when adding the **SERIALIZE**  symbol to your classes. This is a huge benefit as Typescript will yell at you when the state structure changes, related to the rehydration
 {% endhint %}
 
-## Getters
-
-A concept in Javascript called a [GETTER](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/get) allows you to intercept accessing a property in an object. A getter is just like a plain value and runs whenever the property is accessed.
-
-{% tabs %}
-{% tab title="overmind/state.js" %}
-```javascript
-export const state = {
-  user: {
-    id: 1,
-    firstName: 'Bob',
-    lastName: 'Jackson',
-    jwt: '1234567'
-  },
-  get isLoggedIn() {
-    return Boolean(this.user && this.user.jwt)
-  }
-}
-```
-{% endtab %}
-{% endtabs %}
-
-## Derived
-
-When you need to do more heavy calculation or combine state from different parts of the tree you can use a plain function instead. Overmind treats these functions like a **getter**, but the returned value is cached and they can also access the root state of the application. A simple example of this would be:
-
-{% tabs %}
-{% tab title="overmind/state.js" %}
-```typescript
-export const state: State = {
-  title: 'My awesome title',
-  upperTitle: state => state.title.toUpperCase()
-}
-```
-{% endtab %}
-{% endtabs %}
-
-The first argument of the function is the state the derived function is attached to. A second argument is also passed and that is the root state of the application, allowing you to access whatever you would need.  You can add a derived dynamically in an action as well.
-
-{% hint style="info" %}
-Even though derived state is defined as functions you consume them as plain values. You do not have to call the derived function to get the value. 
-{% endhint %}
-
-## Statemachines
+### Statemachines
 
 Very often you get into a situation where you define states as **isLoading**, **hasError** etc. Having these kinds of state can cause **impossible states**. For example:
 
@@ -329,7 +298,7 @@ const state = {
 
 You can not be authenticating and be authenticated at the same time. This kind of logic very often causes bugs in applications. That is why Overmind allows you to define statemachines. It sounds complicated, but is actually very simple.
 
-### Defining
+#### Defining
 
 {% tabs %}
 {% tab title="overmind/state.js" %}
@@ -355,13 +324,7 @@ export const state = {
 
 You set an **initial** state and then you create a relationship between the different states and what states they can transition into. So when **unauthenticated** is the state, only logic triggered with an **authenticating** transition will run, any other transition triggered will not run its logic.
 
-
-
-## 
-
-## 
-
-### Transitioning
+#### Transitioning
 
 {% tabs %}
 {% tab title="overmind/actions.js" %}
@@ -406,7 +369,7 @@ There are two important rules for predictable transitions:
 
 What is important to realize here is that our logic is separated into **allowable** transitions. That means when we are waiting for the user on **line 4** and some other logic has changed the state to **unauthenticated** in the meantime, the user will not be set, as the **authenticated** transition is now not possible. This is what state machines do. They group logic into states that are allowed to run, preventing invalid logic to run.
 
-### Current state
+#### Current state
 
 The current state is accessed, related to this example, by:
 
@@ -414,7 +377,7 @@ The current state is accessed, related to this example, by:
 state.mode.current
 ```
 
-### Exit
+#### Exit
 
 It is also possible to run logic when a transition exits. An example of this is for example if a transition sets up a subscription. This subscription can be disposed when the transition is exited.
 
@@ -446,7 +409,7 @@ export const login = async ({ state, effects }) => {
 {% endtab %}
 {% endtabs %}
 
-### Reset
+#### Reset
 
 You can reset the state of a statemachine, which also runs the exit of the current transition:
 

@@ -70,6 +70,16 @@ const overmind = createOvermind(config, {
 })
 ```
 
+## options.delimiter
+
+By default Overmind will create state paths using `.` as delimiter. This is used to give each state value an address and is used with the devtools. If any state keys uses `.` you will get weird behaviour in the devtools. You can now change this delimiter to a safe value, typically `' '` or `'|'` :
+
+```typescript
+const overmind = createOvermind(config, {
+  delimiter: '.'
+})
+```
+
 ## events
 
 Overmind emits events during execution of actions and similar. It can be beneficial to listen to these events for analytics or maybe you want to create a custom debugging experience. The following events can be listened to by adding a listener to the eventHub:

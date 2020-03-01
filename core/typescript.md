@@ -155,16 +155,16 @@ export const state: State = {
 {% tabs %}
 {% tab title="overmind/state.ts" %}
 ```typescript
-import { Derived } from 'overmind'
+import { derived } from 'overmind'
 
 type State = {
   foo: string
-  shoutedFoo Derived<State, string>
+  shoutedFoo string
 }
 
 export const state: State = {
   foo: 'bar',
-  shoutedFoo: state => state.foo + '!!!'
+  shoutedFoo: derived<State>(state => state.foo + '!!!')
 }
 ```
 {% endtab %}
@@ -387,7 +387,41 @@ export const filterAwesome: <T extends { isAwesome: boolean }>() => Operator<T> 
 
 That means this operator can handle any type that matches an **isAwesome** property, though will pass the original type through.
 
-## Statecharts
+## Statemachine
+
+Statemachines exposes a type called **Statemachine** which you will give a single type argument of what states it should manage:
+
+{% tabs %}
+{% tab title="overmind/state.ts" %}
+```typescript
+import { Statemachine, statemachine } from 'overmind'
+
+type Mode =
+  | 'unauthenticated'
+  | 'authenticating'
+  | 'authenticated'
+  | 'unauthenticating'
+
+type State = {
+  mode: Statemachine<Mode>
+}
+
+export const state: State = {
+  mode: statemachine<Mode>({
+    initial: 'unauthenticated',
+    states: {
+      unauthenticated: ['authenticating'],
+      authenticating: ['unauthenticated', 'authenticated'],
+      authenticated: ['unauthenticating'],
+      unauthenticating: ['unauthenticated', 'authenticated']
+    }
+  })
+}
+```
+{% endtab %}
+{% endtabs %}
+
+## Statechart
 
 To type a statechart you use the **Statechart** type:
 

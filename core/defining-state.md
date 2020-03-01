@@ -273,11 +273,9 @@ export const updateState = ({ state }) => {
 Note that **rehydrate** gives you full type safety when adding the **SERIALIZE**  symbol to your classes. This is a huge benefit as Typescript will yell at you when the state structure changes, related to the rehydration
 {% endhint %}
 
-## Deriving state
+## Getters
 
-### Getter
-
-A concept in Javascript called a [GETTER](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/get) allows you to intercept accessing a property in an object. A getter is just like a plain value, it can be added or removed at any point. Getters do **not** cache the result for that very reason, but whatever state they access is tracked.
+A concept in Javascript called a [GETTER](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/get) allows you to intercept accessing a property in an object. A getter is just like a plain value and runs whenever the property is accessed.
 
 {% tabs %}
 {% tab title="overmind/state.js" %}
@@ -297,7 +295,7 @@ export const state = {
 {% endtab %}
 {% endtabs %}
 
-### Cached getter
+## Derived
 
 When you need to do more heavy calculation or combine state from different parts of the tree you can use a plain function instead. Overmind treats these functions like a **getter**, but the returned value is cached and they can also access the root state of the application. A simple example of this would be:
 
@@ -312,33 +310,11 @@ export const state: State = {
 {% endtab %}
 {% endtabs %}
 
-The first argument of the function is the state the derived function is attached to. A second argument is also passed and that is the root state of the application, allowing you to access whatever you would need. Two important traits of the derived function is:
-
-1. The state accessed is tracked
-2. The value returned is cached
-
-That means the function only runs when accessed and the depending state has changed since last access.
+The first argument of the function is the state the derived function is attached to. A second argument is also passed and that is the root state of the application, allowing you to access whatever you would need.  You can add a derived dynamically in an action as well.
 
 {% hint style="info" %}
-Even though derived state is defined as functions you consume them as plain values. You do not have to call the derived function to get the value. Derived state can not be dynamically added. They have to be defined and live in the tree from start to end of your application lifecycle.
+Even though derived state is defined as functions you consume them as plain values. You do not have to call the derived function to get the value. 
 {% endhint %}
-
-### Dynamic getter
-
-Sometimes you want to derive state based on some value coming from the user interface. You can do this by creating a function that returns a function. This can be useful for helper functions:
-
-{% tabs %}
-{% tab title="overmind/state.js" %}
-```javascript
-export const state = {
-  users: {},
-  userById: ({ users }) => id => users[id]
-}
-
-// state.userById('123')
-```
-{% endtab %}
-{% endtabs %}
 
 ## Statemachines
 
@@ -378,6 +354,12 @@ export const state = {
 {% endtabs %}
 
 You set an **initial** state and then you create a relationship between the different states and what states they can transition into. So when **unauthenticated** is the state, only logic triggered with an **authenticating** transition will run, any other transition triggered will not run its logic.
+
+
+
+## 
+
+## 
 
 ### Transitioning
 

@@ -8,7 +8,7 @@ The mechanism of communicating from the application to the user interface is cal
 
 ## State tree
 
-Overmind is structured as a single state tree. That means all of your state can be accessed through a single object, called the **state**. This state tree will hold values which describes different states of your application. The tree branches out using plain objects. That means you can consider plain objets as **branches** of your state tree.
+Overmind is structured as a single state tree. That means all of your state can be accessed through a single object, called the **state**. This state tree will hold values which describes different states of your application. The tree branches out using plain objects, which can be considered **branches** of your state tree.
 
 ```javascript
 { // branch

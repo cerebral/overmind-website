@@ -18,7 +18,7 @@ import { IConfig } from 'overmind'
 const config = {}
 
 declare module 'overmind' {
-  // tslint:disable:interface-name
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
   interface Config extends IConfig<typeof config> {}
 }
 ```

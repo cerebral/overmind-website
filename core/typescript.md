@@ -137,7 +137,7 @@ export const state: State = {
 ```typescript
 type State = {
   foo: string
-  shoutedFoo string
+  shoutedFoo: string
 }
 
 export const state: State = {
@@ -159,7 +159,7 @@ import { derived } from 'overmind'
 
 type State = {
   foo: string
-  shoutedFoo string
+  shoutedFoo: string
 }
 
 export const state: State = {
@@ -180,7 +180,7 @@ import { derived } from 'overmind'
 type State = {
   foo: string
   nested: {
-    shoutedFoo string
+    shoutedFoo: string
   }
 }
 

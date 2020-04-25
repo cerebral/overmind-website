@@ -341,7 +341,7 @@ Now you can create a script in your **package.json** file that looks something l
 ```typescript
 {
   "scripts": {
-    "schema": "apollo schema:download --endpoint=http://some-endpoint.dev graphql-schema.json && apollo codegen:generate --localSchemaFile=graphql-schema.json --target=typescript --includes=src/overmind/**/*.ts --tagName=gql --no-addTypename --globalTypesFile=src/overmind/graphql-global-types.ts graphql-types"
+    "schema": "apollo schema:download --header='X-Hasura-Admin-Secret: password' --endpoint=http://some-endpoint.dev graphql-schema.json && apollo codegen:generate --localSchemaFile=graphql-schema.json --target=typescript --includes=src/overmind/**/*.ts --tagName=gql --no-addTypename --globalTypesFile=src/overmind/graphql-global-types.ts graphql-types"
   }
 }
 ```

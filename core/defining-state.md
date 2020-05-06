@@ -87,14 +87,14 @@ export const state: State = {
 {% endtab %}
 {% endtabs %}
 
-The first argument of the function is the state the derived function is attached to. A second argument is also passed and that is the root state of the application, allowing you to access whatever you would need. 
+The first argument of the function is the state the derived function is attached to. A second argument is also passed and that is the root state of the application, allowing you to access whatever you would need.
 
 {% hint style="info" %}
 Even though derived state is defined as functions you consume them as plain values. You do not have to call the derived function to get the value. Derived functions can also be dynamically added.
 {% endhint %}
 
 {% hint style="info" %}
-You may use a derived for all sorts of calculations. But sometimes it's better to just use a plain action to create some state than using a derived. Why? Imagine a table component having a lot of rows and columns. We assume the table component also takes care of sorting and filtering and is capable of adding new rows. Now if you solve the sorting and filtering using a derived the following could happen: User adds a new row but it is not displayed in the list because the derived immediately kicked in and filtered it out. Thats not a good user experience. Also in this case the filtering and sorting is clearly started by a simple user interaction (setting a filter value, clicking on a column,...) so why not just start an action which creates the new list of sorted and filtered keys? Also the heavy calculation is now very predictable and doesn't cause performance issues because the derived kickes in too often (Because it could have many dependencies you might didn't think of)
+You may use a derived for all sorts of calculations. But sometimes it's better to just use a plain action to create some state than using a derived. Why? Imagine a table component having a lot of rows and columns. We assume the table component also takes care of sorting and filtering and is capable of adding new rows. Now if you solve the sorting and filtering using a derived the following could happen: User adds a new row but it is not displayed in the list because the derived immediately kicked in and filtered it out. Thats not a good user experience. Also in this case the filtering and sorting is clearly started by a simple user interaction \(setting a filter value, clicking on a column,...\) so why not just start an action which creates the new list of sorted and filtered keys? Also the heavy calculation is now very predictable and doesn't cause performance issues because the derived kickes in too often \(Because it could have many dependencies you might didn't think of\)
 {% endhint %}
 
 ### Class instances
@@ -178,7 +178,7 @@ The **SERIALIZE** symbol will not be part of the actual serialization done with 
 
 #### Rehydrating classes
 
-The [**rehydrate**](../api-1/rehydrate.md) ****utility of Overmind allows you to rehydrate state either by a list of mutations or a state object, like the following:
+The [**rehydrate**](../api-1/rehydrate.md) _\*\*_utility of Overmind allows you to rehydrate state either by a list of mutations or a state object, like the following:
 
 {% tabs %}
 {% tab title="overmind/actions.js" %}
@@ -286,7 +286,7 @@ export const updateState = ({ state }) => {
 {% endtabs %}
 
 {% hint style="info" %}
-Note that **rehydrate** gives you full type safety when adding the **SERIALIZE**  symbol to your classes. This is a huge benefit as Typescript will yell at you when the state structure changes, related to the rehydration
+Note that **rehydrate** gives you full type safety when adding the **SERIALIZE** symbol to your classes. This is a huge benefit as Typescript will yell at you when the state structure changes, related to the rehydration
 {% endhint %}
 
 ### Statemachines

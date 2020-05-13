@@ -97,18 +97,27 @@ if (module.hot) {
 
 Though you can also manually only update Overmind by:
 
+{% tabs %}
+{% tab title="index.js" %}
 ```typescript
 import React from 'react'
 import { render } from 'react-dom'
-import { createOvermind } from 'overmind'
+import { overmind } from './overmindInstance'
 import { Provider } from 'overmind-react'
-import { config } from './overmind'
 import { App } from './components/App'
 
-
-const overmind = createOvermind(config)
-
 render(<Provider value={overmind}><App /></Provider>, document.querySelector('#app'))
+
+
+```
+{% endtab %}
+
+{% tab title="overmindInstance.js" %}
+```javascript
+import { createOvermind } from 'overmind'
+import { config } from './overmind'
+
+export const overmind = createOvermind(config)
 
 if (module.hot) {
   module.hot.accept('./overmind', () => {
@@ -116,4 +125,6 @@ if (module.hot) {
   })
 }
 ```
+{% endtab %}
+{% endtabs %}
 

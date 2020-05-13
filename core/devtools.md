@@ -69,3 +69,51 @@ ChromeOS does not expose localhost as normal. That means you need to connect wit
 
 A popular concept introduced by Webpack is [HMR](https://webpack.js.org/concepts/hot-module-replacement/). It allows you to make changes to your code without having to refresh. Overmind automatically supports HMR. That means when **HMR** is activated Overmind will make sure it updates and manages its state, actions and effects. Even the devtools will be updated as you make changes.
 
+Typically you add this, here showing with React:
+
+```typescript
+import React from 'react'
+import { render } from 'react-dom'
+import { createOvermind } from 'overmind'
+import { Provider } from 'overmind-react'
+import { config } from './overmind'
+import { App } from './components/App'
+
+
+function start() {
+  const overmind = createOvermind(config)
+
+  render(<Provider value={overmind}><App /></Provider>, document.querySelector('#app'))
+}
+
+start()
+
+if (module.hot) {
+  module.hot.accept(() => {
+    start()
+  })
+}
+```
+
+Though you can also manually only update Overmind by:
+
+```typescript
+import React from 'react'
+import { render } from 'react-dom'
+import { createOvermind } from 'overmind'
+import { Provider } from 'overmind-react'
+import { config } from './overmind'
+import { App } from './components/App'
+
+
+const overmind = createOvermind(config)
+
+render(<Provider value={overmind}><App /></Provider>, document.querySelector('#app'))
+
+if (module.hot) {
+  module.hot.accept('./overmind', () => {
+    overmind.reconfigure(config)
+  })
+}
+```
+

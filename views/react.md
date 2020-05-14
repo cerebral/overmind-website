@@ -10,7 +10,7 @@ When you connect Overmind to a component you ensure that whenever any tracked st
 {% tab title="Javascript" %}
 ```typescript
 // overmind/index.js
-import { createHook } from 'overmind-react'
+import { createHook, createStateHook } from 'overmind-react'
 import { state } from './state'
 import * as actions from './actions'
 
@@ -20,6 +20,10 @@ export const config = {
 }
 
 export const useOvermind = createHook()
+export const useState = createStateHook()
+export const useActions = createActionsHook()
+export const useEffects = createEffectsHook()
+export const useReaction = createReactionHook()
 
 // index.js
 import * as React from 'react'
@@ -42,7 +46,11 @@ import * as React from 'react'
 import { useOvermind } from '../overmind'
 
 const App = () => {
+  // General
   const { state, actions, effects, reaction } = useOvermind()
+  // Or be specific
+  const { isLoggedIn } = useState().auth
+  const { login, logout } = useActions().auth
 
   return <div />
 }
@@ -100,6 +108,10 @@ export default App
 ```
 {% endtab %}
 {% endtabs %}
+
+{% hint style="info" %}
+The benefit of using specific hooks is that if you only need actions in a component, you do not add tracking behaviour to the component by using **useActions**. Also it reduces the amount of destructuring needed, as you can point to a namespace on the hook.
+{% endhint %}
 
 ### Rendering
 

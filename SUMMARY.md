@@ -48,6 +48,7 @@
 * [createOvermindSSR](api-1/createovermindssr.md)
 * [derive](api-1/derive.md)
 * [effects](api-1/effects.md)
+* [events](api-1/events.md)
 * [json](api-1/json.md)
 * [lazy](api-1/lazy.md)
 * [merge](api-1/merge.md)

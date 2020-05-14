@@ -265,6 +265,25 @@ export const onInitialize = ({ state, effects }) => {
 {% endtab %}
 {% endtabs %}
 
+## Custom subscription socket
+
+If you want to define your own socket for connecting to subscriptions, a function can be used instead:
+
+{% tabs %}
+{% tab title="overmind/onInitialize.js" %}
+```javascript
+export const onInitialize = ({ effects }) => {
+  effects.gql.initialize(
+    {
+      endpoint: 'http://some-endpoint.dev',
+    }, 
+    () => new Websocket('ws://some-other-endpoint.dev')
+  )
+}
+```
+{% endtab %}
+{% endtabs %}
+
 ## Disposing subscriptions
 
 You can dispose any subscriptions in any action. There are two ways to dispose:

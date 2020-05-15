@@ -51,7 +51,6 @@ import {
   IOnInitialize,
   IAction,
   IOperator,
-  IDerive,
   IState
 } from 'overmind'
 
@@ -66,8 +65,6 @@ export interface Action<Input = void, Output = void> extends IAction<Config, Inp
 export interface AsyncAction<Input = void, Output = void> extends IAction<Config, Input, Promise<Output>> {}
 
 export interface Operator<Input = void, Output = Input> extends IOperator<Config, Input, Output> {}
-
-export interface Derive<Parent extends IState, Output> extends IDerive<Config, Parent, Output> {}
 ```
 {% endtab %}
 {% endtabs %}
@@ -180,7 +177,7 @@ import { derived } from 'overmind'
 type State = {
   foo: string
   nested: {
-    shoutedFoo string
+    shoutedFoo: string
   }
 }
 
@@ -194,9 +191,27 @@ export const state: State = {
 {% endtab %}
 {% endtabs %}
 
-{% hint style="warning" %}
 Note that with **Explicit Typing** you need to also pass the a third argument to the **derived** function, the **Config** type created in your main **index.ts** file.
-{% endhint %}
+
+{% tabs %}
+{% tab title="overmind/state.ts" %}
+```typescript
+import { Config } from '../'
+
+type State = {
+  foo: string
+  shoutedFoo: string
+}
+
+export const state: State = {
+  foo: 'bar',
+  shoutedFoo: derived<State, string, Config>(
+    (state, rootState) => state.foo + '!!!'
+  )
+}
+```
+{% endtab %}
+{% endtabs %}
 
 ## Actions
 

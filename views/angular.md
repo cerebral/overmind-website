@@ -124,6 +124,20 @@ export class AppComponent {
 
 You can now access the **admin** state and actions directly with **state** and **actions**.
 
+### Polyfill environment
+
+Angular does not inject the environment, so in your **polyfill.ts** file you have to add the following:
+
+```typescript
+import { environment } from './environments/environment';
+
+(window as any).process = {
+  env: {
+    NODE_ENV: environment.production ? 'production' : 'development'
+  },
+};
+```
+
 ## NgZone
 
 The Overmind **\*track** directive knows when your components should update, and so is much more efficient at change detection than Angular's default NgZone. In order to take advantage of the efficiency provided by the \***track** directive, you _must_ set **ngZone** to "noop". Note that other 3rd party libraries may not support this. If for any reason you can't set **ngZone** to "noop", then the \***track** directive is redundant, and you can safely exclude it from your templates.

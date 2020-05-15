@@ -155,20 +155,48 @@ export const state: State = {
 {% tabs %}
 {% tab title="overmind/state.ts" %}
 ```typescript
-import { Derived } from 'overmind'
+import { derived } from 'overmind'
 
 type State = {
   foo: string
-  shoutedFoo Derived<State, string>
+  shoutedFoo: string
 }
 
 export const state: State = {
   foo: 'bar',
-  shoutedFoo: state => state.foo + '!!!'
+  shoutedFoo: derived<State, string>(state => state.foo + '!!!')
 }
 ```
 {% endtab %}
 {% endtabs %}
+
+Note that the type argument you pass is the object the derived is attached to, so with nested derived:
+
+{% tabs %}
+{% tab title="overmind/state.ts" %}
+```typescript
+import { derived } from 'overmind'
+
+type State = {
+  foo: string
+  nested: {
+    shoutedFoo string
+  }
+}
+
+export const state: State = {
+  foo: 'bar',
+  nested: {
+    shoutedFoo: derived<State['nested'], string>(state => state.foo + '!!!')
+  }
+}
+```
+{% endtab %}
+{% endtabs %}
+
+{% hint style="warning" %}
+Note that with **Explicit Typing** you need to also pass the a third argument to the **derived** function, the **Config** type created in your main **index.ts** file.
+{% endhint %}
 
 ## Actions
 

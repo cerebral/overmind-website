@@ -77,6 +77,10 @@ declare module 'overmind' {
 }
 
 export const useOvermind = createHook<typeof config>()
+export const useState = createStateHook<typeof config>()
+export const useActions = createActionsHook<typeof config>()
+export const useEffects = createEffectsHook<typeof config>()
+export const useReaction = createReactionHook<typeof config>()
 
 // index.tsx
 import * as React from 'react'
@@ -99,8 +103,12 @@ import * as React from 'react'
 import { useOvermind } from '../overmind'
 
 const App: React.FunctionComponent = () => {
+  // General
   const { state, actions, effects, reaction } = useOvermind()
-
+  // Or be specific
+  const { isLoggedIn } = useState().auth
+  const { login, logout } = useActions().auth
+  
   return <div />
 }
 

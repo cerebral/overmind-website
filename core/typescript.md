@@ -19,7 +19,14 @@ const config = {}
 
 declare module 'overmind' {
   // tslint:disable:interface-name
-  interface Config extends IConfig<typeof config> {}
+  interface Config extends IConfig<{
+    state: typeof config.state,
+    actions: typeof config.actions,
+    effects: typeof config.effects
+  }> {}
+  // Due to circular typing we have to define an
+  // explicit typing of state, actions and effects since
+  // TS 3.9
 }
 ```
 {% endtab %}
@@ -56,7 +63,14 @@ import {
 
 export const config = {}
 
-export interface Config extends IConfig<typeof config> {}
+// Due to circular typing we have to define an
+// explicit typing of state, actions and effects since
+// TS 3.9
+export interface Config extends IConfig<{
+  state: typeof config.state,
+  actions: typeof config.actions,
+  effects: typeof config.effects
+}> {}
 
 export interface OnInitialize extends IOnInitialize<Config> {}
 

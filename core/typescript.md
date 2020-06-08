@@ -252,7 +252,7 @@ type State =
     user: { username: string }
   }
 
-export const state = statemachine<States>({
+export const state = statemachine<State>({
   UNAUTHENTICATED: ['AUTHENTICATING'],
   AUTHENTICATING: ['UNAUTHENTICATED', 'AUTHENTICATED'],
   AUTHENTICATED: ['UNAUTHENTICATING'],

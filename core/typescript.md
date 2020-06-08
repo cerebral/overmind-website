@@ -175,7 +175,7 @@ type State = {
 
 export const state: State = {
   foo: 'bar',
-  shoutedFoo: derived<State, string>(state => state.foo + '!!!')
+  shoutedFoo: derived((state: State) => state.foo + '!!!')
 }
 ```
 {% endtab %}
@@ -198,7 +198,7 @@ type State = {
 export const state: State = {
   foo: 'bar',
   nested: {
-    shoutedFoo: derived<State['nested'], string>(state => state.foo + '!!!')
+    shoutedFoo: derived((state: State['nested']) => state.foo + '!!!')
   }
 }
 ```
@@ -210,7 +210,7 @@ Note that with **Explicit Typing** you need to also pass the a third argument to
 {% tabs %}
 {% tab title="overmind/state.ts" %}
 ```typescript
-import { Config } from '../'
+import { RootState } from 'overmind'
 
 type State = {
   foo: string
@@ -219,8 +219,8 @@ type State = {
 
 export const state: State = {
   foo: 'bar',
-  shoutedFoo: derived<State, string, Config>(
-    (state, rootState) => state.foo + '!!!'
+  shoutedFoo: derived(
+    (state: State, rootState: RootState) => state.foo + '!!!'
   )
 }
 ```

@@ -153,7 +153,7 @@ export const getEventTargetValue: () => Operator<Event, string> = () =>
 
 **async**
 
-You use this operator whenever you want to change the state of the app, but you can run effects as well. Any returned value is ignored.
+You use this operator whenever you want to change the state of the app. Any returned value is ignored.
 
 ```typescript
 import { Operator, mutate } from 'overmind'

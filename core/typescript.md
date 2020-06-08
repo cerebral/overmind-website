@@ -19,7 +19,14 @@ const config = {}
 
 declare module 'overmind' {
   // tslint:disable:interface-name
-  interface Config extends IConfig<typeof config> {}
+  interface Config extends IConfig<{
+    state: typeof config.state,
+    actions: typeof config.actions,
+    effects: typeof config.effects
+  }> {}
+  // Due to circular typing we have to define an
+  // explicit typing of state, actions and effects since
+  // TS 3.9
 }
 ```
 {% endtab %}
@@ -51,13 +58,19 @@ import {
   IOnInitialize,
   IAction,
   IOperator,
-  IDerive,
   IState
 } from 'overmind'
 
 export const config = {}
 
-export interface Config extends IConfig<typeof config> {}
+// Due to circular typing we have to define an
+// explicit typing of state, actions and effects since
+// TS 3.9
+export interface Config extends IConfig<{
+  state: typeof config.state,
+  actions: typeof config.actions,
+  effects: typeof config.effects
+}> {}
 
 export interface OnInitialize extends IOnInitialize<Config> {}
 
@@ -66,8 +79,6 @@ export interface Action<Input = void, Output = void> extends IAction<Config, Inp
 export interface AsyncAction<Input = void, Output = void> extends IAction<Config, Input, Promise<Output>> {}
 
 export interface Operator<Input = void, Output = Input> extends IOperator<Config, Input, Output> {}
-
-export interface Derive<Parent extends IState, Output> extends IDerive<Config, Parent, Output> {}
 ```
 {% endtab %}
 {% endtabs %}
@@ -155,20 +166,113 @@ export const state: State = {
 {% tabs %}
 {% tab title="overmind/state.ts" %}
 ```typescript
-import { Derived } from 'overmind'
+import { derived } from 'overmind'
 
 type State = {
   foo: string
-  shoutedFoo Derived<State, string>
+  shoutedFoo: string
 }
 
 export const state: State = {
   foo: 'bar',
-  shoutedFoo: state => state.foo + '!!!'
+  shoutedFoo: derived<State, string>(state => state.foo + '!!!')
 }
 ```
 {% endtab %}
 {% endtabs %}
+
+Note that the type argument you pass is the object the derived is attached to, so with nested derived:
+
+{% tabs %}
+{% tab title="overmind/state.ts" %}
+```typescript
+import { derived } from 'overmind'
+
+type State = {
+  foo: string
+  nested: {
+    shoutedFoo: string
+  }
+}
+
+export const state: State = {
+  foo: 'bar',
+  nested: {
+    shoutedFoo: derived<State['nested'], string>(state => state.foo + '!!!')
+  }
+}
+```
+{% endtab %}
+{% endtabs %}
+
+Note that with **Explicit Typing** you need to also pass the a third argument to the **derived** function, the **Config** type created in your main **index.ts** file.
+
+{% tabs %}
+{% tab title="overmind/state.ts" %}
+```typescript
+import { Config } from '../'
+
+type State = {
+  foo: string
+  shoutedFoo: string
+}
+
+export const state: State = {
+  foo: 'bar',
+  shoutedFoo: derived<State, string, Config>(
+    (state, rootState) => state.foo + '!!!'
+  )
+}
+```
+{% endtab %}
+{% endtabs %}
+
+### Statemachine
+
+A statemachine takes a type of states. A big benefit of this approach is that you can type what state is available in any transition state. So for example, you will only have a user if you are in the **authenticated** transition state.
+
+{% tabs %}
+{% tab title="overmind/state.ts" %}
+```typescript
+import { statemachine } from 'overmind'
+
+type State =
+| {
+    state: 'UNAUTHENTICATED'
+  }
+| {
+    state: 'AUTHENTICATED'
+    user: { username: string }
+  }
+| {
+    state: 'AUTHENTICATING'
+  }
+| {
+    state: 'UNAUTHENTICATING'
+    user: { username: string }
+  }
+
+export const state = statemachine<States>({
+  UNAUTHENTICATED: ['AUTHENTICATING'],
+  AUTHENTICATING: ['UNAUTHENTICATED', 'AUTHENTICATED'],
+  AUTHENTICATED: ['UNAUTHENTICATING'],
+  UNAUTHENTICATING: ['UNAUTHENTICATED', 'AUTHENTICATED']
+}, {
+  state: 'UNAUTHENTICATED'
+})
+```
+{% endtab %}
+{% endtabs %}
+
+Now whenever you access this state you can check the current transition state and doing so get the correct state back:
+
+```typescript
+if (state.state === 'AUTHENTICATED') {
+  state // Typed with "user"
+} else if (state.state ==== 'UNAUTHENTICATED') {
+  state // Not typed with "user"
+}
+```
 
 ## Actions
 
@@ -386,117 +490,6 @@ export const filterAwesome: <T extends { isAwesome: boolean }>() => Operator<T> 
 {% endtabs %}
 
 That means this operator can handle any type that matches an **isAwesome** property, though will pass the original type through.
-
-## Statemachine
-
-Statemachines exposes a type called **Statemachine** which you will give a single type argument of what states it should manage:
-
-{% tabs %}
-{% tab title="overmind/state.ts" %}
-```typescript
-import { Statemachine, statemachine } from 'overmind'
-
-type Mode =
-  | 'unauthenticated'
-  | 'authenticating'
-  | 'authenticated'
-  | 'unauthenticating'
-
-type State = {
-  mode: Statemachine<Mode>
-}
-
-export const state: State = {
-  mode: statemachine<Mode>({
-    initial: 'unauthenticated',
-    states: {
-      unauthenticated: ['authenticating'],
-      authenticating: ['unauthenticated', 'authenticated'],
-      authenticated: ['unauthenticating'],
-      unauthenticating: ['unauthenticated', 'authenticated']
-    }
-  })
-}
-```
-{% endtab %}
-{% endtabs %}
-
-## Statechart
-
-To type a statechart you use the **Statechart** type:
-
-{% tabs %}
-{% tab title="overmind/someNamespace/index.ts" %}
-```typescript
-import { Statechart, statechart } from 'overmind/config'
-import * as actions from './actions'
-import { state } from './state'
-
-const config = {
-  state,
-  actions
-}
-
-const someChart: Statechart<typeof config, {
-  FOO: void
-  BAR: void
-}> = {
-  initial: 'FOO',
-  states: {
-    FOO: {},
-    BAR: {}
-  }
-}
-
-export default statechart(config, someChart)
-```
-{% endtab %}
-{% endtabs %}
-
-The **void** type just defines that there are no nested charts. All the states and points of inserting an action name is now typed. Also the **condition** callback is typed. Even the **matches** API is typed correctly.
-
-### Nested chart
-
-{% tabs %}
-{% tab title="overmind/someNamespace/index.ts" %}
-```typescript
-import { Statechart, statechart } from 'overmind/config'
-import * as actions from './actions'
-import { state } from './state'
-
-const config = {
-  state,
-  actions
-}
-
-const someNestedChart: Statechart<typeof config, {
-  NESTED_FOO: void
-  NESTED_BAR: void
-}> = {
-  initial: 'NESTED_FOO',
-  states: {
-    NESTED_FOO: {},
-    NESTED_BAR: {}
-  }
-}
-
-const someChart: Statechart<typeof config, {
-  FOO: typeof someNestedChart
-  BAR: void
-}> = {
-  initial: 'FOO',
-  states: {
-    FOO: {
-      chart: someNestedChart
-    },
-    BAR: {}
-  }
-}
-
-export default statechart(config, someChart)
-```
-{% endtab %}
-{% endtabs %}
 
 ## Linting
 

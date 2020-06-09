@@ -24,6 +24,7 @@
 * [React](views/react.md)
 * [Angular](views/angular.md)
 * [Vue](views/vue.md)
+* [Svelte](views/svelte.md)
 
 ## Addons
 

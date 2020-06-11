@@ -274,6 +274,18 @@ if (state.state === 'AUTHENTICATED') {
 }
 ```
 
+When doing state transitions in actions your will receive the statemachine as the first argument to both **entry** and **exit** callbacks, giving you the correct typing.
+
+```typescript
+export const myAction: Action = ({ state }) => {
+  state.AUTHENTICATED((current) => {
+    current.user = {...} // Typed with user
+  }, (current) => {
+    delete current.user // Typed with user
+  })
+}
+```
+
 ## Actions
 
 The action type takes either an input type, an output type, or both.

@@ -148,7 +148,7 @@ export const state: State = {
 ```typescript
 type State = {
   foo: string
-  shoutedFoo string
+  shoutedFoo: string
 }
 
 export const state: State = {

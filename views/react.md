@@ -16,7 +16,12 @@ When you connect Overmind to a component you ensure that whenever any tracked st
 {% tab title="Javascript" %}
 ```typescript
 // overmind/index.js
-import { createHook, createStateHook } from 'overmind-react'
+import {
+  createStateHook,
+  createActionsHook,
+  createEffectsHook,
+  createReactionHook
+} from 'overmind-react'
 import { state } from './state'
 import * as actions from './actions'
 
@@ -25,7 +30,6 @@ export const config = {
   actions
 }
 
-export const useOvermind = createHook()
 export const useState = createStateHook()
 export const useActions = createActionsHook()
 export const useEffects = createEffectsHook()
@@ -49,11 +53,14 @@ render((
 
 // components/App.jsx
 import * as React from 'react'
-import { useOvermind } from '../overmind'
+import { useState, useActions, useEffects, useReaction } from '../overmind'
 
 const App = () => {
   // General
-  const { state, actions, effects, reaction } = useOvermind()
+  const state = useState()
+  const actions = useActions()
+  const effects = useEffects()
+  const reaction = useReaction()
   // Or be specific
   const { isLoggedIn } = useState().auth
   const { login, logout } = useActions().auth
@@ -133,18 +140,18 @@ When you use the Overmind hook it will ensure that the component will render whe
 
 ### Passing state as props
 
-If you pass a state object or array as a property to a child component you will also in the child component need to use the **useOvermind** hook to ensure that it is tracked within that component, even though you do not access any state or actions. The devtools will help you identify where any components are left “unconnected”.
+If you pass a state object or array as a property to a child component you will also in the child component need to use the **useState** hook to ensure that it is tracked within that component, even though you do not access any state or actions. The devtools will help you identify where any components are left “unconnected”.
 
 {% tabs %}
 {% tab title="Javascript" %}
 ```typescript
 // components/Todos.jsx
 import * as React from 'react'
-import { useOvermind } from '../overmind'
+import { useState } from '../overmind'
 import Todo from './Todo'
 
 const Todos = () => {
-  const { state } = useOvermind()
+  const state = useState()
 
   return (
     <ul>
@@ -157,10 +164,10 @@ export default Todos
 
 // components/Todo.jsx
 import * as React from 'react'
-import { useOvermind } from '../overmind'
+import { useState } from '../overmind'
 
 const Todo = ({ todo }) => {
-  useOvermind()
+  useState()
 
   return <li>{todo.title}</li>
 }
@@ -217,10 +224,10 @@ The hook effect of React gives a natural point of running effects related to sta
 // components/App.jsx
 import * as React from 'react'
 import { useEffect } from 'react'
-import { useOvermind } from '../overmind'
+import { useState } from '../overmind'
 
 const App = () => {
-  const { state } = useOvermind()
+  const state = useState()
 
   useEffect(() => {
     document.querySelector('#app').scrollTop = 0
@@ -263,10 +270,10 @@ Here you can also use the traditional approach of subscribing to updates.
 // components/App.jsx
 import * as React from 'react'
 import { useEffect } from 'react'
-import { useOvermind } from '../overmind'
+import { useReaction } from '../overmind'
 
 const Todos = () => {
-  const { reaction } = useOvermind()
+  const reaction = useReaction()
 
   useEffect(() => {
     return reaction(

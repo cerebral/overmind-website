@@ -1,6 +1,6 @@
 # GraphQL
 
-"schema": "apollo schema:download --header='X-Hasura-Admin-Secret: password' --endpoint=[http://some-endpoint.dev](http://some-endpoint.dev) graphql-schema.json && apollo codegen:generate --localSchemaFile=graphql-schema.json --target=typescript --includes=src/overmind/_\*/_.ts --tagName=gql --no-addTypename --globalTypesFile=src/overmind/graphql-global-types.ts graphql-types"Using Graphql with Overmind gives you the following benefits:
+Using Graphql with Overmind gives you the following benefits:
 
 * **Query:** The query for data is run with the rest of your application logic, unrelated to mounting components
 * **Cache:** You integrate the data from Graphql with your existing state, allowing you to control when new data is needed

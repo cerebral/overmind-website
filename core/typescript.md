@@ -18,7 +18,7 @@ import { IConfig } from 'overmind'
 const config = {}
 
 declare module 'overmind' {
-  // tslint:disable:interface-name
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
   interface Config extends IConfig<{
     state: typeof config.state,
     actions: typeof config.actions,
@@ -502,8 +502,4 @@ export const filterAwesome: <T extends { isAwesome: boolean }>() => Operator<T> 
 {% endtabs %}
 
 That means this operator can handle any type that matches an **isAwesome** property, though will pass the original type through.
-
-## Linting
-
-When you are using TSLint it is important that you use the official [MICROSOFT EXTENSION](https://marketplace.visualstudio.com/items?itemName=ms-vscode.vscode-typescript-tslint-plugin) for VS Code.
 

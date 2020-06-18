@@ -10,7 +10,7 @@ When you connect Overmind to a component you ensure that whenever any tracked st
 {% tab title="Javascript" %}
 ```typescript
 // overmind/index.js
-import { createHook, createStateHook } from 'overmind-react'
+import { createHook, createStateHook, createActionsHookcreateEffectsHook, createReactionHook } from 'overmind-react'
 import { state } from './state'
 import * as actions from './actions'
 
@@ -134,15 +134,15 @@ If you pass a state object or array as a property to a child component you will 
 ```typescript
 // components/Todos.jsx
 import * as React from 'react'
-import { useOvermind } from '../overmind'
+import { useState } from '../overmind'
 import Todo from './Todo'
 
 const Todos = () => {
-  const { state } = useOvermind()
+  const { todos } = useState()
 
   return (
     <ul>
-      {state.todos.map(todo => <Todo key={todo.id} todo={todo} />)}
+      {todos.map(todo => <Todo key={todo.id} todo={todo} />)}
     </ul<
   )
 }
@@ -151,10 +151,10 @@ export default Todos
 
 // components/Todo.jsx
 import * as React from 'react'
-import { useOvermind } from '../overmind'
+import { useState } from '../overmind'
 
 const Todo = ({ todo }) => {
-  useOvermind()
+  useState()
 
   return <li>{todo.title}</li>
 }
@@ -167,15 +167,15 @@ export default Todo
 ```typescript
 // components/Todos.tsx
 import * as React from 'react'
-import { useOvermind } from '../overmind'
+import { useState } from '../overmind'
 import Todo from './Todo'
 
 const Todos: React.FunctionComponent = () => {
-  const { state } = useOvermind()
+  const { todos } = useState()
 
   return (
     <ul>
-      {state.todos.map(todo => <Todo key={todo.id} todo={todo} />)}
+      {todos.map(todo => <Todo key={todo.id} todo={todo} />)}
     </ul<
   )
 }
@@ -184,14 +184,14 @@ export default Todos
 
 // components/Todo.tsx
 import * as React from 'react'
-import { useOvermind } from '../overmind'
+import { useState } from '../overmind'
 
 type Props = {
   todo: Todo
 }
 
 const Todo: React.FunctionComponent<Props> = ({ todo }) => {
-  useOvermind()
+  useState()
 
   return <li>{todo.title}</li>
 }
@@ -211,14 +211,14 @@ The hook effect of React gives a natural point of running effects related to sta
 // components/App.jsx
 import * as React from 'react'
 import { useEffect } from 'react'
-import { useOvermind } from '../overmind'
+import { useState } from '../overmind'
 
 const App = () => {
-  const { state } = useOvermind()
+  const { currentPage } = useState()
 
   useEffect(() => {
     document.querySelector('#app').scrollTop = 0
-  }, [state.currentPage])
+  }, [currentPage])
 
   return <div />
 }
@@ -232,14 +232,14 @@ export default App
 // components/App.tsx
 import * as React from 'react'
 import { useEffect } from 'react'
-import { useOvermind } from '../overmind'
+import { useState } from '../overmind'
 
 const App: React.FunctionComponent = () => {
-  const { state } = useOvermind()
+  const { currentPage } = useState()
 
   useEffect(() => {
     document.querySelector('#app').scrollTop = 0
-  }, [state.currentPage])
+  }, [currentPage])
 
   return <div />
 }
@@ -257,10 +257,10 @@ Here you can also use the traditional approach of subscribing to updates.
 // components/App.jsx
 import * as React from 'react'
 import { useEffect } from 'react'
-import { useOvermind } from '../overmind'
+import { useReaction } from '../overmind'
 
 const Todos = () => {
-  const { reaction } = useOvermind()
+  const reaction = useReaction()
 
   useEffect(() => {
     return reaction(
@@ -281,11 +281,11 @@ export default Todos
 // components/App.tsx
 import * as React from 'react'
 import { useEffect } from 'react'
-import { useOvermind } from '../overmind'
+import { useReaction } from '../overmind'
 
 const Todos: React.FunctionComponent = () => {
-  const { reaction } = useOvermind()
-
+  const reaction = useReaction()
+  
   useEffect(() => {
     return reaction(
       ({ currentPage }) => currentPage,

@@ -379,5 +379,5 @@ Note that initially you have to define your queries without types and after runn
 
 ## Optimize query
 
-It is possible to transpile the queries from strings into code. This reduces the size of your bundle, though only noticeably if you have a lot of queries. This can be done with the [BABEL-PLUGIN-GRAPHQL-TAG](https://github.com/gajus/babel-plugin-graphql-tag).
+It is possible to transpile the queries from strings into code. This increases the size of your bundle, though only noticeably if you have a lot of queries. This can be done with the [BABEL-PLUGIN-GRAPHQL-TAG](https://github.com/gajus/babel-plugin-graphql-tag).
 

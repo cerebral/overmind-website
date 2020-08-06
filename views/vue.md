@@ -1,5 +1,11 @@
 # Vue
 
+## Install
+
+```text
+npm install overmind overmind-vue
+```
+
 There are two approaches to connecting Overmind to Vue.
 
 ## Plugin

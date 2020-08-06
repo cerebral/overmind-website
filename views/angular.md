@@ -1,5 +1,13 @@
 # Angular
 
+## Install
+
+```text
+npm install overmind overmind-angular
+```
+
+## Configure
+
 Let us have a look at how you configure your app:
 
 {% tabs %}
@@ -123,6 +131,20 @@ export class AppComponent {
 {% endtabs %}
 
 You can now access the **admin** state and actions directly with **state** and **actions**.
+
+### Polyfill environment
+
+Angular does not inject the environment, so in your **polyfill.ts** file you have to add the following:
+
+```typescript
+import { environment } from './environments/environment';
+
+(window as any).process = {
+  env: {
+    NODE_ENV: environment.production ? 'production' : 'development'
+  },
+};
+```
 
 ## NgZone
 

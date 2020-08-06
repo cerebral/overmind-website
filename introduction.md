@@ -149,7 +149,7 @@ Looking through the example you have probably noticed these:
 createOvermind({
   state: {
     ...,
-    currentTodos: ({ todos, filter }) => {
+    currentTodos: derived(({ todos, filter }) => {
       return Object.values(todos).filter(todo => {
         switch (filter) {
           case 'active':
@@ -160,16 +160,16 @@ createOvermind({
             return true;
         }
       });
-    },
-    activeTodoCount: ({ todos }) => {
+    }),
+    activeTodoCount: derived(({ todos }) => {
       return Object.values(todos).filter(todo => !todo.completed).length;
-    },
-    hasCompletedTodos: ({ todos }) => {
+    }),
+    hasCompletedTodos: derived(({ todos }) => {
       return Object.values(todos).some(todo => todo.completed);
-    },
-    isAllTodosChecked: ({ currentTodos }) => {
+    }),
+    isAllTodosChecked: derived(({ currentTodos }) => {
       return currentTodos.every(todo => todo.completed);
-    },
+    }),
   },
   ...
 })
@@ -177,7 +177,7 @@ createOvermind({
 
 Our state tree is concerned with state values that you will change using actions. But you can also automatically produce state values based on existing state. An example of this would be to list the **currentTodos**. It uses the todos and filter state to figure out what todos to actually display. Sometimes this is called computed state. We call it **derived** state.
 
-Any function you insert into the state tree is treated as derived state. That means these functions receives a preset first argument which is the immediate state, the state object the derived is attached to. In bigger applications you might also need to use the second argument, which is the root state of the application. The derived will automatically track whatever state you use and then flag itself as dirty whenever it changes. If derived state is used while being dirty, the function will run again. If it is not dirty a cached value is returned.
+By using the **derived** function exported from Overmind you can insert a function into the state tree. These functions receives a preset first argument which is the immediate state, the state object the derived is attached to. In bigger applications you might also need to use the second argument, which is the root state of the application. The derived will automatically track whatever state you use and then flag itself as dirty whenever it changes. If derived state is used while being dirty, the function will run again. If it is not dirty, a cached value is returned.
 
 ## Effects
 
@@ -236,7 +236,7 @@ Now that we have insight into the building blocks of Overmind it is time to intr
 Have a look at this new project where we have typed the application:
 
 {% hint style="info" %}
-You have to **OPEN IN EDITOR** to get the full Typescript experience.
+You have to **OPEN SANDBOX** to get the full Typescript experience.
 {% endhint %}
 
 {% embed url="https://codesandbox.io/s/overmind-todomvc-typescript-39h7y?fontsize=14&hidenavigation=1&theme=dark&view=editor&runonclick=1" %}
@@ -269,7 +269,9 @@ To learn more about Overmind and Typescript read the [TYPESCRIPT](https://www.ov
 
 ## Development tool
 
-Overmind also ships with its own development tool. It can be installed as a [VSCODE PLUGIN](https://marketplace.visualstudio.com/items?itemName=christianalfoni.overmind-devtools-vscode) or installed as an NPM package. The development tool knows everything about what is happening inside the application. It shows you all the state, running actions and connected components. By default Overmind connects automatically to the devtool if it is running. Try now by going to the **index.tsx** file and change:
+Overmind also ships with its own development tool. It can be installed as a [VSCODE PLUGIN](https://marketplace.visualstudio.com/items?itemName=christianalfoni.overmind-devtools-vscode) or installed as an NPM package. The development tool knows everything about what is happening inside the application. It shows you all the state, running actions and connected components. By default Overmind connects automatically to the devtool if it is running.
+
+Open the **sandbox** above and try by going to the **index.tsx** file and change:
 
 ```typescript
 export const overmind = createOvermind(config, {
@@ -329,9 +331,11 @@ Our todo has been added and we can even see how the derived state was affected b
 
 ## Managing complexity
 
-Overmind gives you a basic foundation with its **state**, **actions** and **effects**. As mentioned previously you can split these up into multiple namespaces to organize your code. This manages the complexity of scaling. There is also a complexity of reusability and managing execution over time. The **operators** API allows you to split your logic into many different composable parts. With operators like **debounce**, **waitUntil** etc. you are able to manage execution over time. With the latest addition of **statecharts** you have the possiblity to manage the complexity of state and interaction. What interactions should be allowed in what states. And with state values as **class instances** you are able to co-locate state with logic.
+![](.gitbook/assets/image%20%281%29.png)
 
-The great thing about Overmind is that none of these concepts are forced upon you. If you want to build your entire app in the root namespace, only using actions, that is perfectly fine. You want to bring in operators for a single action to manage time complexity, do that. Or do you have a concept where you want to safely control what actions can run in certain states, use a statechart. Overmind just gives you tools, it is up to you to determine if they are needed or not.
+Overmind gives you a basic foundation with its **state**, **actions** and **effects**. As mentioned previously you can split these up into multiple namespaces to organize your code. This manages the complexity of scaling. There is also a complexity of reusability and managing execution over time. The **operators** API allows you to split your logic into many different composable parts. With operators like **debounce**, **waitUntil** etc. you are able to manage execution over time. With the latest addition of **statemachines** you have the possiblity to manage the complexity of state and interaction. What interactions should be allowed in what states. And with state values as **class instances** you are able to co-locate state with logic.
+
+The great thing about Overmind is that none of these concepts are forced upon you. If you want to build your entire app in the root namespace, only using actions, that is perfectly fine. You want to bring in operators for a single action to manage time complexity, do that. Or do you have a concept where you want to safely control what actions can run in certain states, use a statemachines. Overmind just gives you tools, it is up to you to determine if they are needed or not.
 
 ## Moving from here
 

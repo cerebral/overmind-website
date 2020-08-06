@@ -6,7 +6,7 @@ description: frictionless state management
 
 > Web application development is about **defining**, **changing** and **consuming state** to produce a user experience. Overmind aims for a developer experience where that is all you focus on, reducing the orchestration of state management to a minimum. Making you a **happier** and more **productive** developer!
 
-{% embed url="https://overmindjs.changefeed.app/general/v22.0.0" %}
+{% embed url="https://overmindjs.changefeed.app/general/v25" %}
 
 ## APPLICATION INSIGHT
 
@@ -16,7 +16,7 @@ Develop the application state, effects and actions without leaving [VS Code](htt
 
 ## A SINGLE STATE TREE
 
-Building your application with a single state tree is the most straight forward mental model. You get a complete overview, but can still organize the state by namespacing it into domains. The devtools allows you to edit and mock out state.
+Building your application with a single state tree is the most straight forward mental model. You get a complete overview, but can still organize the state by namespacing it into domains. This gives you the benefit of being able to explore all the state of your application from a single point. With Typescript it is even documented. The devtools allows you to edit and mock out state.
 
 ```typescript
 {
@@ -57,7 +57,7 @@ export const loadApp = ({ state, effects }) => {
 
 ## SAFE AND PREDICTABLE CHANGES
 
-When you build applications that perform many state changes things can get out of hand. In Overmind you can only perform state changes from **actions** and all changes are tracked by the development tool.
+When you build applications that perform many state changes things can get out of hand. In Overmind you can only perform state changes from **actions** and all changes are tracked by the development tool. Even effects are tracked and reactions are tracked.
 
 ```javascript
 export const getItems = async ({ state, effects }) => {
@@ -69,7 +69,7 @@ export const getItems = async ({ state, effects }) => {
 
 ## COMPLEXITY TOOLS
 
-Even though Overmind can create applications with only plain **state** and **actions**, you can use **opt-in** tools like **functional operators**, **statecharts, statemachines** and state values defined as a **class,** to manage complexities of your application.
+Even though Overmind can create applications with plain **state** and **actions**, you can use **opt-in** tools like **functional operators**,**, statemachines** and state values defined as a **class,** to manage complexities of your application.
 
 {% tabs %}
 {% tab title="Operators" %}
@@ -89,54 +89,18 @@ export const search = pipe(
 ```
 {% endtab %}
 
-{% tab title="Statechart" %}
-```javascript
-const loginChart = {
-  initial: 'LOGIN',
-  states: {
-    LOGIN: {
-      on: {
-        changeUsername: null,
-        changePassword: null,
-        login: 'AUTHENTICATING'
-      }
-    },
-    AUTHENTICATING: {
-      on: {
-        resolveUser: 'AUTHENTICATED',
-        rejectUser: 'ERROR'
-      }
-    },
-    AUTHENTICATED: {
-      on: {
-        logout: 'LOGIN'
-      }
-    },
-    ERROR: {
-      on: {
-        tryAgain: 'LOGIN'
-      }
-    }
-  }
-}
-```
-{% endtab %}
-
 {% tab title="Statemachines" %}
 ```typescript
-export const state = {
-  mode: statemachine({
-    initial: 'unauthenticated',
-    states: {
-      unauthenticated: ['authenticating'],
-      authenticating: ['unauthenticated', 'authenticated'],
-      authenticated: ['unauthenticating'],
-      unauthenticating: ['unauthenticated', 'authenticated']
-    }
-  }),
+export const state = statemachine({
+  unauthenticated: ['authenticating'],
+  authenticating: ['unauthenticated', 'authenticated'],
+  authenticated: ['unauthenticating'],
+  unauthenticating: ['unauthenticated', 'authenticated']
+}, {
+  state: 'unauthenticated',
   user: null,
   error: null
-}
+})
 ```
 {% endtab %}
 

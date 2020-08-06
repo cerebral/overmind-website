@@ -4,6 +4,8 @@
 
 First… try to refresh your app to reconnect. If this does not work make sure that the entry point in your application is actually creating an instance of Overmind. The code **createOvermind\(config\)** has to run to instantiate the devtools.
 
+This is also a common misconception about the ports. You want `createOvermind` to connect to the port defined inside the Devtool, which is `3031` by default.
+
 ## The devtools does not open in VS Code?
 
 Restart VS Code

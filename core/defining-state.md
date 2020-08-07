@@ -348,16 +348,16 @@ export const login = async ({ state, effects }) => {
 }
 
 export const logout = async ({ state, effects }) => {
-  return state.transition('unauthenticating', async () => {
+  if (state.transition('unauthenticating')) {
     try {
       await effects.api.logout()
-      return state.transition('unauthenticated')
+      state.transition('unauthenticated')
     } catch (error) {
-      return state.transition('authenticated', () => {
+      if (state.transition('authenticated')) {
         state.error = error
-      })    
+      }
     }
-  })
+  }
 }
 ```
 {% endtab %}

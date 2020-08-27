@@ -231,3 +231,47 @@ export const useOvermind = createHook();
 
 And you are all set to get going with `overmind` and `next.js`. You can also take a look at [this example in the next.js examples directory](https://github.com/vercel/next.js/tree/canary/examples/with-overmind) if you need some help.
 
+## Gatsby
+
+When it comes to gatsby we need to prepare Overmind for static extraction and the idea is about the same.
+
+We need first to wrap our whole app in the Overmind provider and we can do that in `gatsby-browser.js`:
+
+```javascript
+import React from "react"
+import { createOvermind } from "overmind"
+import { Provider } from "overmind-react"
+import { config } from "./src/overmind"
+
+const overmind = createOvermind(config);
+  
+export const wrapPageElement = ({ element }) => (
+  <Provider value={createOvermind(config)}>
+    {element}
+  </Provider>
+)
+
+```
+
+After this is done we can do the same thing for the server render and add that code in the `gatsby-ssr.js` file:
+
+```javascript
+import React from "react"
+import { Provider } from "overmind-react"
+import { createOvermindSSR } from "overmind"
+import { ThemeProvider as ChakraProvider } from "@chakra-ui/core"
+import { theme } from "@chakra-ui/core"
+import { config } from "./src/overmind"
+
+const overmind = createOvermindSSR(config)
+
+export const wrapPageElement = ({ element }) => (
+  <Provider value={createOvermind(config)}>
+    {element}
+  </Provider>
+)
+
+```
+
+As you can see the only difference we have here is that we createOvermindSSR in the `gatsby-ssr.js`
+

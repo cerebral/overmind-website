@@ -274,12 +274,13 @@ if (state.matches('AUTHENTICATED')) {
 }
 ```
 
-When doing state transitions the same happens, the state will be typed to the new transitioned state.
+When doing state transitions the instance is returned if the transition is valid. We have to do it this way to allow multiple nested transitions and keep the correct typing.
 
 ```typescript
 export const myAction: Action = ({ state }) => {
-  if (state.transition('AUTHENTICATED')) {
-    current.user = {...} // Typed with user
+  const authenticatedState = state.transition('AUTHENTICATED')
+  if (authenticatedState) {
+    authenticatedState.user = {...} // Typed with user
   }
 }
 ```

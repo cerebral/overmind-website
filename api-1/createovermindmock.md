@@ -45,6 +45,6 @@ describe('Actions', () => {
 {% endtabs %}
 
 {% hint style="warning" %}
-It is important that you separate your **config** from the instantiation of Overmind, meaning that **createOvermind** should not be used in the same fail as the config you see imported here, it should rather be used where you render your application. This allows the config to be used for multiple purposes.
+It is important that you separate your **config** from the instantiation of Overmind, meaning that **createOvermind** should not be used in the same file as the config you see imported here, it should rather be used where you render your application. This allows the config to be used for multiple purposes.
 {% endhint %}
 

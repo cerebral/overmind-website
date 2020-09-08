@@ -58,14 +58,14 @@ That means you can call **UNAUTHENTICATED**, **AUTHENTICATING** and **AUTHENTICA
 
 ```javascript
 export const login = ({ state, effects }) => {
-  return state.AUTHENTICATING(() => {
+  return state.transition("AUTHENTICATING", async () => {
     try {
       const user = await effects.api.login()
-      return state.AUTHENTICATED(() => {
+      return state.transition("AUTHENTICATED", () => {
         state.user = user
       })
     } catch (error) {
-      return state.UNAUTHENTICATED(() => {
+      return state.transition("UNAUTHENTICATED", () => {
         state.error = error
       })
     }

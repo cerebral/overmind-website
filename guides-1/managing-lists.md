@@ -31,9 +31,11 @@ In Overmind it is encouraged that you derive these dictionaries of entities to a
 {% tabs %}
 {% tab title="overmind/state.js" %}
 ```typescript
+import { derived } from 'overmind';
+
 export const state = {
   posts: {}
-  postsList: state => Object.values(state.posts)
+  postsList: derived(state => Object.values(state.posts))
 }
 ```
 {% endtab %}

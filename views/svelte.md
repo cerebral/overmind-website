@@ -73,8 +73,12 @@ export const reactions = store.reactions
 <script>
   import { state, actions, reactions } from './overmind.js'
 
+  export let store
+
   $: count = $state.count
+
   let doubled = undefined
+
   store.reaction(
     (state) => state.count,
     (value) => {

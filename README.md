@@ -57,7 +57,7 @@ export const loadApp = ({ state, effects }) => {
 
 ## SAFE AND PREDICTABLE CHANGES
 
-When you build applications that perform many state changes things can get out of hand. In Overmind you can only perform state changes from **actions** and all changes are tracked by the development tool. Even effects are tracked and reactions are tracked.
+When you build applications that perform many state changes things can get out of hand. In Overmind you can only perform state changes from **actions** and all changes are tracked by the development tool. Even effects and reactions are tracked.
 
 ```javascript
 export const getItems = async ({ state, effects }) => {

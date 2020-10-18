@@ -69,7 +69,7 @@ export const getItems = async ({ state, effects }) => {
 
 ## COMPLEXITY TOOLS
 
-Even though Overmind can create applications with plain **state** and **actions**, you can use **opt-in** tools like **functional operators**,**, statemachines** and state values defined as a **class,** to manage complexities of your application.
+Even though Overmind can create applications with plain **state** and **actions**, you can use **opt-in** tools like **functional operators**, **statemachines** and state values defined as a **class,** to manage complexities of your application.
 
 {% tabs %}
 {% tab title="Operators" %}

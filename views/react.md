@@ -108,7 +108,7 @@ const App: React.FunctionComponent = () => {
   // Or be specific
   const { isLoggedIn } = useState().auth
   const { login, logout } = useActions().auth
-  
+
   return <div />
 }
 
@@ -285,7 +285,7 @@ import { useReaction } from '../overmind'
 
 const Todos: React.FunctionComponent = () => {
   const reaction = useReaction()
-  
+
   useEffect(() => {
     return reaction(
       ({ currentPage }) => currentPage,

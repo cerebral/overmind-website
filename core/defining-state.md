@@ -317,15 +317,37 @@ export const state = statemachine({
   authenticated: ['unauthenticating'],
   unauthenticating: ['unauthenticated', 'authenticated']
 }, {
-  state: 'unauthenticated',
-  user: null,
-  error: null
+  current: 'unauthenticated',
+}, {
+  tries: 0
 })
 ```
 {% endtab %}
 {% endtabs %}
 
-The first argument to a state machine is the transition states and the allowed transitions. The second argument has one special property called **state**, which is the initial transition state. Any other properties are just plain state. That means you can look at statemachines as containers for state.
+The first argument to a state machine is the transition states and the allowed transitions. The second argument is the initial state of your machine. The **current** property is where you define the transition state, in this case **unauthenticated**. Any other properties are just plain state related to this specific transition state. That means if you started out in the **authenticated** state, the initial state would look something like:
+
+{% tabs %}
+{% tab title="overmind/state.js" %}
+```typescript
+import { statemachine } from 'overmind'
+
+export const state = statemachine({
+  unauthenticated: ['authenticating'],
+  authenticating: ['unauthenticated', 'authenticated'],
+  authenticated: ['unauthenticating'],
+  unauthenticating: ['unauthenticated', 'authenticated']
+}, {
+  current: 'authenticated',
+  user: { name: 'Jane' }
+}, {
+  tries: 0
+})
+```
+{% endtab %}
+{% endtabs %}
+
+The third argument is the base state of the machine. As you transition between different transition states any state related to the current transition will be removed. For example the **user** state would be removed whenever the machine transitions into **unauthenticated** or **authenticating**. But the **tries** state will always be there.
 
 #### Transitioning
 
@@ -333,31 +355,25 @@ The first argument to a state machine is the transition states and the allowed t
 {% tab title="overmind/actions.js" %}
 ```typescript
 export const login = async ({ state, effects }) => {
-  if (state.transition('authenticating')) {
+  return state.transition('authenticating', {}, () => {
     try {
       const user = await effects.api.getUser()
-      if (state.transition('authenticated')) {
-        state.user = user
-      }
+      return state.transition('authenticated', { user })
     } catch (error) {
-      if (state.transition('unauthenticated')) {
-        state.error = error
-      }
+      return state.transition('unauthenticated', { error })
     }
-  }
+  })
 }
 
 export const logout = async ({ state, effects }) => {
-  if (state.transition('unauthenticating')) {
+  return state.transition('unauthenticating', {}, () => {
     try {
       await effects.api.logout()
-      state.transition('unauthenticated')
+      return state.transition('unauthenticated', {})
     } catch (error) {
-      if (state.transition('authenticated')) {
-        state.error = error
-      }
+      return state.transition('authenticated', { error })
     }
-  }
+  })
 }
 ```
 {% endtab %}
@@ -365,15 +381,21 @@ export const logout = async ({ state, effects }) => {
 
 What is important to realize here is that our logic is separated into **allowable** transitions. That means when we are waiting for the user on **line 4** and some other logic has changed the state to **unauthenticated** in the meantime, the user will not be set, as the **authenticated** transition is now not possible. If you were to just mutate after the user was fetched you would also get an error as async mutations are prevented using the **transition** and **matches** API. This is what state machines do. They group logic into states that are allowed to run, preventing invalid logic to run.
 
-#### Matches
+{% hint style="info" %}
+We **return** all transitions as this ensures that any asynchronous logic run an a transition callback finishes running before the action itself ends its execution.
+{% endhint %}
+
+####  Matches
 
 The current state can be checked using the **matches** API:
 
 ```typescript
 state.matches('authenticated')
-// Or typically by namespace
-state.app.matches('some-state')
+// Or multiple checks
+state.matches('authenticating', 'authenticated')
 ```
+
+Read more in the [Using statemachines guide]().
 
 ## References
 

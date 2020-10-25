@@ -6,7 +6,141 @@
 npm install overmind overmind-vue
 ```
 
-There are two approaches to connecting Overmind to Vue.
+There are three approaches to connecting Overmind to Vue.
+
+## Hooks \(experimental\)
+
+{% tabs %}
+{% tab title="overmind/index.js" %}
+```typescript
+
+import { createHooks } from 'overmind-vue'
+
+export const config = {
+  state: {
+    foo: 'bar'
+  },
+  actions: {
+    onClick() {}
+  }
+}
+
+export const hooks = createHooks()
+```
+{% endtab %}
+
+{% tab title="index.js" %}
+```javascript
+import { createApp } from 'vue'
+import { createOvermind } from 'overmind'
+import { withOvermind } from 'overmind-vue'
+import { config } from './overmind'
+import App from './App.vue'
+
+const overmind = createOvermind(config)
+
+createApp(withOvermind(overmind, App)).mount('#app')
+
+...
+```
+{% endtab %}
+
+{% tab title="components/SomeComponent.vue" %}
+```javascript
+<template>
+  <div @click="actions.onClick">
+    {{ state.foo }}
+  </div>
+</template>
+<script>
+  import { hooks } from '../overmind'
+  
+  export default {
+    setup() {
+      const state = hooks.state()
+      const actions = hooks.actions()
+      
+      return { state, actions }
+    }
+  }
+</script>
+```
+{% endtab %}
+{% endtabs %}
+
+The hooks also allows you to point to specific namespaces:
+
+{% tabs %}
+{% tab title="components/SomeComponent.vue" %}
+```javascript
+<template>
+  <div @click="actions.onClick">
+    {{ state.foo }}
+  </div>
+</template>
+<script>
+  import { hooks } from '../overmind'
+  
+  export default {
+    setup() {
+      const state = hooks.state(state => state.admin)
+      const actions = hooks.actions(actions => actions.admin)
+      
+      return { state, actions }
+    }
+  }
+</script>
+```
+{% endtab %}
+{% endtabs %}
+
+You also have **effects** and **reaction** available on your hooks:
+
+{% tabs %}
+{% tab title="components/SomeComponent.vue" %}
+```javascript
+  <div @click="actions.onClick">
+    {{ state.foo }}
+  </div>
+</template>
+<script>
+  import { hooks } from '../overmind'
+  
+  export default {
+    setup() {
+      const effects = hooks.effects()
+      const reaction = hooks.reaction()
+      
+      return { state, actions }
+    }
+  }
+</script>
+```
+{% endtab %}
+{% endtabs %}
+
+If you prefer using JSX, that is also possible:
+
+{% tabs %}
+{% tab title="components/SomeComponent.vue" %}
+```javascript
+<script>
+  import { hooks } from '../overmind'
+  
+  export default {
+    setup() {
+      const state = hooks.state()
+      const actions = hooks.actions()
+      
+      return () => (
+        <div onClick={actions.onClick}>{state.value.foo}</div>
+      )
+    }
+  }
+</script>
+```
+{% endtab %}
+{% endtabs %}
 
 ## Plugin
 
@@ -15,26 +149,26 @@ Vue has a plugin system that allows us to expose Overmind to all components. Thi
 {% tabs %}
 {% tab title="overmind/index.js" %}
 ```typescript
-import { createOvermind } from 'overmind'
-import { createPlugin } from 'overmind-vue'
-
-const overmind = createOvermind({
+export const overmind = {
   state: {
     foo: 'bar'
   },
   actions: {
     onClick() {}
   }
-})
-
-export const OvermindPlugin = createPlugin(overmind)
+}
 ```
 {% endtab %}
 
 {% tab title="index.js" %}
 ```typescript
 import Vue from 'vue/dist/vue'
-import { OvermindPlugin } from './overmind'
+import { createOvermind } from 'overmind'
+import { createPlugin } from 'overmind-vue'
+import { config } from './overmind'
+
+const overmind = createOvermind(config)
+const OvermindPlugin = createPlugin(overmind)
 
 Vue.use(OvermindPlugin)
 
@@ -59,7 +193,12 @@ If you rather want to expose state, actions and effects differently you can conf
 {% tab title="index.js" %}
 ```typescript
 import Vue from 'vue/dist/vue'
-import { OvermindPlugin } from './overmind'
+import { createOvermind } from 'overmind'
+import { createPlugin } from 'overmind-vue'
+import { config } from './overmind'
+
+const overmind = createOvermind(config)
+const OvermindPlugin = createPlugin(overmind)
 
 Vue.use(OvermindPlugin, ({ state, actions, effects }) => ({
   admin: state.admin,

@@ -80,5 +80,13 @@ const overmind = createOvermind(config, {
 })
 ```
 
+## options.devEnv
 
+The default development environment in Overmind is called `development` , but you can change this to a custom name:
+
+```typescript
+const overmind = createOvermind(config, {
+  devEnv: 'dev'
+})
+```
 

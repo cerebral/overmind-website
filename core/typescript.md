@@ -237,28 +237,33 @@ A statemachine takes a type of states. A big benefit of this approach is that yo
 import { statemachine } from 'overmind'
 
 type State =
-| {
-    state: 'UNAUTHENTICATED'
-  }
-| {
-    state: 'AUTHENTICATED'
-    user: { username: string }
-  }
-| {
-    state: 'AUTHENTICATING'
-  }
-| {
-    state: 'UNAUTHENTICATING'
-    user: { username: string }
-  }
+  | {
+      current: 'UNAUTHENTICATED'
+    }
+  | {
+      current: 'AUTHENTICATED'
+      user: { username: string }
+    }
+  | {
+      current: 'AUTHENTICATING'
+    }
+  | {
+      current: 'UNAUTHENTICATING'
+    }
 
-export const state = statemachine<State>({
+type BaseState = {
+  tries: number
+}
+
+export const state = statemachine<State, BaseState>({
   UNAUTHENTICATED: ['AUTHENTICATING'],
   AUTHENTICATING: ['UNAUTHENTICATED', 'AUTHENTICATED'],
   AUTHENTICATED: ['UNAUTHENTICATING'],
   UNAUTHENTICATING: ['UNAUTHENTICATED', 'AUTHENTICATED']
 }, {
-  state: 'UNAUTHENTICATED'
+  current: 'UNAUTHENTICATED'
+}, {
+  tries: 0
 })
 ```
 {% endtab %}
@@ -274,14 +279,13 @@ if (state.matches('AUTHENTICATED')) {
 }
 ```
 
-When doing state transitions the instance is returned if the transition is valid. We have to do it this way to allow multiple nested transitions and keep the correct typing.
+When doing state transitions the transition callback gets a typed version of the transition state.
 
 ```typescript
 export const myAction: Action = ({ state }) => {
-  const authenticatedState = state.transition('AUTHENTICATED')
-  if (authenticatedState) {
-    authenticatedState.user = {...} // Typed with user
-  }
+  return state.transition('AUTHENTICATED', {}, (authenticatedState) => {
+    // authenticatedState is now typed correctly
+  })
 }
 ```
 

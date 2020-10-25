@@ -70,25 +70,23 @@ const overmind = createOvermind(config, {
 })
 ```
 
-## events
+## options.delimiter
 
-Overmind emits events during execution of actions and similar. It can be beneficial to listen to these events for analytics or maybe you want to create a custom debugging experience. The following events can be listened to by adding a listener to the eventHub:
+By default Overmind will create state paths using `.` as delimiter. This is used to give each state value an address and is used with the devtools. If any state keys uses `.` you will get weird behaviour in the devtools. You can now change this delimiter to a safe value, typically `' '` or `'|'` :
 
 ```typescript
-overmind.eventHub.on('action:start', (execution) => {})
-overmind.eventHub.on('action:end', (execution) => {})
-overmind.eventHub.on('operator:start', (execution) => {})
-overmind.eventHub.on('operator:end', (execution) => {})
-overmind.eventHub.on('operator:async', (execution) => {})
-overmind.eventHub.on('mutations', (executionAndMutations) => {})
-overmind.eventHub.on('derived', (derived) => {})
-overmind.eventHub.on('derived:dirty', (derivedPathAndFlush) => {})
+const overmind = createOvermind(config, {
+  delimiter: '.'
+})
+```
 
-// Only during development
-overmind.eventHub.on('effect', (effectDetails) => {})
-overmind.eventHub.on('getter', (getterDetails) => {})
-overmind.eventHub.on('component:add', (componentDetails) => {})
-overmind.eventHub.on('component:update', (componentDetails) => {})
-overmind.eventHub.on('component:remove', (componentDetails) => {})
+## options.devEnv
+
+The default development environment in Overmind is called `development` , but you can change this to a custom name:
+
+```typescript
+const overmind = createOvermind(config, {
+  devEnv: 'dev'
+})
 ```
 

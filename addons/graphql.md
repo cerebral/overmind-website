@@ -6,10 +6,6 @@ Using Graphql with Overmind gives you the following benefits:
 * **Cache:** You integrate the data from Graphql with your existing state, allowing you to control when new data is needed
 * **Optimistic updates:** With the data integrated with your Overmind state you can also optimistically update that state before running a mutation query
 
-{% hint style="info" %}
-The Graphql package does not support **subscriptions** currently
-{% endhint %}
-
 ## Get up and running
 
 Install the separate package:
@@ -20,7 +16,7 @@ npm install overmind-graphql
 
 ### Initial state
 
-The Graphql package is a _configuration factory_. That means you need some existing configuration before going:
+The Graphql package is an _effect_. Though since we are operating on state, let us prepare some:
 
 {% tabs %}
 {% tab title="overmind/index.js" %}
@@ -43,29 +39,57 @@ export const state = {
 {% endtab %}
 {% endtabs %}
 
-### The factory
+### The effect
 
-Now let us introduce the factory:
+Now let us introduce the effect:
 
 {% tabs %}
 {% tab title="overmind/index.js" %}
 ```typescript
+import { state } from './state'
+import { onInitialize } from './onInitialize'
+import { gql } from './effects/gql'
+
+export const config = {
+  onInitialize,
+  state,
+  effects: {
+    gql
+  }
+}
+```
+{% endtab %}
+
+{% tab title="overmind/onInitialize.js" %}
+```javascript
+export const onInitialize = ({ effects }) => {
+  effects.gql.initialize({
+    // query and mutation options
+    endpoint: 'http://some-endpoint.dev',
+  }, {
+    // subscription options
+    endpoint: 'ws://some-endpoint.dev',  
+  })
+}
+```
+{% endtab %}
+
+{% tab title="overmind/effects/gql/index.js" %}
+```javascript
 import { graphql } from 'overmind-graphql'
 import * as queries from './queries'
 import * as mutations from './mutations'
-import { state } from './state'
+import * as subscriptions from './subscriptions'
 
-export const config = graphql({
-  state
-}, {
-  endpoint: 'http://some-endpoint.dev',
+export const gql = graphql({
   queries,
-  mutations
+  mutations,
+  subscriptions
 })
 ```
 {% endtab %}
 
-{% tab title="overmind/queries.js" %}
+{% tab title="overmind/effects/gql/queries.js" %}
 ```typescript
 import { gql } from 'overmind-graphql'
 
@@ -80,7 +104,7 @@ export const posts = gql`
 ```
 {% endtab %}
 
-{% tab title="overmind/mutations.js" %}
+{% tab title="overmind/effects/gql/mutations.js" %}
 ```typescript
 import { gql } from 'overmind-graphql'
 
@@ -93,38 +117,34 @@ export const createPost = gql`
 `
 ```
 {% endtab %}
+
+{% tab title="overmind/effects/gql/subscriptions.js" %}
+```javascript
+import { gql } from 'overmind-graphql'
+
+export const onPostAdded = gql`
+  subscription PostAdded() {
+    postAdded() {
+      id
+      title
+    }
+  }
+`
+```
+{% endtab %}
 {% endtabs %}
 
-You define **queries** and **mutations** as part of the second argument to the factory, with what **endpoint** you want to connect to. These queries and mutations are converted into Overmind effects that you can call from your actions.
+You define **queries,** **mutations** and **subscriptions** with the effect. That means you can have multiple effects holding different queries and even endpoints. The endpoints are defined when you initialize the effect. This allows you to dynamically create the endpoints based on state, and also pass state related to requests to the endpoints. The queries, mutations and subscriptions are converted into Overmind effects that you can call from your actions.
 
 ## Query
 
 To call a query you will typically use an action. Let us create an action that uses our **posts** query.
 
 {% tabs %}
-{% tab title="overmind/index.js" %}
-```typescript
-import { graphql } from 'overmind-graphql'
-import * as actions from './actions'
-import * as queries from './queries'
-import * as mutations from './mutations'
-import { state } from './state'
-
-export const config = graphql({
-  state,
-  actions
-}, {
-  endpoint: 'http://some-endpoint.dev',
-  queries,
-  mutations
-})
-```
-{% endtab %}
-
 {% tab title="overmind/actions.js" %}
 ```typescript
 export const getPosts = async ({ state, effects }) => {
-  const { posts } = await effects.queries.posts()
+  const { posts } = await effects.gql.queries.posts()
 
   state.posts = posts
 }
@@ -140,13 +160,39 @@ Mutation queries are basically the same as normal queries. You would typically a
 {% tab title="overmind/actions.js" %}
 ```typescript
 export const getPosts = async ({ state, effects }) => {
-  const { posts } = await effects.queries.posts()
+  const { posts } = await effects.gql.queries.posts()
 
   state.posts = posts
 }
 
 export const addPost = async ({ effects }, title) => {
-  await effects.mutations.createPost({ title })
+  await effects.gql.mutations.createPost({ title })
+}
+```
+{% endtab %}
+{% endtabs %}
+
+## Subscription
+
+Subscriptions are also available via actions. You typically give them an action which triggers whenever the subscription triggers.
+
+{% tabs %}
+{% tab title="overmind/actions.js" %}
+```typescript
+export const getPosts = async ({ state, effects, actions }) => {
+  const { posts } = await effects.gql.queries.posts()
+
+  state.posts = posts
+  
+  effects.gql.subscriptions.onPostAdded(actions.onPostAdded)
+}
+
+export const addPost = async ({ effects }, title) => {
+  await effects.gql.mutations.createPost({ title })
+}
+
+export const onPostAdded = ({ state }, post) => {
+  state.posts.push(post)
 }
 ```
 {% endtab %}
@@ -193,58 +239,74 @@ There are two points of options in the Graphql factory. The **headers** and the 
 The headers option is a function which receives the state of the application. That means you can produce request headers dynamically. This can be useful related to authentciation.
 
 {% tabs %}
-{% tab title="overmind/index.js" %}
+{% tab title="overmind/onInitialize.js" %}
 ```typescript
-import { graphql } from 'overmind-graphql'
-import * as queries from './queries'
-import * as mutations from './mutations'
-import { state } from './state'
-
-export const config = graphql({
-  state
-}, {
-  endpoint: 'http://some-endpoint.dev',
-  headers: (state) => ({
-    authorization: `Bearer ${state.auth.token}`
-  }),
-  queries,
-  mutations
-})
+export const onInitialize = ({ state, effects }) => {
+  effects.gql.initialize({
+    endpoint: 'http://some-endpoint.dev',
+    // This runs on every request
+    headers: () => ({
+      authorization: `Bearer ${state.auth.token}`
+    }),
+    // The options are the options passed to GRAPHQL-REQUEST
+    options: {
+      credentials: 'include',
+      mode: 'cors',
+    },
+  }, {
+    endpoint: 'ws://some-endpoint.dev',
+    // This runs on every connect
+    params: () => ({
+      token: state.auth.token
+    })
+  })
+}
 ```
 {% endtab %}
 {% endtabs %}
 
-The options are the options passed to [GRAPHQL-REQUEST](https://github.com/prisma-labs/graphql-request).
+## Custom subscription socket
+
+If you want to define your own socket for connecting to subscriptions, a function can be used instead:
 
 {% tabs %}
-{% tab title="overmind/index.js" %}
-```typescript
-import { graphql } from 'overmind-graphql'
-import * as queries from './queries'
-import * as mutations from './mutations'
-import { state } from './state'
+{% tab title="overmind/onInitialize.js" %}
+```javascript
+export const onInitialize = ({ effects }) => {
+  effects.gql.initialize(
+    {
+      endpoint: 'http://some-endpoint.dev',
+    }, 
+    () => new Websocket('ws://some-other-endpoint.dev')
+  )
+}
+```
+{% endtab %}
+{% endtabs %}
 
-export const config = graphql({
-  state
-}, {
-  endpoint: 'http://some-endpoint.dev',
-  headers: (state) => ({
-    authorization: `Bearer ${state.auth.token}`
-  }),
-  options: {
-    credentials: 'include',
-    mode: 'cors',
-  },
-  queries,
-  mutations
-})
+## Disposing subscriptions
+
+You can dispose any subscriptions in any action. There are two ways to dispose:
+
+{% tabs %}
+{% tab title="overmind/actions.js" %}
+```typescript
+export const disposeSubscriptions = async ({ state, effects }) => {
+  // Disposes all subscriptions on "onPostAdded"
+  effects.gql.subscriptions.onPostAdded.dispose()
+  // If the subscription takes a payload, you can dispose specific
+  // subscriptions
+  effects.gql.subscriptions.onPostChange.disposeWhere(
+    data => data.id === state.currentPostId
+  )
+}
 ```
 {% endtab %}
 {% endtabs %}
 
 ## Typescript
 
-There is only a single type exposed by the library, **Query**. It is used for both queries and mutations.
+There is only a single type exposed by the library, **Query**. It is used for queries, mutations and subscriptions.
 
 {% tabs %}
 {% tab title="overmind/queries.ts" %}
@@ -298,7 +360,7 @@ Now you can create a script in your **package.json** file that looks something l
 ```typescript
 {
   "scripts": {
-    "schema": "apollo schema:download --endpoint=http://some-endpoint.dev graphql-schema.json && apollo codegen:generate --localSchemaFile=graphql-schema.json --target=typescript --includes=src/overmind/**/*.ts --tagName=gql --no-addTypename --globalTypesFile=src/overmind/graphql-global-types.ts graphql-types"
+    "schema": "apollo schema:download --header='X-Hasura-Admin-Secret: password' --endpoint=http://some-endpoint.dev graphql-schema.json && apollo codegen:generate --localSchemaFile=graphql-schema.json --target=typescript --includes=src/overmind/**/*.ts --tagName=gql --no-addTypename --globalTypesFile=src/overmind/graphql-global-types.ts graphql-types"
   }
 }
 ```

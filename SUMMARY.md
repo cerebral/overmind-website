@@ -15,7 +15,6 @@
 * [Actions](core/writing-application-logic.md)
 * [Effects](core/running-side-effects.md)
 * [Operators](core/going-functional.md)
-* [Statecharts](core/statecharts.md)
 * [Server Side Rendering](core/server-side-rendering.md)
 * [Typescript](core/typescript.md)
 
@@ -24,19 +23,22 @@
 * [React](views/react.md)
 * [Angular](views/angular.md)
 * [Vue](views/vue.md)
+* [Svelte](views/svelte.md)
 
 ## Addons
 
 * [GraphQL](addons/graphql.md)
+* [Statechart](addons/statecharts.md)
 
 ## Guides <a id="guides-1"></a>
 
+* [Using state machines](guides-1/using-state-machines.md)
 * [Connecting components](guides-1/connecting-components.md)
-* [Connecting to React Native](https://dev.to/brasilikum/how-to-setup-overmind-with-react-native-expo-optional-4mk5)
 * [Managing lists](guides-1/managing-lists.md)
 * [State first routing](guides-1/state-first-routing.md)
 * [Move to Typescript](guides-1/move-to-typescript.md)
 * [Testing](guides-1/testing.md)
+* [Connecting to React Native](https://dev.to/brasilikum/how-to-setup-overmind-with-react-native-expo-optional-4mk5)
 
 ## API <a id="api-1"></a>
 
@@ -46,8 +48,9 @@
 * [createOvermind](api-1/createovermind.md)
 * [createOvermindMock](api-1/createovermindmock.md)
 * [createOvermindSSR](api-1/createovermindssr.md)
-* [derive](api-1/derive.md)
+* [derived](api-1/derive.md)
 * [effects](api-1/effects.md)
+* [events](api-1/events.md)
 * [json](api-1/json.md)
 * [lazy](api-1/lazy.md)
 * [merge](api-1/merge.md)
@@ -56,5 +59,5 @@
 * [operators](api-1/operators.md)
 * [reaction](api-1/reaction.md)
 * [rehydrate](api-1/rehydrate.md)
-* [statecharts](api-1/statecharts.md)
+* [statemachine](api-1/statemachine.md)
 

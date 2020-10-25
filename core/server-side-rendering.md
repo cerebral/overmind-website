@@ -155,3 +155,123 @@ export default async (req, res) => {
 {% endtab %}
 {% endtabs %}
 
+## Next.js
+
+The idea behind setting up overmind in `next.js` is the same as a standard express server but we have a lot of help from next to get us going.
+
+Let's start by adding a `_document.js` and this is where we will initialize the SSR version of Overmind:
+
+{% tabs %}
+{% tab title="src/\_document.js" %}
+```javascript
+import App from "next/app";
+import { createOvermind, createOvermindSSR, rehydrate } from "overmind";
+import { Provider } from "overmind-react";
+import { config } from "../overmind";
+
+export default class MyApp extends App {
+  // CLIENT: On initial route
+  // SERVER: On initial route
+  constructor(props) {
+    super(props);
+
+    const mutations = props.pageProps.mutations || [];
+
+    if (typeof window !== "undefined") {
+      // On the client we just instantiate the Overmind instance and run
+      // the "changePage" action
+      this.overmind = createOvermind(config);
+      this.overmind.actions.changePage(mutations);
+    } else {
+      // On the server we rehydrate the mutations to an SSR instance of Overmind,
+      // as we do not want to run any additional logic here
+      this.overmind = createOvermindSSR(config);
+      rehydrate(this.overmind.state, mutations);
+    }
+  }
+  // CLIENT: After initial route, on page change
+  // SERVER: never
+  componentDidUpdate() {
+    // This runs whenever the client routes to a new page
+    this.overmind.actions.changePage(this.props.pageProps.mutations || []);
+  }
+  render() {
+    const { Component, pageProps } = this.props;
+    return (
+      <Provider value={this.overmind}>
+        <Component {...pageProps} />
+      </Provider>
+    );
+  }
+}
+
+```
+{% endtab %}
+{% endtabs %}
+
+And then let's create a standard `Overmind` instance:
+
+```javascript
+import { rehydrate } from "overmind";
+import { createHook } from "overmind-react";
+
+export const config = {
+  state: {},
+  actions: {
+  add
+    changePage({ state }, mutations) {
+      rehydrate(state, mutations || []);
+    }
+  }
+};
+
+export const useOvermind = createHook();
+
+```
+
+And you are all set to get going with `overmind` and `next.js`. You can also take a look at [this example in the next.js examples directory](https://github.com/vercel/next.js/tree/canary/examples/with-overmind) if you need some help.
+
+## Gatsby
+
+When it comes to gatsby we need to prepare Overmind for static extraction and the idea is about the same.
+
+We need first to wrap our whole app in the Overmind provider and we can do that in `gatsby-browser.js`:
+
+```javascript
+import React from "react"
+import { createOvermind } from "overmind"
+import { Provider } from "overmind-react"
+import { config } from "./src/overmind"
+
+const overmind = createOvermind(config);
+  
+export const wrapPageElement = ({ element }) => (
+  <Provider value={createOvermind(config)}>
+    {element}
+  </Provider>
+)
+
+```
+
+After this is done we can do the same thing for the server render and add that code in the `gatsby-ssr.js` file:
+
+```javascript
+import React from "react"
+import { Provider } from "overmind-react"
+import { createOvermindSSR } from "overmind"
+import { ThemeProvider as ChakraProvider } from "@chakra-ui/core"
+import { theme } from "@chakra-ui/core"
+import { config } from "./src/overmind"
+
+const overmind = createOvermindSSR(config)
+
+export const wrapPageElement = ({ element }) => (
+  <Provider value={createOvermind(config)}>
+    {element}
+  </Provider>
+)
+
+```
+
+As you can see the only difference we have here is that we createOvermindSSR in the `gatsby-ssr.js`
+

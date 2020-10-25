@@ -89,11 +89,13 @@ declare module 'overmind' {
   interface Config extends IConfig<typeof config> {}
 }
 
-export const useOvermind = createHook<typeof config>()
-export const useState = createStateHook<typeof config>()
-export const useActions = createActionsHook<typeof config>()
-export const useEffects = createEffectsHook<typeof config>()
-export const useReaction = createReactionHook<typeof config>()
+// Note with explicit typing you need to give the hooks
+// the config type, createHook<Config>()
+export const useOvermind = createHook()
+export const useState = createStateHook()
+export const useActions = createActionsHook()
+export const useEffects = createEffectsHook()
+export const useReaction = createReactionHook()
 
 // index.tsx
 import * as React from 'react'

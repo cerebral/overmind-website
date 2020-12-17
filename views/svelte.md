@@ -38,8 +38,8 @@ export const actions = store.actions
 </script>
 
 <p>Count: {count}</p>
-<button id="increase" on:click={() => store.actions.increase()}>Increase</button>
-<button id="decrease" on:click={() => store.actions.decrease()}>Increase</button>
+<button id="increase" on:click={() => actions.increase()}>Increase</button>
+<button id="decrease" on:click={() => actions.decrease()}>Increase</button>
 ```
 
 ## Reactions

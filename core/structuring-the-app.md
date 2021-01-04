@@ -6,7 +6,7 @@ Overmind is based on a core concept of:
 
 This data structure is called **the configuration** of your application. If it is a simple application you might have a single configuration, but typically you will create multiple of them and use tools to merge them together into one big configuration. But before we look at the scalability of Overmind, let’s talk about file structure.
 
-## Namspaces
+## Namespaces
 
 ![](../.gitbook/assets/image%20%281%29.png)
 

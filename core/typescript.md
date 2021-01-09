@@ -153,7 +153,7 @@ type State = {
 
 export const state: State = {
   foo: 'bar',
-  get shoutedFoo(this: State) {
+  get shoutedFoo() {
     return this.foo + '!!!'
   }
 }

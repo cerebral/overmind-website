@@ -95,8 +95,25 @@ The first argument of the function is the state the derived function is attached
 Even though derived state is defined as functions you consume them as plain values. You do not have to call the derived function to get the value. Derived functions can also be dynamically added.
 {% endhint %}
 
+You can also return a function from the derived. For example:
+
+{% tabs %}
+{% tab title="overmind/state.js" %}
+```typescript
+import { derived } from 'overmind'
+
+export const state = {
+  users: {},
+  getUserById: derived(state => id => state.users[id])
+}
+```
+{% endtab %}
+{% endtabs %}
+
+The returned value here is indeed a function you call. The cool thing is that the function itself will never change, but whatever state you access when calling the function will be tracked by the caller of the function. So for example if a component uses **getUserById** during rendering it will track what is accessed in the function and continue tracking whatever you access on the returned value.
+
 {% hint style="info" %}
-You may use a derived for all sorts of calculations. But sometimes it's better to just use a plain action to create some state than using a derived. Why? Imagine a table component having a lot of rows and columns. We assume the table component also takes care of sorting and filtering and is capable of adding new rows. Now if you solve the sorting and filtering using a derived the following could happen: User adds a new row but it is not displayed in the list because the derived immediately kicked in and filtered it out. Thats not a good user experience. Also in this case the filtering and sorting is clearly started by a simple user interaction \(setting a filter value, clicking on a column,...\) so why not just start an action which creates the new list of sorted and filtered keys? Also the heavy calculation is now very predictable and doesn't cause performance issues because the derived kickes in too often \(Because it could have many dependencies you might didn't think of\)
+You may use a derived for all sorts of calculations. But sometimes it's better to just use a plain action to manipulate some state than using a derived. Why? Imagine a table component having a lot of rows and columns. We assume the table component also takes care of sorting and filtering and is capable of adding new rows. Now if you solve the sorting and filtering using a derived the following could happen: User adds a new row but it is not displayed in the list because the derived immediately kicked in and filtered it out. Thats not a good user experience. Also in this case the filtering and sorting is clearly started by a simple user interaction \(setting a filter value, clicking on a column,...\) so why not just start an action which creates the new list of sorted and filtered keys? Also the heavy calculation is now very predictable and doesn't cause performance issues because the derived kickes in too often \(Because it could have many dependencies you might didn't think of\)
 {% endhint %}
 
 ### Class instances

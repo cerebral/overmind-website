@@ -592,6 +592,10 @@ const chart: Statechart<typeof config, {
 export default statechart(config, chart)
 ```
 
+{% hint style="info" %}
+If you want to transition to a new state using an **entry**, you are free to call the action causing that transition from the **entry** action.
+{% endhint %}
+
 ### exit
 
 When a transition state is changed, any exit defined in current transition state will be run first. Nested charts in a transition state with an exit defined will run before parents.

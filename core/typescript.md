@@ -36,9 +36,8 @@ Now you can import any type directly from Overmind and it will understand the co
 
 ```typescript
 import {
-  Action,
-  Operator,
-  Derive,
+  Context,
+  RootState,
   pipe,
   map,
   filter,
@@ -56,9 +55,7 @@ You can also explicitly type your application. This gives more flexibility.
 import {
   IConfig,
   IOnInitialize,
-  IAction,
-  IOperator,
-  IState
+  IContext,
 } from 'overmind'
 
 export const config = {}
@@ -74,11 +71,10 @@ export interface Config extends IConfig<{
 
 export interface OnInitialize extends IOnInitialize<Config> {}
 
-export interface Action<Input = void, Output = void> extends IAction<Config, Input, Output> {}
+export interface Context extends IContext<Config> {}
 
-export interface AsyncAction<Input = void, Output = void> extends IAction<Config, Input, Promise<Output>> {}
-
-export interface Operator<Input = void, Output = Input> extends IOperator<Config, Input, Output> {}
+// Used with derived
+export type RootState = Context['state']
 ```
 {% endtab %}
 {% endtabs %}
@@ -140,26 +136,6 @@ export const state: State = {
   foo: null
 }
 ```
-
-### Getter
-
-{% tabs %}
-{% tab title="overmind/state.ts" %}
-```typescript
-type State = {
-  foo: string
-  shoutedFoo: string
-}
-
-export const state: State = {
-  foo: 'bar',
-  get shoutedFoo() {
-    return this.foo + '!!!'
-  }
-}
-```
-{% endtab %}
-{% endtabs %}
 
 ### Derived
 

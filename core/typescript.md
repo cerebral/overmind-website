@@ -73,7 +73,13 @@ export interface OnInitialize extends IOnInitialize<Config> {}
 
 export interface Context extends IContext<Config> {}
 
-// Used with derived
+// Primitives which are typically not needed!
+export interface Action<Input = void, Output = void> extends IAction<Config, Input, Output> {}
+
+export interface AsyncAction<Input = void, Output = void> extends IAction<Config, Input, Promise<Output>> {}
+
+export interface Operator<Input = void, Output = Input> extends IOperator<Config, Input, Output> {}
+
 export type RootState = Context['state']
 ```
 {% endtab %}

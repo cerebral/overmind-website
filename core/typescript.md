@@ -42,6 +42,11 @@ import {
   map,
   filter,
   ...
+  // These are primitive types in Overmind you typically
+  // do not need
+  Action,
+  AsyncAction,
+  Operator
 } from 'overmind'
 ```
 
@@ -73,14 +78,21 @@ export interface OnInitialize extends IOnInitialize<Config> {}
 
 export interface Context extends IContext<Config> {}
 
-// Primitives which are typically not needed!
+export type RootState = Context['state']
+
+/*
+  NOTE! These types are typically not needed, but represents
+  primitives in Overmind which you might want to pass as
+  arguments etc.
+*/
 export interface Action<Input = void, Output = void> extends IAction<Config, Input, Output> {}
 
 export interface AsyncAction<Input = void, Output = void> extends IAction<Config, Input, Promise<Output>> {}
 
 export interface Operator<Input = void, Output = Input> extends IOperator<Config, Input, Output> {}
 
-export type RootState = Context['state']
+export interface Operator<Input = void, Output = Input> extends IOperator<Config, Input, Output> {}
+
 ```
 {% endtab %}
 {% endtabs %}

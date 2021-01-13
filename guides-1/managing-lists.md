@@ -31,9 +31,11 @@ In Overmind it is encouraged that you derive these dictionaries of entities to a
 {% tabs %}
 {% tab title="overmind/state.js" %}
 ```typescript
+import { derived } from 'overmind'
+
 export const state = {
   posts: {}
-  postsList: state => Object.values(state.posts)
+  postsList: derived(state => Object.values(state.posts))
 }
 ```
 {% endtab %}
@@ -48,9 +50,11 @@ Now we have optimally stored our posts in a dictionary for easy access by id. We
 {% tabs %}
 {% tab title="overmind/state.js" %}
 ```typescript
+import { derived } from 'overmind'
+
 export const state = {
   posts: {}
-  postsList: state =>
+  postsList: derived(state =>
     Object.values(state.posts)
       .sort((postA, postB) => {
         if (postA.datetime > postB.datetime) {
@@ -60,7 +64,7 @@ export const state = {
         }
 
         return 0
-      })
+      }))
 }
 ```
 {% endtab %}
@@ -75,25 +79,13 @@ To limit the number of posts shown we can create a new state and use it inside o
 {% tabs %}
 {% tab title="overmind/state.ts" %}
 ```typescript
-import { Derive } from 'overmind'
+import { derived } from 'overmind'
 
-export type Post {
-  id: string
-  title: string
-  body: string
-  datetime: number
-}
 
-export type State = {
-  posts: { [id: string] : Post }
-  showCount: number
-  postsList: Derive<State, Post[]>
-}
-
-export const state: State = {
+export const state = {
   posts: {},
   showCount: 10,
-  postsList: state =>
+  postsList: derived(state =>
     Object.values(state.posts)
       .sort((postA, postB) => {
         if (postA.datetime > postB.datetime) {
@@ -104,7 +96,7 @@ export const state: State = {
 
         return 0
       })
-      .slice(0, state.showCount)
+      .slice(0, state.showCount))
 }
 ```
 {% endtab %}
@@ -185,17 +177,12 @@ Now this approach will work perfectly fine. The component will render the list a
 
 {% tabs %}
 {% tab title="React" %}
-{% code title="components/Post.tsx" %}
+{% code title="components/Post.jsx" %}
 ```typescript
 import * as React from 'react'
 import { useOvermind } from '../overmind'
-import { Post as TPost } from '../overmind/state'
 
-type Props = {
-  post: TPost
-}
-
-const Post: React.FunctionComponent<Props> = ({ post }) => {
+const Post = ({ post }) => {
   // We still need to use the hook so that the component tracks
   // changes to the post
   useOvermind()
@@ -250,13 +237,12 @@ export {
 
 {% tabs %}
 {% tab title="React" %}
-{% code title="components/Posts.tsx" %}
+{% code title="components/Posts.ts" %}
 ```typescript
 import * as React from 'react'
 import { useOvermind } from '../overmind'
-import Post from './Post'
 
-const Posts: React.FunctionComponent = () => {
+const Posts = () => {
   const { state } = useOvermind()
 
   return (

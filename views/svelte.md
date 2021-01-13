@@ -66,16 +66,18 @@ const store = createMixin(createOvermind(overmind))
 
 export const state = store.state
 export const actions = store.actions
-export const reactions = store.reactions
+export const reaction = store.reaction
 ```
 
 ```javascript
 <script>
-  import { state, actions, reactions } from './overmind.js'
+  import { state, actions, reaction } from './overmind.js'
 
   $: count = $state.count
+  
   let doubled = undefined
-  store.reaction(
+  
+  reaction(
     (state) => state.count,
     (value) => {
         doubled = value * 2
@@ -88,7 +90,7 @@ export const reactions = store.reactions
 
 <p>Count: {count}</p>
 <p>Doubled: {doubled}</p>
-<button id="increase" on:click={() => store.actions.increase()}>Increase</button>
-<button id="decrease" on:click={() => store.actions.decrease()}>Increase</button>
+<button id="increase" on:click={() => actions.increase()}>Increase</button>
+<button id="decrease" on:click={() => actions.decrease()}>Increase</button>
 ```
 

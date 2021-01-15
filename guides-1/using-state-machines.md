@@ -51,6 +51,7 @@ You express this by mapping **events** to **state changes**.
 ```typescript
 type User = { username: string }
 
+// Name the state as "I am...".
 type States =
   | {
     current: 'AUTHENTICATING'
@@ -64,31 +65,32 @@ type States =
     signedOutReason: string
   }
 
+// Name the events as "...occured"
 type Events = 
   | {
-    type: 'SIGNING_IN'
+    type: 'SIGN_IN'
   }
   | {
-    type: 'SIGNED_IN'
+    type: 'SIGN_IN_SUCCESS'
     data: User
   }
   | {
-    type: 'SIGNED_OUT'
+    type: 'SIGN_OUT'
     data: string
   }
 
 export const auth = statemachine<States, Events>({
-  SIGNING_IN: (state) => {
+  SIGN_IN: (state) => {
     if (state.current === 'UNAUTHENTICATED') {
       return { current: 'AUTHENTICATING' }
     }
   },
-  SIGNED_IN: (state, user) => {
+  SIGN_IN_SUCCESS: (state, user) => {
     if (state.current === 'AUTHENTICATING') {
       return { current: 'AUTHENTICATED', user }
     }
   },
-  SIGNED_OUT: (state, signedOutReason) => {
+  SIGN_OUT: (state, signedOutReason) => {
     if (state.current === 'AUTHENTICATED') {      
       return { current: 'UNAUTHENTICATED', signedOutReason }
     }
@@ -99,6 +101,28 @@ export const auth = statemachine<States, Events>({
 In the example above we are are dealing with three events. For each event we check the current state of the machine to see if we want to deal with it at all. When we decide to deal with an event we can change any of the state, for example using **data** from the event. Then we can optionally return a new **current** transition state, with the required state for that transition state to be valid.
 
 What we have effectively done now is ensure that when these events happens we always deal with them correctly. It is not the event that decides what should happen, it is the machine that decides it based on one of your explicitly set states.
+
+{% hint style="info" %}
+You might wonder why we are not writing our code like:
+
+```typescript
+export const auth = statemachine<States, Events>({
+  UNAUTHENTICATED: {
+    SIGN_IN: (state) => ({ current: 'AUTHENTICATING' })
+  },
+  AUTHENTICATING: {
+    SIGN_IN_SUCCESS: (state, user) => ({ current: 'AUTHENTICATED', user })
+  },
+  AUTHENTICATED: {
+    SIGN_OUT: (state, signedOutReason) => ({ current: 'UNAUTHENTICATED', signedOutReason })
+  }
+})
+```
+
+The reason is that you very often want to deal with an event in multiple states. With the current API you get more freedom in expressing your guard.
+{% endhint %}
+
+
 
 ## Instantiating a machine
 
@@ -147,6 +171,12 @@ export const authChanged = ({ state, effects }, user) => {
 }
 ```
 
+{% hint style="info" %}
+You might wonder why setting the title is not a side effect that happens from within the machine, whenever it is **AUTHENTICATED**. The reason is that statemachines in Overmind is only about changing state, not about side effects. But you do get tools, like **matches**, and a well designed API to efficiently trigger side effects in the correct states.
+
+You can turn to **statecharts** if you want state transitions to drive your side effects as well.
+{% endhint %}
+
 ## Base state
 
 Let us introduce a new machine, a **todos** machine.
@@ -170,23 +200,23 @@ type States =
 
 type Events =
   | {
-    type: 'TODOS_LOADED',
+    type: 'TODOS_LOAD_SUCCESS',
     data: Todo[]
   }
   | {
-    type: 'TODO_ADDED',
+    type: 'ADD_TODO',
     data: Todo
   }
   
 export type TodosMachine = StateMachine<States, Events BaseState>
 
 export const todos = statemachine<States, Events, BaseState>({
-  TODOS_LOADED: (state, todos) => {
+  TODOS_LOAD_SUCCESS: (state, todos) => {
     if (state.current === 'LOADING') {      
       return { current: 'LIST', todos }
     }
   },
-  TODO_ADDED: (state, todo) => {
+  ADD_TODO: (state, todo) => {
     if (state.current === 'LIST') {
       state.list.push(todo)
     }

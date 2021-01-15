@@ -153,7 +153,7 @@ export const state = {
 {% endtabs %}
 
 {% hint style="warning" %}
-It is import that you do **NOT** use arrow functions on your methods. The reason is that this binds the context of the method to the instance itself, meaning that Overmind is unable to proxy access and track mutations
+It is important that you do **NOT** use arrow functions on your methods. The reason is that this binds the context of the method to the instance itself, meaning that Overmind is unable to proxy access and track mutations
 {% endhint %}
 
 You can now use this instance as normal and of course create new ones.

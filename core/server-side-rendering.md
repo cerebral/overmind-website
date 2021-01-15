@@ -105,7 +105,7 @@ If you are using state first routing, make sure you prevent the router from firi
 
 ## OnInitialize
 
-The `onInitialized` action does not run on the server. The reason is that it is considered a side effect you might not want to run, so we do not force it. If you do want to run an action as Overmind fires up both on the client and the server you can rather create a custom action for it.
+The `onInitialize` action does not run on the server. The reason is that it is considered a side effect you might not want to run, so we do not force it. If you do want to run an action as Overmind fires up both on the client and the server you can rather create a custom action for it.
 
 {% tabs %}
 {% tab title="overmind/actions.js" %}

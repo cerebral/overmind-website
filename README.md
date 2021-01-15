@@ -4,6 +4,8 @@ description: frictionless state management
 
 # Overmind
 
+[![GitHub stars](https://img.shields.io/github/stars/cerebral/overmind.svg?style=social&label=Star&maxAge=2592000)](https://github.com/cerebral/overmind/stargazers/)
+
 > Web application development is about **defining**, **changing** and **consuming state** to produce a user experience. Overmind aims for a developer experience where that is all you focus on, reducing the orchestration of state management to a minimum. Making you a **happier** and more **productive** developer!
 
 {% embed url="https://overmindjs.changefeed.app/general/v26" %}

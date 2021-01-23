@@ -52,7 +52,6 @@ import { AppComponent } from './app.component';
 ]
 })
 export class AppModule { }
-
 ```
 {% endtab %}
 
@@ -99,7 +98,6 @@ platformBrowserDynamic()
     ngZone: "noop"
   })
   .catch(err => console.log(err));
-
 ```
 {% endtab %}
 {% endtabs %}

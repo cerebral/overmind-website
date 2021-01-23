@@ -14,5 +14,3 @@ Restart VS Code
 
 Operators are identified with a Symbol. If you happen to use Overmind across packages you might be running two versions of Overmind. The same goes for core package and view package installed out of version sync. Make sure you are only running on package of Overmind by looking into your **node\_modules** folder.
 
-
-

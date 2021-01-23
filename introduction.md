@@ -8,7 +8,7 @@ If you rather want to go right ahead and set up a local project, please have a l
 
 Before we move on, have a quick look at this sandbox. It is a simple counter application and it gives you some foundation before talking more about Overmind and building applications.
 
-{% embed url="https://codesandbox.io/s/overmind-counter-c4tuh?fontsize=14&hidenavigation=1&theme=dark&view=editor&runonclick=1" %}
+{% embed url="https://codesandbox.io/s/overmind-counter-c4tuh?fontsize=14&hidenavigation=1&theme=dark&view=editor&runonclick=1" caption="" %}
 
 ## Application state VS Component state
 
@@ -93,7 +93,7 @@ And as we will see later you will also be using **effects** from the context.
 
 Now we will move to a more complex example. Please have a look:
 
-{% embed url="https://codesandbox.io/s/overmind-todomvc-simple-097zs?fontsize=14&hidenavigation=1&theme=dark&view=editor&runonclick=1" %}
+{% embed url="https://codesandbox.io/s/overmind-todomvc-simple-097zs?fontsize=14&hidenavigation=1&theme=dark&view=editor&runonclick=1" caption="" %}
 
 We have now separated out the Overmind related logic into its own file, **app.js**. This file creates the Overmind instance and also exports how the components will interact with the state and the actions, the hook called **useApp**. Vue and Angular has other mechanisms conventional to those frameworks where application state and actions can be accessed.
 
@@ -139,7 +139,7 @@ state.todos[myReference]
 delete state.todos[myReference]
 ```
 
-Using references also ensures that only one instance of any todo will live in your state tree. The todo itself lives on the **todos** state, while everything else in the state tree references a todo by using its id. For example our **editingTodoId** state uses the id of a todo to reference which todo is currently being edited. 
+Using references also ensures that only one instance of any todo will live in your state tree. The todo itself lives on the **todos** state, while everything else in the state tree references a todo by using its id. For example our **editingTodoId** state uses the id of a todo to reference which todo is currently being edited.
 
 ## Deriving state
 
@@ -183,7 +183,7 @@ By using the **derived** function exported from Overmind you can insert a functi
 
 Now let us move into an even more complex application. Here we have added **effects**. Specifically effects to handle routing, storing todos to local storage and producing unique ids for the todos. We have added an **onInitialize** hook which is a special function Overmind runs when the application starts.
 
-{% embed url="https://codesandbox.io/s/overmind-todomvc-2im6p?fontsize=14&hidenavigation=1&theme=dark&view=editor&runonclick=1" %}
+{% embed url="https://codesandbox.io/s/overmind-todomvc-2im6p?fontsize=14&hidenavigation=1&theme=dark&view=editor&runonclick=1" caption="" %}
 
 You can think of effects as a contract between your application and the outside world. You write an effect API of **what** your application needs and some 3rd party tool or native JavaScript API will implement **how** to provide it. Let us look at the router:
 
@@ -223,7 +223,7 @@ This argument passed is transformed into something Page can understand. What thi
 
 Defining all the state, actions and effects on one object would not work very well for a large application. A convention in Overmind is to split these concepts into different files behind folders representing a domain of the application. In this next sandbox you can see how we split up state, actions and effects into different files. They are all exposed through a main file representing that domain, in this case “the root domain”:
 
-{% embed url="https://codesandbox.io/s/overmind-todomvc-split-xdh41?fontsize=14&hidenavigation=1&theme=dark&view=editor&runonclick=1" %}
+{% embed url="https://codesandbox.io/s/overmind-todomvc-split-xdh41?fontsize=14&hidenavigation=1&theme=dark&view=editor&runonclick=1" caption="" %}
 
 Also notice that we have split up the instantiation of Overmind from the definition of the application. What this allows us to do is reuse the same application configuration for testing purposes and/or server side rendering. We separate the definition from the instantiation.
 
@@ -239,7 +239,7 @@ Have a look at this new project where we have typed the application:
 You have to **OPEN SANDBOX** to get the full Typescript experience.
 {% endhint %}
 
-{% embed url="https://codesandbox.io/s/overmind-todomvc-typescript-39h7y?fontsize=14&hidenavigation=1&theme=dark&view=editor&runonclick=1" %}
+{% embed url="https://codesandbox.io/s/overmind-todomvc-typescript-39h7y?fontsize=14&hidenavigation=1&theme=dark&view=editor&runonclick=1" caption="" %}
 
 As you can see we only have to add an **Action** type to our functions and optionally give it an input type. This is enough for the action to give you all information about the application. Try changing some code and even add some code to see how Typescript helps you to explore the application and ensure that you implement new functionality correctly.
 

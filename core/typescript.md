@@ -112,7 +112,7 @@ export const state: State = {
 {% endtabs %}
 
 {% hint style="info" %}
-It is important that you use a **type** and not an **interface.** This has to do with the way Overmind resolves the state typing. ****
+It is important that you use a **type** and not an **interface.** This has to do with the way Overmind resolves the state typing. _\*\*_
 {% endhint %}
 
 When writing Typescript you should **not** use optional values for your state \(**?**\), or use **undefined** in a union type. In a serializable state store world **null** is the value indicating _“there is no value”._
@@ -142,7 +142,7 @@ export const state: State = {
 {% tabs %}
 {% tab title="overmind/state.ts" %}
 ```typescript
-import { derived } from 'overmind'
+import { derived } from 'overmind'
 
 type State = {
   foo: string
@@ -162,7 +162,7 @@ Note that the type argument you pass is the object the derived is attached to, s
 {% tabs %}
 {% tab title="overmind/state.ts" %}
 ```typescript
-import { derived } from 'overmind'
+import { derived } from 'overmind'
 
 type State = {
   foo: string
@@ -245,7 +245,7 @@ There are no Overmind specific types related to effects, you just type them in g
 export const api = {
   getUser: async (): Promise<User> => {
     const response = await fetch('/user')
-    
+
     return response.json()
   }
 }

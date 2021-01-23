@@ -121,7 +121,7 @@ const App: React.FunctionComponent = () => {
   // Or be specific
   const { isLoggedIn } = useState().auth
   const { login, logout } = useActions().auth
-  
+
   return <div />
 }
 

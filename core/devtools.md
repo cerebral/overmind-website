@@ -51,7 +51,7 @@ If you are using the **Insiders** version of VSCode the extension will not work.
 When you create your application it will automatically connect through **localhost:3031**, meaning that everything should just work out of the box. If you need to change the port, connect the application over a network \(mobile development\) or similar, you can configure how the application connects:
 
 ```javascript
-import { createOvermind } from 'overmind'
+import { createOvermind } from 'overmind'
 import { config } from './overmind'
 
 const overmind = createOvermind(config, {
@@ -63,7 +63,7 @@ const overmind = createOvermind(config, {
 
 ChromeOS does not expose localhost as normal. That means you need to connect with **penguin.termina.linux.test:3031**, or you can use the following plugin to forward **localhost:**
 
-{% embed url="https://chrome.google.com/webstore/detail/connection-forwarder/ahaijnonphgkgnkbklchdhclailflinn/related?hl=en-US" %}
+{% embed url="https://chrome.google.com/webstore/detail/connection-forwarder/ahaijnonphgkgnkbklchdhclailflinn/related?hl=en-US" caption="" %}
 
 ## Hot Module Replacement
 
@@ -104,8 +104,6 @@ import { Provider } from 'overmind-react'
 import { App } from './components/App'
 
 render(<Provider value={overmind}><App /></Provider>, document.querySelector('#app'))
-
-
 ```
 {% endtab %}
 

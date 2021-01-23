@@ -204,7 +204,6 @@ export default class MyApp extends App {
     );
   }
 }
-
 ```
 {% endtab %}
 {% endtabs %}
@@ -226,7 +225,6 @@ export const config = {
 };
 
 export const useOvermind = createHook();
-
 ```
 
 And you are all set to get going with `overmind` and `next.js`. You can also take a look at [this example in the next.js examples directory](https://github.com/vercel/next.js/tree/canary/examples/with-overmind) if you need some help.
@@ -244,13 +242,12 @@ import { Provider } from "overmind-react"
 import { config } from "./src/overmind"
 
 const overmind = createOvermind(config);
-  
+
 export const wrapPageElement = ({ element }) => (
   <Provider value={createOvermind(config)}>
     {element}
   </Provider>
 )
-
 ```
 
 After this is done we can do the same thing for the server render and add that code in the `gatsby-ssr.js` file:
@@ -270,7 +267,6 @@ export const wrapPageElement = ({ element }) => (
     {element}
   </Provider>
 )
-
 ```
 
 As you can see the only difference we have here is that we createOvermindSSR in the `gatsby-ssr.js`

@@ -8,7 +8,7 @@ This data structure is called **the configuration** of your application. If it i
 
 ## Namspaces
 
-![](../.gitbook/assets/image%20%281%29.png)
+![](../.gitbook/assets/image%20%281%29%20%281%29.png)
 
 As your application grows you start to separate it into different namespaces. A namespace might be closely related to a page in your application, or maybe it is strictly related to managing some piece of data. It does not matter. You define the namespaces of your application and they probably change over time as well. What matters in the context of Overmind though is that each of these namespaces will contain their own state, actions and effects. So imagine a file structure of:
 

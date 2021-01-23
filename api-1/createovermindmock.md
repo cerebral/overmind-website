@@ -48,3 +48,26 @@ describe('Actions', () => {
 It is important that you separate your **config** from the instantiation of Overmind, meaning that **createOvermind** should not be used in the same file as the config you see imported here, it should rather be used where you render your application. This allows the config to be used for multiple purposes.
 {% endhint %}
 
+## Setting initial state
+
+Pass a function as the second or third argument to set initial state.
+
+{% tabs %}
+{% tab title="overmind/actions.test.js" %}
+```typescript
+import { createOvermindMock } from 'overmind'
+import { config } from './'
+
+describe('State', () => {
+  test('should derive authors of posts', async () => {
+    const overmind = createOvermindMock(config, (state) => {
+      state.posts = { 1: { id: 1, author: 'Janet' } }
+    })
+
+    expect(overmind.state.authors).toEqual(['Janet'])
+  })
+})
+```
+{% endtab %}
+{% endtabs %}
+

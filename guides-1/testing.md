@@ -13,7 +13,6 @@ When you write tests you will create many instances of a mocked version of Overm
 {% tabs %}
 {% tab title="overmind/index.js" %}
 ```typescript
-import { IConfig } from 'overmind'
 import { state } from './state'
 
 export const config = {
@@ -33,6 +32,29 @@ const overmind = createOvermind(config)
 {% endtabs %}
 
 Now we are free to import our configuration without touching the application instance. Lets go!
+
+## Setting initial state
+
+By passing a function either as second or third argument you can change the initial state of Overmind.
+
+{% tabs %}
+{% tab title="overmind/actions.test.js" %}
+```typescript
+import { createOvermindMock } from 'overmind'
+import { config } from './'
+
+describe('State', () => {
+  test('should derive authors of posts', async () => {
+    const overmind = createOvermindMock(config, (state) => {
+      state.posts = { 1: { id: 1, author: 'Janet' } }
+    })
+
+    expect(overmind.state.authors).toEqual(['Janet'])
+  })
+})
+```
+{% endtab %}
+{% endtabs %}
 
 ## Testing actions
 

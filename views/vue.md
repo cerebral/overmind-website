@@ -13,7 +13,8 @@ There are three approaches to connecting Overmind to Vue.
 {% tabs %}
 {% tab title="overmind/index.js" %}
 ```typescript
-import { createHooks } from 'overmind-vue'
+
+import { createHooks } from 'overmind-vue/vu3'
 
 export const config = {
   state: {
@@ -32,7 +33,7 @@ export const hooks = createHooks()
 ```javascript
 import { createApp } from 'vue'
 import { createOvermind } from 'overmind'
-import { withOvermind } from 'overmind-vue'
+import { withOvermind } from 'overmind-vue/vu3'
 import { config } from './overmind'
 import App from './App.vue'
 
@@ -53,12 +54,12 @@ createApp(withOvermind(overmind, App)).mount('#app')
 </template>
 <script>
   import { hooks } from '../overmind'
-
+  
   export default {
     setup() {
       const state = hooks.state()
       const actions = hooks.actions()
-
+      
       return { state, actions }
     }
   }
@@ -79,12 +80,12 @@ The hooks also allows you to point to specific namespaces:
 </template>
 <script>
   import { hooks } from '../overmind'
-
+  
   export default {
     setup() {
       const state = hooks.state(state => state.admin)
       const actions = hooks.actions(actions => actions.admin)
-
+      
       return { state, actions }
     }
   }
@@ -104,12 +105,12 @@ You also have **effects** and **reaction** available on your hooks:
 </template>
 <script>
   import { hooks } from '../overmind'
-
+  
   export default {
     setup() {
       const effects = hooks.effects()
       const reaction = hooks.reaction()
-
+      
       return { state, actions }
     }
   }
@@ -125,12 +126,12 @@ If you prefer using JSX, that is also possible:
 ```javascript
 <script>
   import { hooks } from '../overmind'
-
+  
   export default {
     setup() {
       const state = hooks.state()
       const actions = hooks.actions()
-
+      
       return () => (
         <div onClick={actions.onClick}>{state.value.foo}</div>
       )

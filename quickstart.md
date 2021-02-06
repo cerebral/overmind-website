@@ -17,7 +17,13 @@ npm install overmind overmind-vue
 
 {% tab title="Angular" %}
 ```text
-npm install overmind overmind-angular
+
+```
+{% endtab %}
+
+{% tab title="Svelte" %}
+```
+npm install overmind overmind-svelte
 ```
 {% endtab %}
 {% endtabs %}
@@ -59,5 +65,5 @@ And fire up your application in the browser or whatever environment your user in
 
 Move on with the specific view layer of choice to connect your app:
 
-\*\*\*\*[**REACT** ](views/react.md)**-** [**ANGULAR**](views/angular.md) **-** [**VUE**](views/vue.md)\*\*\*\*
+\*\*\*\*[**REACT** ](views/react.md)**-** [**ANGULAR**](views/angular.md) **-** [**VUE**](views/vue.md) **-** [**SVELTE**](views/svelte.md)\*\*\*\*
 

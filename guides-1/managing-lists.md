@@ -31,9 +31,11 @@ In Overmind it is encouraged that you derive these dictionaries of entities to a
 {% tabs %}
 {% tab title="overmind/state.js" %}
 ```typescript
+import { derived } from 'overmind'
+
 export const state = {
   posts: {}
-  postsList: state => Object.values(state.posts)
+  postsList: derived(state => Object.values(state.posts))
 }
 ```
 {% endtab %}
@@ -48,9 +50,11 @@ Now we have optimally stored our posts in a dictionary for easy access by id. We
 {% tabs %}
 {% tab title="overmind/state.js" %}
 ```typescript
+import { derived } from 'overmind'
+
 export const state = {
   posts: {}
-  postsList: state =>
+  postsList: derived(state =>
     Object.values(state.posts)
       .sort((postA, postB) => {
         if (postA.datetime > postB.datetime) {
@@ -60,7 +64,7 @@ export const state = {
         }
 
         return 0
-      })
+      }))
 }
 ```
 {% endtab %}
@@ -75,25 +79,13 @@ To limit the number of posts shown we can create a new state and use it inside o
 {% tabs %}
 {% tab title="overmind/state.ts" %}
 ```typescript
-import { Derive } from 'overmind'
+import { derived } from 'overmind'
 
-export type Post {
-  id: string
-  title: string
-  body: string
-  datetime: number
-}
 
-export type State = {
-  posts: { [id: string] : Post }
-  showCount: number
-  postsList: Derive<State, Post[]>
-}
-
-export const state: State = {
+export const state = {
   posts: {},
   showCount: 10,
-  postsList: state =>
+  postsList: derived(state =>
     Object.values(state.posts)
       .sort((postA, postB) => {
         if (postA.datetime > postB.datetime) {
@@ -104,7 +96,7 @@ export const state: State = {
 
         return 0
       })
-      .slice(0, state.showCount)
+      .slice(0, state.showCount))
 }
 ```
 {% endtab %}
@@ -121,10 +113,10 @@ So now let’s look at how we would consume such a list. Let us look at a straig
 {% code title="components/App.tsx" %}
 ```typescript
 import * as React from 'react'
-import { useOvermind } from '../overmind'
+import { useAppState } from '../overmind'
 
-const Posts: React.FunctionComponent = () => {
-  const { state } = useOvermind()
+const Posts = () => {
+  const state = useAppState()
 
   return (
     <ul>
@@ -181,88 +173,22 @@ export class List {
 {% endtab %}
 {% endtabs %}
 
-Now this approach will work perfectly fine. The component will render the list and update it whenever it needs to. The only drawback with this approach is that any change to individual posts will also cause the component to render, specifically the **title** of a post since that is the only thing we are looking at. This is because this one component is looking at all the posts. We can optimize this by passing each post down to a child component:
+Now this approach will work perfectly fine. The component will render the list and update it whenever it needs to. The only drawback with this approach is that any change to individual posts will also cause the component to render, specifically the **title** of a post since that is the only thing we are looking at. This is because this one component is looking at all the posts. We can optimize this create a child component who rather deals with the post:
 
 {% tabs %}
 {% tab title="React" %}
-{% code title="components/Post.tsx" %}
+{% code title="components/Posts.ts" %}
 ```typescript
 import * as React from 'react'
-import { useOvermind } from '../overmind'
-import { Post as TPost } from '../overmind/state'
+import { useAppState } from '../overmind'
 
-type Props = {
-  post: TPost
-}
-
-const Post: React.FunctionComponent<Props> = ({ post }) => {
-  // We still need to use the hook so that the component tracks
-  // changes to the post
-  useOvermind()
-
-  return (
-    <li>{post.title}</li>
-  )
-}
-
-export default Post
-```
-{% endcode %}
-{% endtab %}
-
-{% tab title="Angular" %}
-{% code title="components/post.component.ts" %}
-```typescript
-import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
-import { Post } from '../overmind/state'
-
-@Component({
-  selector: 'app-post',
-  template: `
-  <li *track>
-    {{post.title}}
-  </li>
-  `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
-export class List {
-  @Input() post: Post;
-}
-```
-{% endcode %}
-{% endtab %}
-
-{% tab title="Vue" %}
-{% code title="components/Post.vue" %}
-```typescript
-<template>
-  <li>{{ post.title }}</li>
-</template>
-<script>
-export {
-  props: ['post']
-}
-</script>
-```
-{% endcode %}
-{% endtab %}
-{% endtabs %}
-
-{% tabs %}
-{% tab title="React" %}
-{% code title="components/Posts.tsx" %}
-```typescript
-import * as React from 'react'
-import { useOvermind } from '../overmind'
-import Post from './Post'
-
-const Posts: React.FunctionComponent = () => {
-  const { state } = useOvermind()
+const Posts = () => {
+  const state = useAppState()
 
   return (
     <ul>
       {state.postsList.map(post => 
-        <Post key={post.id} post={post} />
+        <Post key={post.id} id={post.id} />
       )}
     </ul>
   )
@@ -314,6 +240,66 @@ export default {
   components: {
     PostComponent,
   },
+}
+</script>
+```
+{% endcode %}
+{% endtab %}
+{% endtabs %}
+
+{% tabs %}
+{% tab title="React" %}
+{% code title="components/Post.jsx" %}
+```typescript
+import * as React from 'react'
+import { useOvermind } from '../overmind'
+
+const Post = React.memo(({ id }) => {
+  // This is scoped tracking. The tracking starts
+  // with the returned value from the callback
+  const post = useAppState(state => state.posts[id])
+
+  return (
+    <li>{post.title}</li>
+  )
+})
+
+export default Post
+```
+{% endcode %}
+{% endtab %}
+
+{% tab title="Angular" %}
+{% code title="components/post.component.ts" %}
+```typescript
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
+import { Post } from '../overmind/state'
+
+@Component({
+  selector: 'app-post',
+  template: `
+  <li *track>
+    {{post.title}}
+  </li>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class List {
+  @Input() post: Post;
+}
+```
+{% endcode %}
+{% endtab %}
+
+{% tab title="Vue" %}
+{% code title="components/Post.vue" %}
+```typescript
+<template>
+  <li>{{ post.title }}</li>
+</template>
+<script>
+export {
+  props: ['post']
 }
 </script>
 ```

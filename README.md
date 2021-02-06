@@ -4,9 +4,11 @@ description: frictionless state management
 
 # Overmind
 
-> Web application development is about **defining**, **changing** and **consuming state** to produce a user experience. Overmind aims for a developer experience where that is all you focus on, reducing the orchestration of state management to a minimum. Making you a **happier** and more **productive** developer!
+[![GitHub stars](https://img.shields.io/github/stars/cerebral/overmind.svg?style=social&label=Star&maxAge=2592000)](https://github.com/cerebral/overmind/stargazers/)
 
-{% embed url="https://overmindjs.changefeed.app/general/v26" caption="" %}
+> Web application development is about **defining**, **changing** and **consuming state** to produce a user experience. Overmind aims for a developer experience where that is all you focus on, reducing the orchestration of state management to a minimum. Making you a **happier** and more **productive** developer
+
+{% embed url="https://overmindjs.changefeed.app/general/v28" %}
 
 ## APPLICATION INSIGHT
 
@@ -57,7 +59,7 @@ export const loadApp = ({ state, effects }) => {
 
 ## SAFE AND PREDICTABLE CHANGES
 
-When you build applications that perform many state changes things can get out of hand. In Overmind you can only perform state changes from **actions** and all changes are tracked by the development tool. Even effects are tracked and reactions are tracked.
+When you build applications that perform many state changes things can get out of hand. In Overmind you can only perform state changes from **actions** and all changes are tracked by the development tool. Even effects and reactions are tracked.
 
 ```javascript
 export const getItems = async ({ state, effects }) => {
@@ -69,22 +71,22 @@ export const getItems = async ({ state, effects }) => {
 
 ## COMPLEXITY TOOLS
 
-Even though Overmind can create applications with plain **state** and **actions**, you can use **opt-in** tools like **functional operators**,**, statemachines** and state values defined as a **class,** to manage complexities of your application.
+Even though Overmind can create applications with plain **state** and **actions**, you can use **opt-in** tools like **functional operators**, **statemachines** and state values defined as a **class,** to manage complexities of your application.
 
 {% tabs %}
 {% tab title="Operators" %}
 ```javascript
 export const search = pipe(
-  mutate(({ state }, query) => {
+  ({ state }, query) => {
     state.query = query
-  }),
+  },
   filter((_, query) => query.length > 2),
   debounce(200),
-  mutate(async ({ state, effects }, query) => {
+  async ({ state, effects }, query) => {
     state.isSearching = true
     state.searchResult = await effects.getSearchResult(query)
     state.isSearching = false
-  })
+  }
 )
 ```
 {% endtab %}
@@ -92,14 +94,11 @@ export const search = pipe(
 {% tab title="Statemachines" %}
 ```typescript
 export const state = statemachine({
-  unauthenticated: ['authenticating'],
-  authenticating: ['unauthenticated', 'authenticated'],
-  authenticated: ['unauthenticating'],
-  unauthenticating: ['unauthenticated', 'authenticated']
-}, {
-  state: 'unauthenticated',
-  user: null,
-  error: null
+  SIGN_IN: (state) => {
+    if (state.current === 'UNAUTHENTICATED') {
+      return { current: 'AUTHENTICATING' }
+    }
+  }
 })
 ```
 {% endtab %}

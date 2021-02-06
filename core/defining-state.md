@@ -113,7 +113,7 @@ export const state = {
 The returned value here is indeed a function you call. The cool thing is that the function itself will never change, but whatever state you access when calling the function will be tracked by the caller of the function. So for example if a component uses **getUserById** during rendering it will track what is accessed in the function and continue tracking whatever you access on the returned value.
 
 {% hint style="info" %}
-You may use a derived for all sorts of calculations. But sometimes it's better to just use a plain action to manipulate some state than using a derived. Why? Imagine a table component having a lot of rows and columns. We assume the table component also takes care of sorting and filtering and is capable of adding new rows. Now if you solve the sorting and filtering using a derived the following could happen: User adds a new row but it is not displayed in the list because the derived immediately kicked in and filtered it out. Thats not a good user experience. Also in this case the filtering and sorting is clearly started by a simple user interaction \(setting a filter value, clicking on a column,...\) so why not just start an action which creates the new list of sorted and filtered keys? Also the heavy calculation is now very predictable and doesn't cause performance issues because the derived kickes in too often \(Because it could have many dependencies you might didn't think of\)
+You may use a derived for all sorts of calculations. But sometimes it's better to just use a plain action to manipulate some state than using a derived. Why? Imagine a table component having a lot of rows and columns. We assume the table component also takes care of sorting and filtering and is capable of adding new rows. Now if you solve the sorting and filtering using a derived the following could happen: User adds a new row but it is not displayed in the list because the derived immediately kicked in and filtered it out. Thats not a good user experience. Also in this case the filtering and sorting is clearly started by a simple user interaction \(setting a filter value, clicking on a column,...\) so why not just start an action which creates the new list of sorted and filtered keys? Also the heavy calculation is now very predictable and doesn't cause performance issues because the derived kickes in too often \(Because it could have many dependencies you did not think of\)
 {% endhint %}
 
 ### Class instances
@@ -153,7 +153,7 @@ export const state = {
 {% endtabs %}
 
 {% hint style="warning" %}
-It is import that you do **NOT** use arrow functions on your methods. The reason is that this binds the context of the method to the instance itself, meaning that Overmind is unable to proxy access and track mutations
+It is important that you do **NOT** use arrow functions on your methods. The reason is that this binds the context of the method to the instance itself, meaning that Overmind is unable to proxy access and track mutations
 {% endhint %}
 
 You can now use this instance as normal and of course create new ones.
@@ -197,7 +197,7 @@ The **SERIALIZE** symbol will not be part of the actual serialization done with 
 
 #### Rehydrating classes
 
-The [**rehydrate**](../api-1/rehydrate.md) \_\*\*\_utility of Overmind allows you to rehydrate state either by a list of mutations or a state object, like the following:
+The [**rehydrate**](../api-1/rehydrate.md) _\*\*_utility of Overmind allows you to rehydrate state either by a list of mutations or a state object, like the following:
 
 {% tabs %}
 {% tab title="overmind/actions.js" %}
@@ -321,7 +321,7 @@ const state = {
 
 You can not be authenticating and be authenticated at the same time. This kind of logic very often causes bugs in applications. That is why Overmind allows you to define statemachines. It sounds complicated, but is actually very simple.
 
-To properly understand state machines, please read the guide [**Using state machines**](../guides-1/using-state-machines.md).
+To properly understand state machines, please read the guide [**Using state machines**](../guides-1/using-state-machines.md). 
 
 ## References
 

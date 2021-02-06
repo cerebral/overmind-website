@@ -34,19 +34,21 @@ If we were to do this in a functional style it would look more like this:
 {% tabs %}
 {% tab title="overmind/actions.js" %}
 ```typescript
-import { pipe, debounce, mutate, filter } from 'overmind'
+import { pipe, debounce, filter } from 'overmind'
 
 export const search = pipe(
-  mutate(({ state }, value) => {
-    state.query = value
-  }),
-  filter(({ state }) => state.query.length > 2),
+  ({ state }, query) => {
+    state.query = query
+    
+    return query
+  },
+  filter(({ state }, query) => query.length > 2),
   debounce(200),
-  mutate(({ state, effects }) => {
+  ({ state, effects }, query) => {
     state.isSearching = true
-    state.searchResult = await effects.api.search(state.query)
+    state.searchResult = await effects.api.search(query)
     state.isSearching = false
-  })
+  }
 )
 ```
 {% endtab %}
@@ -67,24 +69,42 @@ Let us look at how the operators in the search example could have been implement
 {% tabs %}
 {% tab title="overmind/operators.js" %}
 ```typescript
-import {filter, mutate } from 'overmind'
+import {filter } from 'overmind'
 
-export const setQuery = () =>
-  mutate(function setQuery({ state }, query) {
-    state.query = query
-  })
+export const setQuery = ({ state }, query) => {
+  state.query = query
+  
+  return query
+}
 
 export const lengthGreaterThan = (length) =>
-  filter(function lengthGreaterThan(_, value) {
+  filter(function lengthGreaterThan (_, value) { 
     return value.length > length
   })
 
-export const getSearchResult = () => 
-  mutate(async function getSearchResult({ state, effects }, query) {
-    state.isSearching = true
-    state.searchResult = await effects.api.search(query)
-    state.isSearching = false
-  })
+export const getSearchResult = ({ state, effects }, query) => {
+  state.isSearching = true
+  state.searchResult = await effects.api.search(query)
+  state.isSearching = false
+})
+```
+{% endtab %}
+{% endtabs %}
+
+This results in this code:
+
+{% tabs %}
+{% tab title="overmind/actions.js" %}
+```typescript
+import { pipe, debounce } from 'overmind'
+import { setQuery, lengthGreaterThan, getSearchResult } from './operators'
+
+export const search = pipe(
+  setQuery,
+  lengthGreaterThan(2),
+  debounce(200),
+  getSearchResult
+)
 ```
 {% endtab %}
 {% endtabs %}
@@ -93,36 +113,21 @@ export const getSearchResult = () =>
 Note that we give all the actual operator functions the same name as the exported variable that creates it. The reason is that this name is picked up by the devtools and gives you more insight into how your code runs.
 {% endhint %}
 
-You might wonder why we define the operators as functions that we call. We do that for the following reasons:
-
-1. It ensures that each composition using the operator has a unique instance of that operator. For most operators this does not matter, but for others like **debounce** it actually matters.
-2. Some operators require options, like the **lengthGreaterThan** operator we created above. Defining all operators as functions just makes things more consistent.
-3. If you were to create an operator that is composed of other operators you can safely do so without thinking about the order of definition in the _operators_ file. The reason being that the operator is lazily created
-4. With Typescript it opens up to partial and generic typed operators. Read more about this in the [Typescript](typescript.md) guide
-
-Now, you might feel that we are just adding complexity here. An additional file with more syntax. But clean and maintainable code is not about less syntax. It is about structure, predictability and reusability. What we achieve with this functional approach is a super readable abstraction in our _actions_ file. There is no logic there, just references to logic. In our _operators_ file each piece of logic is defined in isolation with very little logic.
+Now, you might feel that we are just adding complexity here. An additional file with more syntax. But clean and maintainable code is not about less syntax. It is about structure, predictability and reusability. What we achieve with this functional approach is a super readable abstraction in our _actions_ file. There is no logic there, just references to logic. In our _operators_ file each piece of logic is defined in isolation with very little logic and it can be reused in any other composition.
 
 ## Calling operators
 
-You typically compose the different operators together with **pipe** and **parallel** in the _actions_ file, but any operator can actually be exposed as an action. With the search example:
+You typically compose the different operators together with **pipe** and **parallel** in the _actions_ file, but any operator can actually be exposed as an action. Think of operators as functional actions:
 
 {% tabs %}
 {% tab title="overmind/actions.js" %}
 ```typescript
-import {pipe, debounce, mutate, filter } from 'overmind'
+import { tryCatch } from 'overmind'
 
-export const search = pipe(
-  mutate(({ state }, value) => {
-    state.query = value
-  }),
-  filter(({ state }) => state.query.length > 2),
-  debounce(200),
-  mutate(({ state, effects }) => {
-    state.isSearching = true
-    state.searchResult = await effects.api.search(state.query)
-    state.isSearching = false
-  })
-)
+export const doThis = tryCatch({
+  try: () => {},
+  catch: () => {}
+})
 ```
 {% endtab %}
 {% endtabs %}
@@ -130,38 +135,34 @@ export const search = pipe(
 You would call this action like any other:
 
 ```typescript
-overmind.actions.search("something")
+overmind.actions.doThis()
 ```
 
 ## Inputs and Outputs
 
-To produce new values throughout your pipe you can use the **map** operator. It will put whatever value you return from it on the pipe for the next operator to consume.
+Operators typically allow you to return a value which is passed to the next operator. Though some operators, like **debounce**, **filter** etc., will just pass the current value through directly.
 
 {% tabs %}
 {% tab title="overmind/operators.js" %}
 ```typescript
 import {map, mutate } from 'overmind'
 
-export const toNumber = () =>
-  map(function toNumber(_, value) { 
-    return Number(value)
-  })
+export const toNumber => (_, value) => Number(value)
 
-export const setValue = () =>
-  mutate(function setValue({ state}, value) {
-    state.value = value
-  })
+export const setValue = ({ state}, value) {
+  state.value = value
+}
 ```
 {% endtab %}
 
 {% tab title="overmind/actions.js" %}
 ```typescript
 import {pipe } from 'overmind'
-import * as o from './operators'
+import { toNumber, setValue } from './operators'
 
 export const onValueChange = pipe(
-  o.toNumber(),
-  o.setValue()
+  toNumber,
+  setValue
 )
 ```
 {% endtab %}
@@ -173,23 +174,21 @@ The operators concept of Overmind is based on the [OP-OP SPEC](https://github.co
 
 ### toUpperCase <a id="create-custom-operators-touppercase"></a>
 
-Let us create an operator that simply uppercases the string value passed through. This could easily have been done using the **map** operator, but for educational purposes let us see how we can create our very own operator.
+Let us create an operator that simply uppercases the string value passed through. This could easily have been done by just composing in a plain action, but for educational purposes let us see how we can create our very own operator.
 
 {% tabs %}
 {% tab title="overmind/operators.js" %}
 ```typescript
-import {createOperator, mutate } from 'overmind'
+import { createOperator } from 'overmind'
 
-export const toUpperCase = () => {
-  return createOperator('toUpperCase', '', (err, context, value, next) => {
-    if (err) next(err, value)
-    else next(null, value.toUpperCase())
-  })
-}
-
-export const setTitle = mutate(({ state }, title) => {
-  state.title = title
+export const toUpperCase = createOperator('toUpperCase', '', (err, context, value, next) => {
+  if (err) next(err, value)
+  else next(null, value.toUpperCase())
 })
+
+export const setTitle = ({ state }, title) => {
+  state.title = title
+}
 ```
 {% endtab %}
 
@@ -217,38 +216,34 @@ You might want to run some logic related to your operator. Typically this is don
 ```typescript
 import { createOperator } from 'overmind'
 
-export function map(operation) {
-  return createOperator(
-    'map',
-    operation.name,
-    (err, context, value, next) => {
-      if (err) next(err, value)
-      else next(null, operation(context, value))
-    }
-  )
-}
+export const map = (operation) createOperator(
+  'map',
+  operation.name,
+  (err, context, value, next) => {
+    if (err) next(err, value)
+    else next(null, operation(context, value))
+  }
+)
 ```
 
 ### mutations <a id="create-custom-operators-mutations"></a>
 
-You can also create operators that have the ability to mutate the state, it is just a different factory **createMutationFactory**. This is how the **mutate** operator is implemented:
+By default operators can note change To allow that you have to use the **createMutationOperator**:
 
 ```typescript
 import { createMutationOperator } from 'overmind'
 
-export function mutate(operation) {
-  return createMutationOperator(
-    'mutate',
-    operation.name,
-    (err, context, value, next) => {
-      if (err) next(err, value)
-      else {
-        operation(context, value)
-        next(null, value)
-      }
+export const mutate = (operation) createMutationOperator(
+  'mutate',
+  operation.name,
+  (err, context, value, next) => {
+    if (err) next(err, value)
+    else {
+      operation(context, value)
+      next(null, value)
     }
-  )
-}
+  }
+)
 ```
 
 ### paths <a id="create-custom-operators-paths"></a>
@@ -258,25 +253,23 @@ You can even manage paths in your operator. This is how the **when** operator is
 ```typescript
 import { createOperator } from 'overmind'
 
-export function when(operation, paths) {
-  return createOperator(
-    'when',
-    operation.name,
-    (err, context, value, next) => {
-      if (err) next(err, value)
-      else if (operation(context, value))
-        next(null, value, {
-          name: 'true',
-          operator: paths.true,
-        })
-      else
-        next(null, value, {
-          name: 'false',
-          operator: paths.false,
-        })
-    }
-  )
-}
+export const when = (operation, paths) => createOperator(
+  'when',
+  operation.name,
+  (err, context, value, next) => {
+    if (err) next(err, value)
+    else if (operation(context, value))
+      next(null, value, {
+        name: 'true',
+        operator: paths.true,
+      })
+    else
+      next(null, value, {
+        name: 'false',
+        operator: paths.false,
+      })
+  }
+)
 ```
 
 ### aborting <a id="create-custom-operators-aborting"></a>
@@ -286,17 +279,15 @@ Some operators want to prevent further execution. That is also possible to imple
 ```typescript
 import { createOperator } from 'overmind'
 
-export function filter(operation) {
-  return createOperator(
-    'filter',
-    operation.name,
-    (err, context, value, next, final) => {
-      if (err) next(err, value)
-      else if (operation(context, value)) next(null, value)
-      else final(null, value)
-    }
-  )
-}
+export const filter = (operation) => createOperator(
+  'filter',
+  operation.name,
+  (err, context, value, next, final) => {
+    if (err) next(err, value)
+    else if (operation(context, value)) next(null, value)
+    else final(null, value)
+  }
+)
 ```
 
 The **final** argument bypasses any other operators.

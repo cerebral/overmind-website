@@ -9,10 +9,10 @@ By installing the view layer of choice you will be able to connect it to your Ov
 {% code title="App.jsx" %}
 ```typescript
 import * as React from 'react'
-import { useOvermind } from '../../overmind'
+import { useAppState } from '../../overmind'
 
 const App = () => {
-  const { state } = useOvermind()
+  const state = useAppState()
 
   if (state.isLoading) {
     return <div>Loading app...</div>
@@ -81,10 +81,10 @@ When we just access an array in a component it will re-render if the array itsel
 {% tab title="React" %}
 ```typescript
 import * as React from 'react'
-import { useOvermind } from '../overmind'
+import { useAppState } from '../overmind'
 
 const List = () => {
-  const { state } = useOvermind()
+  const state = useAppState()
 
   return (
     <h1>{state.items}</h1>
@@ -128,10 +128,10 @@ But what happens if we iterate the array and access a property on each item?
 {% tab title="React" %}
 ```typescript
 import * as React from 'react'
-import { useOvermind } from '../overmind'
+import { useAppState } from '../overmind'
 
 const List = () => {
-  const { state } = useOvermind()
+  const state = useAppState()
 
   return (
     <ul>
@@ -184,7 +184,7 @@ export class List {
 {% endtab %}
 {% endtabs %}
 
-The benefit now is that the **List** component will only render when there is a change to the actual list, while each individual **Item** component will render when its respective title changes.
+Now the **List** component looks at the list itself and all the items. Meaning if any items are added/removed or any of the items change, the **List** component will render again. Read more about [**Managing lists**](managing-lists.md) to understand better how to optimize this.
 
 ### Objects
 
@@ -194,10 +194,10 @@ Objects are similar to arrays. If you access an object you track if that object 
 {% tab title="React" %}
 ```typescript
 import * as React from 'react'
-import { useOvermind } from '../overmind'
+import { useAppState } from '../overmind'
 
 const List = () => {
-  const { state } = useOvermind()
+  const state = useAppState()
 
   return (
     <h1>{state.items}</h1>
@@ -235,81 +235,22 @@ export class List {
 {% endtab %}
 {% endtabs %}
 
-And just like an array you can iterate the object keys to pass items to a child component for optimal rendering.
-
-{% tabs %}
-{% tab title="React" %}
-{% code title="Item.jsx" %}
-```typescript
-import * as React from 'react'
-import { useOvermind } from '../overmind'
-
-const Item = ({ item }) => {
-  useOvermind()
-
-  return (
-    <li>{item.title}</li>
-  )
-}
-
-export default Item
-```
-{% endcode %}
-{% endtab %}
-
-{% tab title="Angular" %}
-{% code title="item.component.ts" %}
-```typescript
-import { Component Input } from '@angular/core';
-import { Item } from '../overmind/state'
-
-@Component({
-  selector: 'app-list-item',
-  template: `
-  <li *track>
-    {{item.title}}
-  </li>
-  `
-})
-export class List {
-  @Input() item: Item;
-}
-```
-{% endcode %}
-{% endtab %}
-
-{% tab title="Vue" %}
-{% code title="Item.vue" %}
-```typescript
-<template>
-  {{ item.title }}
-</template>
-<script>
-export default {
-  name: 'Item',
-  props: ['item']
-}
-</script>
-```
-{% endcode %}
-{% endtab %}
-{% endtabs %}
+And just like an array you can iterate the values of en object, which results in the component rendering again when any object key value changes:
 
 {% tabs %}
 {% tab title="React" %}
 {% code title="List.jsx" %}
 ```typescript
 import * as React from 'react'
-import { useOvermind } from '../overmind'
-import Item from './Item'
+import { useAppState } from '../overmind'
 
 const List = () => {
-  const { state } = useOvermind()
+  const state = useAppState()
 
   return (
     <ul>
       {Object.keys(state.items).map(key => 
-        <Item key={key} item={state.items[key]} />
+        <li key={key}>{state.items[key].title}</li>
       )}
     </ul>
   )
@@ -364,6 +305,8 @@ export default {
 {% endtab %}
 {% endtabs %}
 
+Again look at [**Managing lists**](managing-lists.md) to understand better how to optimize lists.
+
 ## Actions
 
 All the actions defined in the Overmind application are available to connected components.
@@ -371,8 +314,9 @@ All the actions defined in the Overmind application are available to connected c
 {% tabs %}
 {% tab title="overmind/actions.js" %}
 ```typescript
-export const toggleAwesomeApp = ({ state }) =>
+export const toggleAwesomeApp = ({ state }) => {
   state.isAwesome = !state.isAwesome
+}
 ```
 {% endtab %}
 {% endtabs %}
@@ -381,10 +325,10 @@ export const toggleAwesomeApp = ({ state }) =>
 {% tab title="React" %}
 ```typescript
 import * as React from 'react'
-import { useOvermind } from '../overmind'
+import { useActions } from '../overmind'
 
 const App = () => {
-  const { actions } = useOvermind()
+  const actions = useActions()
 
   return (
     <button onClick={actions.toggleAwesomeApp}>
@@ -442,14 +386,16 @@ This example shows how you can scroll to the top of the page every time you chan
 {% tab title="React" %}
 ```typescript
 import * as React from 'react'
-import { useOvermind } from '../../overmind'
+import { useReaction } from '../../overmind'
 
 const Article = () => {
-  const { reaction } = useOvermind()
+  const reaction = useReaction()
 
   React.useEffect(() => reaction(
     (state) => state.currentArticle,
-    () => document.querySelector('#app').scrollTop = 0 
+    () => {
+      document.querySelector('#app').scrollTop = 0
+    } 
   ), [])
 
   return <article />

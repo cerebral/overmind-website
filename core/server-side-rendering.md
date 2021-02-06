@@ -1,6 +1,6 @@
 # Server Side Rendering
 
-Some projects require you to render your application on the server. There are different reasons to do this, like search engine optimizations, general optimizations and even browser support. What this means for state management is that you want to expose a version of your state on the server and render the components with that state. But that is not all, you also want to **hydrate** the changed state and pass it to the client with the HTML so that it can **rehydrate** and make sure that when the client renders initially, it renders the same UI.
+Some projects require you to render your application on the server. There are different reasons to do this, like search engine optimizations, general optimizations and even browser support. What this means for state management is that you want to expose a version of your state on the server and render the components with that state. But that is not all, you also want to **hydrate** the changed state and pass it to the client with the HTML so that it can **rehydrate** and make sure that the initial render of the client is the same as coming from the server.
 
 ## Preparing the project
 
@@ -9,15 +9,10 @@ When doing server-side rendering the configuration of your application will be s
 {% tabs %}
 {% tab title="overmind/index.ts" %}
 ```typescript
-import { IConfig } from 'overmind'
 import { state } from './state'
 
 export const config = {
   state
-}
-
-declare module 'overmind' {
-  interface Config extends IConfig<typeof config> {}
 }
 ```
 {% endtab %}
@@ -105,12 +100,12 @@ If you are using state first routing, make sure you prevent the router from firi
 
 ## OnInitialize
 
-The `onInitialized` action does not run on the server. The reason is that it is considered a side effect you might not want to run, so we do not force it. If you do want to run an action as Overmind fires up both on the client and the server you can rather create a custom action for it.
+The `onInitializeOvermind` action does not run on the server. The reason is that it is considered a side effect you might not want to run, so we do not force it. If you do want to run an action as Overmind fires up both on the client and the server you can rather call it manually:
 
 {% tabs %}
 {% tab title="overmind/actions.js" %}
 ```javascript
-export const initialize = () => {
+export const onInitializeOvermind = () => {
   // Whatever...
 }
 ```
@@ -122,7 +117,7 @@ import { createOvermind } from 'overmind'
 import { config } from './overmind'
 
 const overmind = createOvermind(config)
-overmind.actions.initialize()
+overmind.actions.onInitializeOvermind()
 ```
 {% endtab %}
 
@@ -133,7 +128,7 @@ import { config } from '../client/overmind'
 
 export default async (req, res) => {
   const overmind = createOvermindSSR(config)
-  await overmind.actions.initialize()
+  await overmind.actions.onInitializeOvermind()
 
   const html = renderToString(
     // Whatever implementation your view layer provides
@@ -204,6 +199,7 @@ export default class MyApp extends App {
     );
   }
 }
+
 ```
 {% endtab %}
 {% endtabs %}
@@ -225,6 +221,7 @@ export const config = {
 };
 
 export const useOvermind = createHook();
+
 ```
 
 And you are all set to get going with `overmind` and `next.js`. You can also take a look at [this example in the next.js examples directory](https://github.com/vercel/next.js/tree/canary/examples/with-overmind) if you need some help.
@@ -242,12 +239,13 @@ import { Provider } from "overmind-react"
 import { config } from "./src/overmind"
 
 const overmind = createOvermind(config);
-
+  
 export const wrapPageElement = ({ element }) => (
   <Provider value={createOvermind(config)}>
     {element}
   </Provider>
 )
+
 ```
 
 After this is done we can do the same thing for the server render and add that code in the `gatsby-ssr.js` file:
@@ -267,6 +265,7 @@ export const wrapPageElement = ({ element }) => (
     {element}
   </Provider>
 )
+
 ```
 
 As you can see the only difference we have here is that we createOvermindSSR in the `gatsby-ssr.js`

@@ -26,7 +26,7 @@ export const config = {
 
 ## Using the context
 
-The context has three parts: **state**, **effects** and **actions**. Typically you destructure the context to access these pieces directly:
+The context has three main parts: **state**, **effects** and **actions**. Typically you destructure the context to access these pieces directly:
 
 {% tabs %}
 {% tab title="overmind/actions.js" %}
@@ -112,8 +112,8 @@ export const myAction: Action = ({ state, effects, actions }) => {
 {% tab title="overmind/actions.js" %}
 ```typescript
 export const myAction: Action = ({ state, effects, actions }) => {
-  actions.internal._internalActionA('foo')
-  actions.internal._internalActionB()
+  actions._internalActionA('foo')
+  actions._internalActionB()
 }
 
 export const _internalActionA = ({ state, effects, actions }, value) {}

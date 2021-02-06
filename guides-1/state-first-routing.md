@@ -78,7 +78,7 @@ const onInitialize: OnInitialize = ({ actions, effects }) => {
   effects.router.initialize({
     '/': actions.showHomePage,
     '/users': actions.showUsersPage,
-    '/users/:id', actions.showUserModal
+    '/users/:id': actions.showUserModal
   })
 }
 

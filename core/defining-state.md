@@ -197,7 +197,7 @@ The **SERIALIZE** symbol will not be part of the actual serialization done with 
 
 #### Rehydrating classes
 
-The [**rehydrate**](../api-1/rehydrate.md) _\*\*_utility of Overmind allows you to rehydrate state either by a list of mutations or a state object, like the following:
+The [**rehydrate**](../api-1/rehydrate.md) utility of Overmind allows you to rehydrate state either by a list of mutations or a state object, like the following:
 
 {% tabs %}
 {% tab title="overmind/actions.js" %}

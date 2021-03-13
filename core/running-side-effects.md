@@ -113,14 +113,14 @@ export const api = (() => {
 We are doing two things here:
 
 1. We use an [IIFE](https://developer.mozilla.org/en-US/docs/Glossary/IIFE) to create a scoped internal variable to be used for that specific effect
-2. We have created an **initialize** method which we can call from the Overmind **onInitialize** action, which runs when the Overmind instance is created
+2. We have created an **initialize** method which we can call from the special **onInitializeOvermind** action, which runs when the Overmind instance is created
 
 Example of initializing the effect:
 
 {% tabs %}
-{% tab title="overmind/onInitialize.js" %}
+{% tab title="overmind/actions.js" %}
 ```typescript
-export const onInitialize = async ({ effects }) => {
+export const onInitializeOvermind = async ({ effects }) => {
   effects.api.initialize()
   state.posts = await effects.api.getPosts()
 }
@@ -162,9 +162,9 @@ export const socket = (() => {
 ```
 {% endtab %}
 
-{% tab title="overmind/onInitialize.js" %}
+{% tab title="overmind/actions.js" %}
 ```typescript
-export const onInitialize = async ({ state, effects, actions }) => {
+export const onInitializeOvermind = async ({ state, effects, actions }) => {
   effects.socket.initialize({
     onMessage: actions.onMessage,
     onStatusChange: actions.onSocketStatusChange,
@@ -209,9 +209,9 @@ export const api = (() => {
 In our initialize\(\) we would just have to wait for the initialization to finish before using the API:
 
 {% tabs %}
-{% tab title="overmind/onInitialize.js" %}
+{% tab title="overmind/actions.js" %}
 ```typescript
-export const onInitialize = async ({ effects }) => {
+export const onInitializeOvermind = async ({ effects }) => {
   await effects.api.initialize()
   state.posts = await effects.api.getPosts()
 }

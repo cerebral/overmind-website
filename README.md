@@ -94,11 +94,10 @@ export const search = pipe(
 {% tab title="Statemachines" %}
 ```typescript
 export const state = statemachine({
-  SIGN_IN: (state) => {
-    if (state.current === 'UNAUTHENTICATED') {
-      return { current: 'AUTHENTICATING' }
-    }
-  }
+  UNAUTHENTICATED: {
+    SIGN_IN: () => ({ current: 'AUTHENTICATING' })
+  },
+  AUTHENTICATING: {}
 })
 ```
 {% endtab %}

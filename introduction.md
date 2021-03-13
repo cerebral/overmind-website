@@ -241,7 +241,7 @@ You have to **OPEN SANDBOX** to get the full Typescript experience.
 
 {% embed url="https://codesandbox.io/s/overmind-todomvc-typescript-39h7y?fontsize=14&hidenavigation=1&theme=dark&view=editor&runonclick=1" %}
 
-As you can see we only have to add an **Action** type to our functions and optionally give it an input type. This is enough for the action to give you all information about the application. Try changing some code and even add some code to see how Typescript helps you to explore the application and ensure that you implement new functionality correctly.
+As you can see we only have to add the **Context** type to our actions and optionally give it an input type. This is enough for the action to give you all information about the application. Try changing some code and even add some code to see how Typescript helps you to explore the application and ensure that you implement new functionality correctly.
 
 If you go to the **state.ts** file and change the type:
 

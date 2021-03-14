@@ -218,10 +218,8 @@ import { createHook } from "overmind-react";
 export const config = {
   state: {},
   actions: {
-    add: {
-      changePage({ state }, mutations) {
-        rehydrate(state, mutations || []);
-      },
+    changePage({ state }, mutations) {
+      rehydrate(state, mutations || []);
     },
   },
 };

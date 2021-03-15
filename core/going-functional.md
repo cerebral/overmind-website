@@ -34,7 +34,7 @@ If we were to do this in a functional style it would look more like this:
 {% tabs %}
 {% tab title="overmind/actions.js" %}
 ```typescript
-import { pipe, debounce, filter } from 'overmind'
+import { pipe, debounce, filter, branch } from 'overmind'
 
 export const search = pipe(
   ({ state }, query) => {

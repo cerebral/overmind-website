@@ -312,7 +312,7 @@ export default Todos
 
 ## React Native
 
-Overmind supports React Native. What to take notice of though is that native environments sometimes abstracts away the main **render** function of React. That can be a bit confusing in terms of setting up the **Provider**. If your environment only exports an initial component, that component needs to be responsible for settings up the providers and rendering your main component:
+Overmind supports React Native. What to take notice of though is that native environments sometimes abstracts away the main **render** function of React. That can be a bit confusing in terms of setting up the **Provider**. If your environment only exports an initial component, that component needs to be responsible for setting up the providers and rendering your main component:
 
 ```typescript
 import { createOvermind } from 'overmind'

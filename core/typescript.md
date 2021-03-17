@@ -225,5 +225,9 @@ export const doThis = pipe(
   (context: Context, value) => {
     // value is now "number"
   }
+)
+
+// call action
+doThis('foo') // Typed to string, as first operator needs string
 ```
 

@@ -69,7 +69,7 @@ Let us look at how the operators in the search example could have been implement
 {% tabs %}
 {% tab title="overmind/operators.js" %}
 ```typescript
-import {filter } from 'overmind'
+import { filter } from 'overmind'
 
 export const setQuery = ({ state }, query) => {
   state.query = query

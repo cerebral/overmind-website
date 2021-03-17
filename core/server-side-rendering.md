@@ -81,11 +81,11 @@ export default async (req, res) => {
 On the client you just want to make sure that your Overmind instance rehydrates the mutations performed on the server so that when the client renders, it does so with the same state. The **onInitialize** hook of Overmind is the perfect spot to do this.
 
 {% tabs %}
-{% tab title="overmind/onInitialize.ts" %}
+{% tab title="overmind/actions.ts" %}
 ```typescript
-import { OnInitialize, rehydrate } from 'overmind'
+import { rehydrate } from 'overmind'
 
-export const onInitialize: OnInitialize = ({ state }) => {
+export const onInitializeOvermind = ({ state }) => {
   const mutations = window.__OVERMIND_MUTATIONS
 
   rehydrate(state, mutations)
@@ -98,7 +98,7 @@ export const onInitialize: OnInitialize = ({ state }) => {
 If you are using state first routing, make sure you prevent the router from firing off the initial route, as this is not needed.
 {% endhint %}
 
-## OnInitialize
+## OnInitializeOvermind
 
 The `onInitializeOvermind` action does not run on the server. The reason is that it is considered a side effect you might not want to run, so we do not force it. If you do want to run an action as Overmind fires up both on the client and the server you can rather call it manually:
 
@@ -213,7 +213,7 @@ import { createHook } from "overmind-react";
 export const config = {
   state: {},
   actions: {
-  add
+  add: {
     changePage({ state }, mutations) {
       rehydrate(state, mutations || []);
     }
@@ -228,7 +228,7 @@ And you are all set to get going with `overmind` and `next.js`. You can also tak
 
 ## Gatsby
 
-When it comes to gatsby we need to prepare Overmind for static extraction and the idea is about the same.
+When it comes to Gatsby we need to prepare Overmind for static extraction and the idea is about the same.
 
 We need first to wrap our whole app in the Overmind provider and we can do that in `gatsby-browser.js`:
 

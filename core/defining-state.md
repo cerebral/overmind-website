@@ -140,7 +140,9 @@ class LoginForm {
 }
 ```
 {% endtab %}
+{% endtabs %}
 
+{% tabs %}
 {% tab title="overmind/state.js" %}
 ```javascript
 import { LoginForm } from './models'
@@ -235,7 +237,9 @@ class User {
 }
 ```
 {% endtab %}
+{% endtabs %}
 
+{% tabs %}
 {% tab title="overmind/actions.js" %}
 ```typescript
 import { rehydrate } from 'overmind'
@@ -274,7 +278,9 @@ export const state = {
 }
 ```
 {% endtab %}
+{% endtabs %}
 
+{% tabs %}
 {% tab title="overmind/actions.js" %}
 ```typescript
 import { rehydrate } from 'overmind'
@@ -338,7 +344,9 @@ export const state = {
 }
 ```
 {% endtab %}
+{% endtabs %}
 
+{% tabs %}
 {% tab title="overmind/actions.js" %}
 ```typescript
 export const setUser = ({ state }, id) => {
@@ -362,7 +370,9 @@ export const state = {
 }
 ```
 {% endtab %}
+{% endtabs %}
 
+{% tabs %}
 {% tab title="overmind/actions.js" %}
 ```typescript
 export const setUser = ({ state }, id) => {
@@ -399,7 +409,9 @@ export const config = {
 }
 ```
 {% endtab %}
+{% endtabs %}
 
+{% tabs %}
 {% tab title="index.js" %}
 ```typescript
 import { createOvermind } from 'overmind'

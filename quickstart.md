@@ -40,7 +40,9 @@ export const state = {
 }
 ```
 {% endtab %}
+{% endtabs %}
 
+{% tabs %}
 {% tab title="overmind/index.js" %}
 ```typescript
 import { state } from './state'
@@ -50,7 +52,9 @@ export const config = {
 }
 ```
 {% endtab %}
+{% endtabs %}
 
+{% tabs %}
 {% tab title="index.js" %}
 ```typescript
 import { createOvermind } from 'overmind'

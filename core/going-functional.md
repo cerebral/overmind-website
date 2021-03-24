@@ -109,10 +109,6 @@ export const search = pipe(
 {% endtab %}
 {% endtabs %}
 
-{% hint style="info" %}
-Note that we give all the actual operator functions the same name as the exported variable that creates it. The reason is that this name is picked up by the devtools and gives you more insight into how your code runs.
-{% endhint %}
-
 Now, you might feel that we are just adding complexity here. An additional file with more syntax. But clean and maintainable code is not about less syntax. It is about structure, predictability and reusability. What we achieve with this functional approach is a super readable abstraction in our _actions_ file. There is no logic there, just references to logic. In our _operators_ file each piece of logic is defined in isolation with very little logic and it can be reused in any other composition.
 
 ## Calling operators
@@ -154,7 +150,9 @@ export const setValue = ({ state}, value) {
 }
 ```
 {% endtab %}
+{% endtabs %}
 
+{% tabs %}
 {% tab title="overmind/actions.js" %}
 ```typescript
 import {pipe } from 'overmind'
@@ -191,7 +189,9 @@ export const setTitle = ({ state }, title) => {
 }
 ```
 {% endtab %}
+{% endtabs %}
 
+{% tabs %}
 {% tab title="overmind/actions.js" %}
 ```typescript
 import { pipe } from 'overmind'

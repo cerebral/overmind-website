@@ -16,7 +16,9 @@ export const config = {
 }
 ```
 {% endtab %}
+{% endtabs %}
 
+{% tabs %}
 {% tab title="index.ts" %}
 ```typescript
 import { createOvermind } from 'overmind'
@@ -31,14 +33,14 @@ Here we only export the configuration from the main Overmind file. The instantia
 
 ## Preparing effects
 
-The effects will also be shared with the server. Typically this is not an issue, but you should be careful about creating effects that run logic when they are defined. You might also consider lazy-loading effects so that you avoid loading them on the server at all. You can read more about them in [EFFECTS](running-side-effects.md).
+The effects will also be shared with the server. Typically this is not an issue, but you should be careful about creating effects that run logic when they are defined. You might also consider lazy-loading effects so that you avoid loading them on the server at all. You can read more about that in [EFFECTS](running-side-effects.md).
 
 ## Rendering on the server
 
 When you render your application on the server you will have to create an instance of Overmind designed for running on the server. On this instance you can change the state and provide it to your components for rendering. When the components have rendered you can **hydrate** the changes and pass them along to the client so that you can **rehydrate**.
 
 {% hint style="info" %}
-Overmind does not hydrate the state, but the mutations you performed. That means it minimizes the payload passed over the wire.
+Overmind does not hydrate the actual state, but the mutations you performed. That means it minimizes the payload passed over the wire.
 {% endhint %}
 
 The following shows a very simple example using an [EXPRESS](https://expressjs.com/) middleware to return a server side rendered version of your app.
@@ -78,7 +80,7 @@ export default async (req, res) => {
 
 ## Rehydrate on the client
 
-On the client you just want to make sure that your Overmind instance rehydrates the mutations performed on the server so that when the client renders, it does so with the same state. The **onInitialize** hook of Overmind is the perfect spot to do this.
+On the client you just want to make sure that your Overmind instance rehydrates the mutations performed on the server so that when the client renders, it does so with the same state. The **onInitializeOvermind** hook of Overmind is the perfect spot to do this.
 
 {% tabs %}
 {% tab title="overmind/actions.ts" %}
@@ -110,7 +112,9 @@ export const onInitializeOvermind = () => {
 }
 ```
 {% endtab %}
+{% endtabs %}
 
+{% tabs %}
 {% tab title="client/index.js" %}
 ```typescript
 import { createOvermind } from 'overmind'
@@ -120,7 +124,9 @@ const overmind = createOvermind(config)
 overmind.actions.onInitializeOvermind()
 ```
 {% endtab %}
+{% endtabs %}
 
+{% tabs %}
 {% tab title="server/index.js" %}
 ```javascript
 import { createOvermindSSR } from 'overmind'

@@ -12,7 +12,9 @@ export const myAction = (context) => {
 }
 ```
 {% endtab %}
+{% endtabs %}
 
+{% tabs %}
 {% tab title="overmind/index.js" %}
 ```typescript
 import * as actions from './actions'
@@ -90,7 +92,9 @@ export const internalActionA = ({ state, effects, actions }, value) {}
 export const internalActionB = async ({ state, effects, actions }) {}
 ```
 {% endtab %}
+{% endtabs %}
 
+{% tabs %}
 {% tab title="overmind/actions.ts" %}
 ```typescript
 import { Action } from 'overmind'

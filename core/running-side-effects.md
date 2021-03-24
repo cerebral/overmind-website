@@ -20,7 +20,9 @@ Let us just expose the [AXIOS](https://github.com/axios/axios) library as an **h
 export { default as http } from 'axios'
 ```
 {% endtab %}
+{% endtabs %}
 
+{% tabs %}
 {% tab title="overmind/index.js" %}
 ```typescript
 import { state } from './state'
@@ -161,7 +163,9 @@ export const socket = (() => {
 })()
 ```
 {% endtab %}
+{% endtabs %}
 
+{% tabs %}
 {% tab title="overmind/actions.js" %}
 ```typescript
 export const onInitializeOvermind = async ({ state, effects, actions }) => {

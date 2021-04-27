@@ -14,7 +14,7 @@ There are three approaches to connecting Overmind to Vue.
 {% tab title="overmind/index.js" %}
 ```typescript
 
-import { createHooks } from 'overmind-vue/vu3'
+import { createHooks } from 'overmind-vue/vue3'
 
 export const config = {
   state: {
@@ -33,7 +33,7 @@ export const hooks = createHooks()
 ```javascript
 import { createApp } from 'vue'
 import { createOvermind } from 'overmind'
-import { withOvermind } from 'overmind-vue/vu3'
+import { withOvermind } from 'overmind-vue/vue3'
 import { config } from './overmind'
 import App from './App.vue'
 

@@ -23,16 +23,14 @@ reaction(
 
 There are two points of setting up reactions in Overmind.
 
-## onInitialize
+## onInitializeOvermind
 
-The onInitialize hook is where you set up reactions that lives throughout your application lifetime. The reaction function returns a function to dispose it. That means you can give effects the possibility to create and dispose of reactions in any action.
+The onInitializeOvermind action is where you set up reactions that lives throughout your application lifetime. The reaction function returns a function to dispose it. That means you can give effects the possibility to create and dispose of reactions in any action.
 
 {% tabs %}
-{% tab title="overmind/onInitialize.ts" %}
+{% tab title="overmind/actions.js" %}
 ```typescript
-import { OnInitialize } from 'overmind'
-
-export const onInitialize: OnInitialize = ({ effects }, instance) => {
+export const onInitializeOvermind = ({ effects }, instance) => {
   instance.reaction(
     ({ todos }) => todos,
     (todos) => effects.storage.saveTodos(todos),
@@ -55,7 +53,7 @@ With components you typically use reactions to manipulate DOM elements or other 
 import * as React from 'react'
 import { useOvermind } from '../overmind'
 
-const App: React.FC = () => {
+const App = () => {
   const { reaction } = useOvermind()
 
   React.useEffect(() => reaction(

@@ -10,7 +10,7 @@ The discussion of lists is not specific to Overmind and there are no limitations
 
 When we want to render a list of something we want an **array**. This is the data structure we instinctively go to as it basically is a list. But arrays are rarely the way you want to store the actual data of the list.
 
-If your list consists of posts, these posts are most likely entities from the server which are unique, and have a unique id. A data structure that better manages uniqueness is an **object**.[EDIT ON GITHUB](https://github.com/cerebral/overmind/edit/next/packages/overmind-website/examples/guide/managinglists/object.ts)
+If your list consists of posts, these posts are most likely entities from the server which are unique, and have a unique id. A data structure that better manages uniqueness is an **object**.
 
 ```typescript
 {

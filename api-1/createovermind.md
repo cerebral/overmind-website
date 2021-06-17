@@ -5,7 +5,6 @@ The **createOvermind** factory is used to create the application instance. You n
 {% tabs %}
 {% tab title="overmind/index.ts" %}
 ```typescript
-import { IConfig } from 'overmind'
 import { state } from './state'
 import * as effects from './effects'
 import * as actions from './actions'
@@ -14,11 +13,6 @@ export const config = {
   state,
   effects,
   actions
-}
-
-// For explicit typing check the Typescript guide
-declare module 'overmind' {
-  interface Config extends IConfig<typeof config> {}
 }
 ```
 {% endtab %}

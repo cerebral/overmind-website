@@ -2,7 +2,7 @@
 
 Typically we think of the user interface as the application itself. But the user interface is really just there to allow a user to interact with the application. This interface can be anything. A browser window, native, sensors etc. It does not matter what the interface is, the application is still the same.
 
-The mechanism of communicating from the application to the user interface is called **state**. A user interface is created by **transforming** the current state. To communicate from the user interface to the application an API is exposed, called **actions** in Overmind. Any interaction can trigger an action which changes the state, causing the application to notify the user interface about any updated state.
+The mechanism of communicating from the application to the user interface is called **state**. A user interface is created by **transforming** the current state. To communicate from the user interface to the application an API is exposed, called **actions** in Overmind. Any interaction can trigger an action which changes the state, causing a new transform of the user interface.
 
 ![](../.gitbook/assets/state-ui.png)
 
@@ -58,11 +58,11 @@ Strings are of course used to represent text values. Names, descriptions and wha
 }
 ```
 
-Now we are referencing the current mode with a string. In this scenario you would probably stick with the array, but it is important to highlight that objects allow you to reference things by string, while arrays reference by number.
+Now we are referencing the current mode with a string. In this scenario you would probably stick with the array, but it is important to highlight that objects allow you to reference things by string, while arrays reference by index, a number.
 
 ### Numbers
 
-Numbers of course represent things like counts, age, etc. But just like strings, they can also represent a reference to something in a list. Like we saw in our **objects** example, to define what the current mode of our application is, we can use a number. You could say that referencing things by number works very well when the value behind the number does not change. Our modes will most likely not change and that is why an array and referencing the current mode by number, is perfectly fine.
+Numbers of course represent things like counts, age, etc. But just like strings, they can also represent a reference to something. Like we saw in our **objects** example, to define what the current mode of our application is, we can use a number. You could say that referencing things by number works very well when the value behind the number does not change. Our modes will most likely not change and that is why an array and referencing the current mode by number, is perfectly fine.
 
 ### Booleans
 
@@ -113,206 +113,12 @@ export const state = {
 The returned value here is indeed a function you call. The cool thing is that the function itself will never change, but whatever state you access when calling the function will be tracked by the caller of the function. So for example if a component uses **getUserById** during rendering it will track what is accessed in the function and continue tracking whatever you access on the returned value.
 
 {% hint style="info" %}
-You may use a derived for all sorts of calculations. But sometimes it's better to just use a plain action to manipulate some state than using a derived. Why? Imagine a table component having a lot of rows and columns. We assume the table component also takes care of sorting and filtering and is capable of adding new rows. Now if you solve the sorting and filtering using a derived the following could happen: User adds a new row but it is not displayed in the list because the derived immediately kicked in and filtered it out. Thats not a good user experience. Also in this case the filtering and sorting is clearly started by a simple user interaction \(setting a filter value, clicking on a column,...\) so why not just start an action which creates the new list of sorted and filtered keys? Also the heavy calculation is now very predictable and doesn't cause performance issues because the derived kickes in too often \(Because it could have many dependencies you did not think of\)
+You may use a derived for all sorts of calculations. But sometimes it's better to just use a plain action to manipulate some state than using a derived. Why? Imagine a table component having a lot of rows and columns. We assume the table component also takes care of sorting and filtering and is capable of adding new rows. Now if you solve the sorting and filtering using a derived the following could happen: User adds a new row but it is not displayed in the list because the derived immediately kicked in and filtered it out. Thats not a good user experience. Also in this case the filtering and sorting is clearly started by a simple user interaction \(setting a filter value, clicking on a column,...\) so why not just start an action which creates the new list of sorted and filtered keys? Also the heavy calculation is now very predictable and doesn't cause performance issues because the derived kicks in too often \(Because it could have many dependencies you did not think of\)
 {% endhint %}
 
 ### Class instances
 
-Overmind also supports using class instances as state values. Depending on your preference this can be a powerful tool to organize your logic. What classes provide is a way to co locate state and logic for changing and deriving that state. In functional programming the state and the logic is separated and it can be difficult to find a good way to organize the logic operating on that state.
-
-It can be a good idea to think about your classes as models. They model some state.
-
-{% tabs %}
-{% tab title="overmind/models.js" %}
-```javascript
-class LoginForm {
-  constructor() {
-    this.username = ''
-    this.password = ''
-  }
-  get isValid() {
-    return Boolean(this.username && this.password)
-  }
-  reset() {
-    this.username = ''
-    this.password = ''
-  }
-}
-```
-{% endtab %}
-{% endtabs %}
-
-{% tabs %}
-{% tab title="overmind/state.js" %}
-```javascript
-import { LoginForm } from './models'
-
-export const state = {
-  loginForm: new LoginForm()
-}
-```
-{% endtab %}
-{% endtabs %}
-
-{% hint style="warning" %}
-It is important that you do **NOT** use arrow functions on your methods. The reason is that this binds the context of the method to the instance itself, meaning that Overmind is unable to proxy access and track mutations
-{% endhint %}
-
-You can now use this instance as normal and of course create new ones.
-
-#### Serializing class values
-
-If you have an application that needs to serialize the state, for example to local storage or server side rendering, you can still use class instances with Overmind. By default you really do not have to do anything, but if you use **Typescript** or you choose to use **toJSON** on your classesOvermind exposes a symbol called **SERIALIZE** that you can attach to your class.
-
-```typescript
-import { SERIALIZE } from 'overmind'
-
-class User {
-  constructor() {
-    this.username = ''
-    this.jwt = ''
-  }
-  toJSON() {
-    return {
-      [SERIALIZE]: true,
-      username: this.username
-    }
-  }
-}
-```
-
-If you use **Typescript** you want to add **SERIALIZE** to the class itself as this will give you type safety when rehydrating the state.
-
-```typescript
-import { SERIALIZE } from 'overmind'
-
-class User {
-  [SERIALIZE] = true
-  username = ''
-  jwt = ''
-}
-```
-
-{% hint style="info" %}
-The **SERIALIZE** symbol will not be part of the actual serialization done with **JSON.stringify**
-{% endhint %}
-
-#### Rehydrating classes
-
-The [**rehydrate**](../api-1/rehydrate.md) utility of Overmind allows you to rehydrate state either by a list of mutations or a state object, like the following:
-
-{% tabs %}
-{% tab title="overmind/actions.js" %}
-```typescript
-import { rehydrate } from 'overmind'
-
-export const updateState = ({ state }) => {
-  rehydrate(state, {
-    user: {
-      username: 'jenny',
-      jwt: '123'
-    }
-  })    
-}
-```
-{% endtab %}
-{% endtabs %}
-
-Since our user is a class instance we can tell rehydrate what to do, where it is typical to give the class a static **fromJSON** method:
-
-{% tabs %}
-{% tab title="overmind/models.js" %}
-```typescript
-import { SERIALIZE } from 'overmind'
-
-class User {
-  [SERIALIZE]
-  constructor() {
-    this.username = ''
-    this.jwt = ''
-  }
-  static fromJSON(json) {
-    return Object.assign(new User(), json)
-  }
-}
-```
-{% endtab %}
-{% endtabs %}
-
-{% tabs %}
-{% tab title="overmind/actions.js" %}
-```typescript
-import { rehydrate } from 'overmind'
-
-export const updateState = ({ state }) => {
-  rehydrate(
-    state,
-    {
-      user: {
-        username: 'jenny',
-        jwt: '123'
-      }
-    },
-    {
-      user: User.fromJSON
-    }
-  )    
-}
-```
-{% endtab %}
-{% endtabs %}
-
-It does not matter if the state value is a class instance, an array of class instances or a dictionary of class instances, rehydrate will understand it.
-
-That means the following will behave as expected:
-
-{% tabs %}
-{% tab title="overmind/state.js" %}
-```typescript
-import { User } from './models'
-
-export const state = {
-  user: null, // Can be existing class instance or null
-  usersList: [], // Expecting an array of values
-  usersDictionary: {} // Expecting a dictionary of values
-}
-```
-{% endtab %}
-{% endtabs %}
-
-{% tabs %}
-{% tab title="overmind/actions.js" %}
-```typescript
-import { rehydrate } from 'overmind'
-
-export const updateState = ({ state }) => {
-  rehydrate(
-    state,
-    {
-      user: {
-        username: 'jenny',
-        jwt: '123'
-      },
-      usersList: [{...}, {...}],
-      usersDictionary: {
-        'jenny': {...},
-        'bob': {...}
-      }
-    },
-    {
-      user: User.fromJSON,
-      usersList: User.fromJSON,
-      usersDictionary: User.fromJSON
-    }
-  )    
-}
-```
-{% endtab %}
-{% endtabs %}
-
-{% hint style="info" %}
-Note that **rehydrate** gives you full type safety when adding the **SERIALIZE** symbol to your classes. This is a huge benefit as Typescript will yell at you when the state structure changes, related to the rehydration
-{% endhint %}
+Overmind also supports using class instances as state values. Depending on your preference this can be a powerful tool to organize your logic. What classes provide is a way to co locate state and logic for changing and deriving that state. In functional programming the state and the logic is separated and it can be difficult to find a good way to organize the logic operating on that state. Read the [**Using classes**](../guides-1/using-classes.md) guide to learn moree.
 
 ### Statemachines
 

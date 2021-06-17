@@ -3,11 +3,11 @@
 It is possible to update the complete state of Overmind using the **rehydrate** tool. It allows you to update the state either with a state object or an array of mutations, typically collected from server side rendering.
 
 {% tabs %}
-{% tab title="overmind/onInitialize.ts" %}
+{% tab title="overmind/actions.js" %}
 ```typescript
 import { rehydrate } from 'overmind'
 
-export const onInitialize = ({ state, effects }) => {
+export const onInitializeOvermind = ({ state, effects }) => {
   // Grab mutations from a server rendered version
   const mutations = window.__OVERMIND_MUTATIONS
 

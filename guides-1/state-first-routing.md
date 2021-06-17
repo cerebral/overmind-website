@@ -15,15 +15,13 @@ Before we go into the router we want to set up the application. We have some sta
 3. **showUserModal** tells our application to show the modal by setting an id of a user passed to the action. This action will also handle the switching of tabs later.
 
 {% tabs %}
-{% tab title="overmind/actions.ts" %}
+{% tab title="overmind/actions.js" %}
 ```typescript
-import { Action, AsyncAction } from 'overmind'
-
-export const showHomePage: Action = ({ state }) => {
+export const showHomePage = ({ state }) => {
   state.currentPage = 'home'
 }
 
-export const showUsersPage: AsyncAction = async ({ state, effects }) => {
+export const showUsersPage = async ({ state, effects }) => {
   state.modalUser = null
   state.currentPage = 'users'
   state.isLoadingUsers = true
@@ -31,7 +29,7 @@ export const showUsersPage: AsyncAction = async ({ state, effects }) => {
   state.isLoadingUsers = false
 }
 
-export const showUserModal: AsyncAction<{ id: string }> = async ({ state, effects }, params) => {
+export const showUserModal = async ({ state, effects }, params) => {
   state.isLoadingUserDetails = true
   state.modalUser = await effects.api.getUserWithDetails(params.id)
   state.isLoadingUserDetails = false
@@ -45,23 +43,18 @@ export const showUserModal: AsyncAction<{ id: string }> = async ({ state, effect
 **Page.js** is pretty straightforward. We basically want to map a URL to trigger an action. To get started, let us first add Page.js as an effect and take the opportunity to create a custom API. When a URL triggers we want to pass the params of the route to the action linked to the route:
 
 {% tabs %}
-{% tab title="overmind/effects.ts" %}
+{% tab title="overmind/effects.js" %}
 ```typescript
 import page from 'page'
 
-// We allow void type which is used to define "no params"
-type IParams = {
-  [param: string]: string  
-} | void
-
 export const router = {
-  initialize(routes: { [url: string]: (params: IParams) => void }) {
+  initialize(routes) {
     Object.keys(routes).forEach(url => {
       page(url, ({ params }) => routes[url](params))
     })
     page.start()
   },
-  open: (url: string) => page.show(url)
+  open: (url) => page.show(url)
 }
 ```
 {% endtab %}
@@ -70,19 +63,17 @@ export const router = {
 Now we can use Overmind’s **onInitialize** to configure the router. That way the initial URL triggers before the UI renders and we get to set our initial state.
 
 {% tabs %}
-{% tab title="overmind/onInitialize.ts" %}
+{% tab title="overmind/actions.js" %}
 ```typescript
-import { OnInitialize } from 'overmind'
+// The other actions
 
-const onInitialize: OnInitialize = ({ actions, effects }) => {
+export const onInitializeOvermind = ({ actions, effects }) => {
   effects.router.initialize({
     '/': actions.showHomePage,
     '/users': actions.showUsersPage,
     '/users/:id': actions.showUserModal
   })
 }
-
-export default onInitialize
 ```
 {% endtab %}
 {% endtabs %}
@@ -96,13 +87,13 @@ When we now go to the list of users the list loads up and is displayed. When we 
 {% tabs %}
 {% tab title="React" %}
 ```typescript
-// components/App.tsx
+// components/App.jsx
 import * as React from 'react'
-import { useOvermind } from '../overmind'
+import { useAppState } from '../overmind'
 import Users from './Users'
 
-const App: React.FunctionComponent = () => {
-  const { state } = useOvermind()
+const App = () => {
+  const state = useAppState()
 
   return (
     <div className="container">
@@ -118,13 +109,13 @@ const App: React.FunctionComponent = () => {
 
 export default App
 
-// components/Users.tsx
+// components/Users.jsx
 import * as React from 'react'
-import { useOvermind } from '../overmind'
+import { useAppState } from '../overmind'
 import UserModal from './UserModal'
 
-const Users: React.FunctionComponent = () => {
-  const { state } = useOvermind()
+const Users = () => {
+  const state = useAppState()
 
   return (
     <div className="content">
@@ -146,12 +137,12 @@ const Users: React.FunctionComponent = () => {
 
 export default Users
 
-// components/UserModal.tsx
+// components/UserModal.jsx
 import * as React from 'react'
-import { useOvermind } from '../overmind'
+import { useAppState } from '../overmind'
 
-const UserModal: React.FunctionComponent = () => {
-  const { state } = useOvermind()
+const UserModal = () => {
+  const state = useAppState()
 
   return (
     <a href="/users" className="backdrop">
@@ -342,16 +333,15 @@ A straightforward way to solve this is to simply also change the page in the **s
 ### Imperative approach
 
 {% tabs %}
-{% tab title="overmind/actions.ts" %}
+{% tab title="overmind/actions.js" %}
 ```typescript
-import { Action, AsyncAction } from 'overmind'
 import { Page } from './types'
 
-export const showHomePage: Action = ({ state }) => {
+export const showHomePage = ({ state }) => {
   state.currentPage = Page.HOME
 }
 
-export const showUsersPage: AsyncAction = async ({ state, effects }) => {
+export const showUsersPage = async ({ state, effects }) => {
   state.currentPage = Page.USERS
   state.modalUser = null
 
@@ -362,7 +352,7 @@ export const showUsersPage: AsyncAction = async ({ state, effects }) => {
   }
 }
 
-export const showUserModal: AsyncAction<{ id: string }> = async ({ state, actions }, params) => {
+export const showUserModal = async ({ state, actions }, params) => {
   actions.showUsersPage()
   state.isLoadingUserDetails = true
   state.modalUser = await effects.api.getUserWithDetails(params.id)
@@ -379,59 +369,52 @@ When running actions from within other actions like this it will be reflected in
 ### Functional approach
 
 {% tabs %}
-{% tab title="overmind/operators.ts" %}
+{% tab title="overmind/operators.js" %}
 ```typescript
-import { Operator, mutate, filter } from 'overmind'
-import { Page } from './types'
+import { filter } from 'overmind'
 
-export const closeUserModal: <T>() => Operator<T> = () =>
-  mutate(function closeUserModal({ state }) {
-    state.modalUser = null
-  })
+export const closeUserModal = () => ({ state }) => {
+  state.modalUser = null
+}
 
-export const setPage: <T>(page: Page) => Operator<T> = (page) =>
-  mutate(function setPage({ state }) {
-    state.currentPage = page
-  })
+export const setPage = (page) => ({ state }) => {
+  state.currentPage = page
+}
 
-export const shouldLoadUsers: <T>() => Operator<T> = () => 
-  filter(function shouldLoadUsers({ state }) {
-    return !Boolean(state.users.length)
-  })
+export const shouldLoadUsers = () => filter(({ state }) => {
+  return !Boolean(state.users.length)
+})
 
-export const loadUsers: <T>() => Operator<T> = () => 
-  mutate(async function loadUsers({ state, effects }) {
-    state.isLoadingUsers = true
-    state.users = await effects.api.getUsers()
-    state.isLoadingUsers = false
-  })
+export const loadUsers = () => async ({ state, effects }) {
+  state.isLoadingUsers = true
+  state.users = await effects.api.getUsers()
+  state.isLoadingUsers = false
+}
 
-export const loadUserWithDetails: () => Operator<{ id: string }> = () => 
-  mutate(async function loadUserWithDetails({ state, effects }, params) {
-    state.isLoadingUserDetails = true
-    state.modalUser = await effects.api.getUserWithDetails(params.id)
-    state.isLoadingUserDetails = false
-  })
+export const loadUserWithDetails = () => async ({ state, effects }, params) => {
+  state.isLoadingUserDetails = true
+  state.modalUser = await effects.api.getUserWithDetails(params.id)
+  state.isLoadingUserDetails = false
+}
 ```
 {% endtab %}
 
-{% tab title="overmind/actions.ts" %}
+{% tab title="overmind/actions.js" %}
 ```typescript
-import { Operator, pipe } from 'overmind'
-import { Page } from './types'
+import {pipe } from 'overmind'
 import * as o from './operators'
 
-export const showHomePage: Operator = o.setPage(Page.HOME)
+export const showHomePage = o.setPage('HOME')
 
-export const showUsersPage: Operator = pipe(
-  o.setPage(Page.USERS),
+export const showUsersPage = pipe(
+  o.setPage('USERS'),
   o.closeUserModal(),
   o.shouldLoadUsers(),
   o.loadUsers()
 )
 
-export const showUserModal: Operator<{ id: string }> = pipe(
-  o.setPage(Page.USERS),
+export const showUserModal = pipe(
+  o.setPage('USERS'),
   o.loadUserWithDetails(),
   o.shouldLoadUsers(),
   o.loadUsers(),
@@ -440,28 +423,27 @@ export const showUserModal: Operator<{ id: string }> = pipe(
 {% endtab %}
 {% endtabs %}
 
-By splitting up all our logic into operators we were able to make our actions completely declarative and at the same time reuse logic across them. The _operators_ file gives us maintainable code and the _actions_ file gives us readable code.
+By splitting up all our logic into operators we were able to make our actions declarative and at the same time reuse logic across them. The _operators_ file gives us maintainable code and the _actions_ file gives us readable code.
 
 We could actually make this better though. There is no reason to wait for the user of the modal to load before we load the users list in the background. We can fix this with the **parallel** operator. Now the list of users and the single user load at the same time.
 
 {% tabs %}
-{% tab title="overmind/actions.ts" %}
+{% tab title="overmind/actions.js" %}
 ```typescript
-import { Operator, pipe, parallel } from 'overmind'
-import { Page } from './types'
+import {pipe, parallel } from 'overmind'
 import * as o from './operators'
 
-export const showHomePage: Operator<void> = o.setPage(Page.HOME)
+export const showHomePage = o.setPage('HOME')
 
-export const showUsersPage: Operator<void> = pipe(
-  o.setPage(Page.USERS),
+export const showUsersPage = pipe(
+  o.setPage('USERS'),
   o.closeUserModal(),
   o.shouldLoadUsers(),
   o.loadUsers()
 )
 
-export const showUserModal: Operator<{ id: string }> = pipe(
-  o.setPage(Page.USERS),
+export const showUserModal = pipe(
+  o.setPage('USERS'),
   parallel(
     o.loadUserWithDetails(),
     pipe(
@@ -481,17 +463,13 @@ Now you are starting to see how the operators can be quite useful to compose flo
 **Page.js** also allows us to manage query strings, the stuff after the **?** in the url. Page.js does not parse it though, so we introduce a library which does just that, [QUERY-STRING](https://www.npmjs.com/package/query-string). With this we can update our router to also pass in any query params.
 
 {% tabs %}
-{% tab title="overmind/effects.ts" %}
+{% tab title="overmind/effects.js" %}
 ```typescript
 import page from 'page'
 import queryString from 'query-string'
 
-type IParams = {
-  [param: string]: string  
-} | void
-
 export const router = {
-  initialize(routes: { [url: string]: (IParams) => void }) {
+  initialize(routes) {
     Object.keys(routes).forEach(url => {
       page(url, ({ params, querystring }) => {
         const payload = Object.assign({}, params, queryString.parse(querystring))
@@ -501,7 +479,7 @@ export const router = {
     })
     page.start()
   },
-  open: (url: string) => page.show(url)
+  open: (url) => page.show(url)
 }
 ```
 {% endtab %}
@@ -512,17 +490,14 @@ export const router = {
 We now also handle the received tab parameter and make sure that when we change tabs we do not load the user again. We only want to load the user when there is no existing user or if the user has changed.
 
 {% tabs %}
-{% tab title="overmind/actions.ts" %}
+{% tab title="overmind/actions.js" %}
 ```typescript
-import { Action, AsyncAction } from 'overmind'
-import { Page } from './types'
-
-export const showHomePage: Action = ({ state }) => {
-  state.currentPage = Page.HOME
+export const showHomePage = ({ state }) => {
+  state.currentPage = 'HOME'
 }
 
-export const showUsersPage: AsyncAction = async ({ state, effects }) => {
-  state.currentPage = Page.USERS
+export const showUsersPage = async ({ state, effects }) => {
+  state.currentPage = 'USERS'
   state.modalUser = null
 
   if (!Object.keys(state.users).length) {
@@ -532,7 +507,7 @@ export const showUsersPage: AsyncAction = async ({ state, effects }) => {
   }
 }
 
-export const showUserModal: AsyncAction<{ id: string, tab: string }> = async ({ state, actions }, params) => {
+export const showUserModal = async ({ state, actions }, params) => {
   actions.showUsersPage()
   state.currentUserModalTabIndex = Number(params.tab)
   state.isLoadingUserDetails = true
@@ -550,47 +525,39 @@ Now we can add an operator which uses this **tab** query to set the current tab 
 {% tabs %}
 {% tab title="overmind/operators.ts" %}
 ```typescript
-import { Operator, mutate, filter } from 'overmind'
-import { Page } from './types'
+import { filter } from 'overmind'
 
-export const closeUserModal: <T>() => Operator<T> = () =>
-  mutate(function closeUserModal({ state }) {
-    state.modalUser = null
-  })
+export const closeUserModal = () => ({ state }) => {
+  state.modalUser = null
+}
 
-export const setPage: <T>(page: string) => Operator<T> = (page) =>
-  mutate(function setPage({ state }) {
-    state.currentPage = page
-  })
+export const setPage = (page) => ({ state }) => {
+  state.currentPage = page
+}
 
-export const shouldLoadUsers: <T>() => Operator<T> = () => 
-  filter(function shouldLoadUsers({ state }) {
-    return !Boolean(state.users.length)
-  })
+export const shouldLoadUsers = () => filter(({ state }) => {
+  return !Boolean(state.users.length)
+})
 
-export const loadUsers: <T>() => Operator<T> = () => 
-  mutate(async function loadUsers({ state, effects }) {
-    state.isLoadingUsers = true
-    state.users = await effects.api.getUsers()
-    state.isLoadingUsers = false
-  })
+export const loadUsers = () => async ({ state, effects }) => {
+  state.isLoadingUsers = true
+  state.users = await effects.api.getUsers()
+  state.isLoadingUsers = false
+}
 
-export const loadUserWithDetails: () => Operator<{ id: string }> = () => 
-  mutate(async function loadUserWithDetails({ state, effects }, params) {
-    state.isLoadingUserDetails = true
-    state.modalUser = await effects.api.getUserWithDetails(params.id)
-    state.isLoadingUserDetails = false
-  })
+export const loadUserWithDetails = () => async ({ state, effects }, params) {
+  state.isLoadingUserDetails = true
+  state.modalUser = await effects.api.getUserWithDetails(params.id)
+  state.isLoadingUserDetails = false
+}
 
-export const shouldLoadUserWithDetails: <T>() => Operator<{ id: string }, T> = () => 
-  filter(function shouldLoadUserWithDetails({ state }, params) {
-    return !state.modalUser || state.modalUser.id !== params.id
-  })
+export const shouldLoadUserWithDetails = () => filter(({ state }, params) => {
+  return !state.modalUser || state.modalUser.id !== params.id
+})
 
-export const setCurrentUserModalTabIndex: <T>() => Operator<{ tab: string }, T> = () =>
-  mutate(function setCurrentUserModalTabIndex({ state }, params) {
-    state.currentUserModalTabIndex = Number(params.tab)
-  })
+export const setCurrentUserModalTabIndex = () => ({ state }, params) => {
+  state.currentUserModalTabIndex = Number(params.tab)
+}
 ```
 {% endtab %}
 

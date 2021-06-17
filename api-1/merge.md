@@ -3,18 +3,13 @@
 Allows you to merge configurations together.
 
 {% tabs %}
-{% tab title="overmind/index.ts" %}
+{% tab title="overmind/index.js" %}
 ```typescript
-import {IConfig } from 'overmind'
 import { merge } from 'overmind/config'
 import * as moduleA from './moduleA'
 import * as moduleB from './moduleB'
 
 export const config = merge(moduleA, moduleB)
-
-declare module 'overmind' {
-  interface Config extends IConfig<typeof config> {}
-}
 ```
 {% endtab %}
 {% endtabs %}
@@ -24,11 +19,9 @@ Note that merge can be useful to combine a root configuration with **namespaced*
 {% tabs %}
 {% tab title="overmind/index.ts" %}
 ```typescript
-import {IConfig } from 'overmind'
 import { merge, namespaced, lazy } from 'overmind/config'
 import { state } from './state'
 import * as moduleA from './moduleA'
-import { Config as ModuleB } from './moduleB'
 
 export const config = merge(
   {
@@ -38,13 +31,9 @@ export const config = merge(
     moduleA
   }),
   lazy({
-    moduleB: async (): Promise<ModuleB> => await import('./moduleB').config
+    moduleB: async () => await import('./moduleB').config
   })
 )
-
-declare module 'overmind' {
-  interface Config extends IConfig<typeof config> {}
-}
 ```
 {% endtab %}
 {% endtabs %}

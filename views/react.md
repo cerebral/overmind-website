@@ -60,7 +60,7 @@ const App = () => {
   const effects = useEffects()
   const reaction = useReaction()
   // Or be specific
-  const { isLoggedIn } = useState().auth
+  const { isLoggedIn } = useAppState().auth
   const { login, logout } = useActions().auth
 
   return <div />

@@ -1,17 +1,15 @@
 # effects
 
 {% tabs %}
-{% tab title="overmind/effects.ts" %}
+{% tab title="overmind/effects.js" %}
 ```typescript
-import { User, Item } from './state'
-
 export const api = {
-  async getUser(): Promise<User> {
+  async getUser() {
     const response = await fetch('/user')
 
     return response.json()
   },
-  async getItem(id: number): Promise<Item> {
+  async getItem(id) {
     const response = await fetch(`/items/${id}`)
 
     return response.json()

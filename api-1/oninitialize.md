@@ -1,17 +1,15 @@
-# onInitialize
+# onInitializeOvermind
 
-If you need to run logic as the application initializes you can use the **onInitialize** hook. This is defined as an action and it receives the application instance as the input value. You can do whatever you want here. Set initial state, run an action, configure a router etc.
+If you need to run logic as the application initializes you can use the **onInitializeOvermind** action. This action receives the application instance as the input value. You can do whatever you want here. Set initial state, run an action, configure a router etc.
 
 
 
 
 
 {% tabs %}
-{% tab title="overmind/onInitialize.ts" %}
+{% tab title="overmind/actions.js" %}
 ```typescript
-import { OnInitialize } from 'overmind'
-
-export const onInitialize: OnInitialize = async ({
+export const onInitializeOvermind = async ({
   state,
   actions,
   effects
@@ -22,22 +20,14 @@ export const onInitialize: OnInitialize = async ({
 ```
 {% endtab %}
 
-{% tab title="overmind/index.ts" %}
+{% tab title="overmind/index.js" %}
 ```typescript
-import { IConfig } from 'overmind'
-import { onInitialize } from './onInitialize'
 import { state } from './state'
 import * as actions from './actions'
 
 export const config = {
-  onInitialize,
   state,
   actions
-}
-
-// For explicit typing check the Typescript guide
-declare module 'overmind' {
-  interface Config extends IConfig<typeof config> {}
 }
 ```
 {% endtab %}

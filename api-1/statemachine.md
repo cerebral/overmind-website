@@ -12,13 +12,16 @@ You define a whole namespace as a statemachine, you can have a nested statemachi
 import { statemachine } from 'overmind'
 
 export const machine = statemachine({
-  TOGGLE: (state, payload) => {
-    return { current: state.current === 'FOO' ? 'BAR' : 'FOO' }
+  FOO: {
+    TOGGLE: () => ({ current: 'BAR' })
+  },
+  BAR: {
+    TOGGLE: () => ({ current: 'FOO' })
   }
 })
 ```
 
-You define a statemachine by setting up the events it should manage. Each even handler decides at what current state it should run its logic. It does this by checking the **current** state. The event handler can optionally return a new state, which transitions the machine.
+You define a statemachine by setting up its states and what events to handle within each state. Each handler returns the new state of of the state machine.
 
 ## Instantiate machine
 

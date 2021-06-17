@@ -42,7 +42,7 @@ export const search = pipe(
     
     return query
   },
-  filter(({ state }, query) => query.length > 2),
+  filter((_, query) => query.length > 2),
   debounce(200),
   ({ state, effects }, query) => {
     state.isSearching = true
@@ -136,7 +136,7 @@ overmind.actions.doThis()
 
 ## Inputs and Outputs
 
-Operators typically allow you to return a value which is passed to the next operator. Though some operators, like **debounce**, **filter** etc., will just pass the current value through directly.
+Operators typically allow you to return a value which is passed to the next operator.
 
 {% tabs %}
 {% tab title="overmind/operators.js" %}
@@ -165,6 +165,8 @@ export const onValueChange = pipe(
 ```
 {% endtab %}
 {% endtabs %}
+
+Some operators, like **debounce**, **filter** etc., will just pass the current value through directly, regardless of any returned value.
 
 ## Custom operators
 
@@ -205,18 +207,18 @@ export const setUpperCaseTitle = pipe(
 {% endtab %}
 {% endtabs %}
 
-We first create a function that returns an operator when we call it. We pass this operator a **name**, an optional **description** and the callback that is executed when the operator runs. This operator might receive an **error**, that you can handle if you want to. It also receives the **context**, the current **value** and a function called **next**.
+We first define a new **toUpperCase** operator. We pass this operator a **name**, an optional **description** and the callback that is executed when the operator runs. This operator might receive an **error**, that you can handle if you want to. It also receives the **context**, the current **value** and a function called **next**.
 
 In this example we did not use the **context** because we are not going to look at any state, run effects etc. We just wanted to change the value passed through. All operators need to handle the **error** in some way. In this case we just pass it along to the next operator by calling **next** with the error as the first argument and the current value as the second. When there is no error it means we can manage our value and we do so by calling **next** again, but passing **null** as the first argument, as there is no error. And the second argument is the new **value**.
 
 ### operations <a id="create-custom-operators-operations"></a>
 
-You might want to run some logic related to your operator. Typically this is done by giving a callback. You can provide this callback whatever information you want, even handle its return value. So for example the **map** operator is implemented like this:
+You might want to run some logic related to your operator. Typically this is done by giving a callback. You can provide this callback whatever information you want, even handle its return value. So for example a **map** operator could be implemented like this:
 
 ```typescript
 import { createOperator } from 'overmind'
 
-export const map = (operation) createOperator(
+export const map = (operation) => createOperator(
   'map',
   operation.name,
   (err, context, value, next) => {
@@ -228,12 +230,12 @@ export const map = (operation) createOperator(
 
 ### mutations <a id="create-custom-operators-mutations"></a>
 
-By default operators can note change To allow that you have to use the **createMutationOperator**:
+By default operators can not change state. To allow that you have to use the **createMutationOperator**:
 
 ```typescript
 import { createMutationOperator } from 'overmind'
 
-export const mutate = (operation) createMutationOperator(
+export const mutate = (operation) => createMutationOperator(
   'mutate',
   operation.name,
   (err, context, value, next) => {

@@ -173,9 +173,9 @@ describe('Actions', () => {
 
 In this scenario we would also ensure that the **isLoadingPost** state indeed flipped to _true_ before moving to _false_ at the end.
 
-## Testing onInitialize
+## Testing onInitializeOvermind
 
-The **onInitialize** hook will not trigger during testing. To test this action you have to trigger it yourself.
+The **onInitializeOvermind** action will not trigger during testing. To test this action you have to trigger it yourself.
 
 {% tabs %}
 {% tab title="overmind/onInitialize.test.js" %}
@@ -194,7 +194,7 @@ describe('Actions', () => {
         }
       })
 
-      await overmind.onInitialize()
+      await overmind.actions.onInitializeOvermind()
 
       expect(overmind.state.theme).toEqual('awesome')
     })

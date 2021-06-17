@@ -1,9 +1,11 @@
 # Using state machines
 
+
+
 The Overmind state machines is heavily inspired by [XState](https://xstate.js.org/) and [Davids](https://twitter.com/DavidKPiano) evangelism of bringing this old idea to life in the JavaScript ecosystem. Typically state machines are explained with very specific concepts like street lights, timers or similar "machine like" concepts. For Overmind it was important that this concept could be used to describe the overall state of the application. This was a huge challenge and required several iterations, but we found a concept that holds the idea true and makes it a practical and optional way to manage your state. Use it for your whole application or use it for specific scenarios.
 
 {% hint style="info" %}
-The state machine API is designed for use with **TypeScript**. The reason is that the complexity of mathcing transition state is best expressed using [optional chaining](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining), which is not yet available in plain JavaScript.
+The state machine API is designed for use with **TypeScript**. The reason is that the complexity of transition state matching is best expressed using [optional chaining](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining), which is not yet available in plain JavaScript.
 {% endhint %}
 
 ## Creating a state machine
@@ -51,7 +53,6 @@ You express this by mapping **events** to **state changes**.
 ```typescript
 type User = { username: string }
 
-// Name the state as "I am...".
 type States =
   | {
     current: 'AUTHENTICATING'
@@ -65,32 +66,28 @@ type States =
     signedOutReason: string
   }
 
-// Name the events as "...occured"
 type Events = 
   | {
-    type: 'SIGN_IN'
+    type: 'SIGNING_IN'
   }
   | {
-    type: 'SIGN_IN_SUCCESS'
+    type: 'SIGNED_IN'
     data: User
   }
   | {
-    type: 'SIGN_OUT'
+    type: 'SIGNED_OUT'
     data: string
   }
 
 export const auth = statemachine<States, Events>({
   UNAUTHENTICATED: {
-    SIGN_IN: () => ({ current: 'AUTHENTICATING' }),
+    SIGNING_IN: () => ({ current: 'AUTHENTICATING' })
   },
   AUTHENTICATING: {
-    SIGN_IN_SUCCESS: (user) => ({
-      current: 'AUTHENTICATED',
-      user
-    }),
+    SIGNED_IN: (user) => ({ current: 'AUTHENTICATED', user })
   },
   AUTHENTICATED: {
-    SIGN_OUT: (signedOutReason) => ({
+    SIGNED_OUT: (signedOutReason) => ({
       current: 'UNAUTHENTICATED',
       signedOutReason
     })
@@ -98,25 +95,9 @@ export const auth = statemachine<States, Events>({
 })
 ```
 
-In the example above we are are dealing with three events. We act on these events by mapping the transition states to events we want to deal with in that specific transition state. When we decide to deal with an event we can change any of the state, for example using **data** from the event. Then we can optionally return a new **current** transition state, with the required state for that transition state to be valid.
+In the example above we are are dealing with three states. For each state we deal with certain events that moves the state of the machine forward. The two arguments passed to the handler is the data of the event and the current state of the machine.
 
 What we have effectively done now is ensure that when these events happens we always deal with them correctly. It is not the event that decides what should happen, it is the machine that decides it based on one of your explicitly set states.
-
-{% hint style="info" %}
-You can also express a transition at a lower level by:
-
-```typescript
-export const auth = statemachine<States, Events>((event, state) => {
-  if (event.current === 'whatever' && event.type === 'foo') {
-    return { current: 'some-other-state' }
-  }
-})
-```
-
-This can be useful in certain scenarios, but the keep to the declarative mapping by default.
-{% endhint %}
-
-
 
 ## Instantiating a machine
 
@@ -137,7 +118,7 @@ By explicitly instantiating the machine you are allowed to start it in different
 
 ## Sending events
 
-Instead of explicitly changing the state, you send an **event**.  The events is handled by the state machine and it will ensure that it is valid before moving on. That means when you change from **AUTHENTICATING** to **AUTHENTICATED** you would express it something like:
+Instead of explicitly changing the state, you send an **event**. The events is handled by the state machine and it will ensure that it is valid before moving on. That means when you change from **AUTHENTICATING** to **AUTHENTICATED** you would express it something like:
 
 ```javascript
 export const authChanged = ({ state }, user) => {
@@ -149,7 +130,7 @@ export const authChanged = ({ state }, user) => {
 }
 ```
 
-When sending the **SIGNED\_IN** event we also provide the **user**. The current transition state of the machine is what decides if the user is set or not. 
+When sending the **SIGNED\_IN** event we also provide the **user**. The current transition state of the machine is what decides if the user is set or not.
 
 ## Guarding effects
 
@@ -164,12 +145,6 @@ export const authChanged = ({ state, effects }, user) => {
   }
 }
 ```
-
-{% hint style="info" %}
-You might wonder why setting the title is not a side effect that happens from within the machine, whenever it is **AUTHENTICATED**. The reason is that statemachines in Overmind is only about changing state, not about side effects. But you do get tools, like **matches**, and a well designed API to efficiently trigger side effects in the correct states.
-
-You can turn to [**statecharts**](../addons/statecharts.md) if you want state transitions to drive your side effects as well.
-{% endhint %}
 
 ## Base state
 
@@ -187,39 +162,36 @@ type States =
  | {
    current: 'LIST'
  }
- 
+
  type BaseState {
    list: Todo[]
  }
 
 type Events =
   | {
-    type: 'TODOS_LOAD_SUCCESS',
+    type: 'TODOS_LOADED',
     data: Todo[]
   }
   | {
-    type: 'ADD_TODO',
+    type: 'TODO_ADDED',
     data: Todo
   }
-  
+
 export type TodosMachine = StateMachine<States, Events BaseState>
 
 export const todos = statemachine<States, Events, BaseState>({
   LOADING: {
-    TODOS_LOAD_SUCCESS: (todos) => ({
-      current: 'LIST',
-      list: todos
-    })
+    TODOS_LOADED: (todos) => ({ current: 'LIST', todos })
   },
   LIST: {
-    ADD_TODO: (todo, state) => {
+    TODO_ADDED: (todo, state) => {
       state.list.push(todo)
     }
   }
 })
 ```
 
-In this simple example we introduced a todos machine that starts in a **LOADING** state and will at some point transition into a **LIST** state when the initial todos has been loaded. The machine introduces the concept of **base state**. That means state that is available no matter what transition state the machine is in. The purpose of **base state** is that it simplifies typing and the machine will also automatically remove state related to the current transition state, when transitioning to a new state. In the earlier example above the **user** and the **signedOutReason** is deleted when moving out of  **AUTHENTICATED** state. But in this example, the **list** is not removed when moving between transition states, and a required value to even create the machine.
+In this simple example we introduced a todos machine that starts in a **LOADING** state and will at some point transition into a **LIST** state when the initial todos has been loaded. The machine introduces the concept of **base state**. That means state that is available no matter what transition state the machine is in. The purpose of **base state** is that it simplifies typing and the machine will also automatically remove state related to the current transition state, when transitioning to a new state. In the example earlier the **user** and the **signedOutReason** is deleted when moving out of **AUTHENTICATED** state.
 
 ## Nesting state machines
 
@@ -246,17 +218,17 @@ type Events = {...}
 
 export const auth = statemachine<States, Events>({
   UNAUTHENTICATED: {
-    SIGN_IN: () => ({ current: 'AUTHENTICATING' })
+    SIGNING_IN: () => ({ current: 'AUTHENTICATING' })
   },
   AUTHENTICATING: {
     SIGNED_IN: (user) => ({
       current: 'AUTHENTICATED',
       user,
-      todos: todos.create({ current: 'LOADING' }, { list: [] })
+      todos: todos.create({ current: 'LOADING' }, { todos: [] })
     })
   },
   AUTHENTICATED: {
-    SIGN_OUT: (signedOutReason) => ({
+    SIGNED_OUT: (signedOutReason) => ({
       current: 'UNAUTHENTICATED',
       signedOutReason
     })
@@ -270,7 +242,7 @@ Now we can go back to our authentication logic and introduce the loading of our 
 
 ```javascript
 export const authChanged = async ({ state, effects }, user) => {
-  if (user && state.send('SIGN_IN', user).matches('AUTHENTICATED')) {
+  if (user && state.send('SIGNED_IN', user).matches('AUTHENTICATED')) {
     const todos = await effects.api.getTodos()
     state.matches('AUTHENTICATED')?.todos.send('TODOS_LOADED', todos)
   } else if (state.send('SIGNED_OUT').matches('UNAUTHENTICATED')) {
@@ -286,49 +258,28 @@ You will notice that with nested machines you will be using **matches** and opti
 All state machines has a **current** property. This can be used to evaluate what should be rendered, here shown with React:
 
 ```javascript
-import { useAppState } from '../overmind'
-
 export const App = () => {
-  const { state } = useAppState()
-  
+  const { state } = useOvermind()
+
   if (state.current === 'AUTHENTICATING') {
     return <div>Loading...</div>
   }
-  
+
   if (state.current === 'AUTHENTICATED') {
     return <div>You are not authenticated</div>
   }
-  
+
   return <div>Hello there!</div>
 }
 ```
 
-When dealing with nested machines you will have to do nested checks. But instead of doing explicit nested checks in all components like this:
+When dealing with nested machines you will have to do nested checks. This might seem unnecessary, maybe you loaded the **Todos** component only when the parent is in **AUTHENTICATED** state, but components can be moved and loaded anywhere, so this ensures it behaves exactly like we want it to.
 
 ```typescript
-import { useAppState } from '../overmind'
-
 export const Todos = () => {
-  const state = useAppState()
-  
-  if (state.current !== 'AUTHENTICATED') return null
-  
-  return (
-    <div>
-      {state.todos.current === 'LOADING' ? 'Loading...' : null}
-      <ul>{state.todos.list.map(() => ...)}</ul>
-    </div>
-  )
-}
-```
+  const { state } = useOvermind()
 
-You rather create specific state hooks for your nested state. An example here with **todos**:
-
-```typescript
-import { useTodosState } from '../overmind'
-
-export const Todos = () => {
-  const state = useTodosState()
+  if (!state.current === 'AUTHENTICATED') return null
 
   return (
     <div>
@@ -336,21 +287,6 @@ export const Todos = () => {
       <ul>{state.todos.list.map(() => ...)}</ul>
     </div>
   )
-}
-```
-
-Where the implemention for the hook is simply:
-
-```typescript
-export const useAppState = createStateHook<Context>()
-export const useTodosState = () => {
-  const state = useAppState()
-  
-  if (state.current !== 'AUTHENTICATED') {
-    throw new Error("Invalid usage of hook")
-  }
-  
-  return state.todos
 }
 ```
 

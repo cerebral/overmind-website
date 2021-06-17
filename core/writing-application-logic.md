@@ -43,7 +43,7 @@ export const myAction = ({ state, effects, actions }) => {
 When you point to either of these you will always point to the “top of the application. That means if you use namespaces or other nested structures the context is always the root context of the application.
 
 {% hint style="info" %}
-The reason Overmind only has a root context is because having isolated contexts/domains creates more harm than good. Specifically when you develop your application it is very difficult to know exactly how the domains of your application will look like and what state, actions and effects belong together. By only having a root context you can always point to any domain from any other domain allowing you to easily manage cross-domain logic, not having to refactor every time your domain model breaks.
+The reason Overmind only has a root context is because having isolated contexts/domains creates more harm than good. Specifically when you develop your application it is very difficult to know exactly how the domains of your application will look like and what state, actions and effects belong together. By only having a root context you can always point to any domain from any other domain allowing you to easily manage cross-domain logic, not having to refactor every time your domain model breaks. You can still create factories that exposes only parts of the root context.
 {% endhint %}
 
 ## Passing values
@@ -78,39 +78,7 @@ export const myOtherAction = ({ state, effects, actions }, value) {
 
 ## Organizing actions
 
-Some of your actions will be called from the outside, publicly, maybe from a component. Other actions are only used internally, either being passed to an effect or just holding some piece of logic you want to reuse. 
-
-There are two conventions to choose from:
-
-### Namespace
-
-{% tabs %}
-{% tab title="overmind/internalActions.js" %}
-```typescript
-export const internalActionA = ({ state, effects, actions }, value) {}
-
-export const internalActionB = async ({ state, effects, actions }) {}
-```
-{% endtab %}
-{% endtabs %}
-
-{% tabs %}
-{% tab title="overmind/actions.ts" %}
-```typescript
-import { Action } from 'overmind'
-import * as internalActions from './internalActions'
-
-export const internal = internalActions
-
-export const myAction: Action = ({ state, effects, actions }) => {
-  actions.internal.internalActionA('foo')
-  actions.internal.internalActionB()
-}
-```
-{% endtab %}
-{% endtabs %}
-
-### Underscore
+Some of your actions will be called from the outside, publicly, maybe from a component. Other actions are only used internally, either being passed to an effect or just holding some piece of logic you want to reuse. A typical convention generally in programming is to use underscore, `_` , to indicate private usage.
 
 {% tabs %}
 {% tab title="overmind/actions.js" %}

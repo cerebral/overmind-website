@@ -50,7 +50,7 @@ export const fetchItems = async () {
 
 {% tab title="actions.js" %}
 ```typescript
-export const loadApp = ({ state, effects }) => {
+export const loadApp = async ({ state, effects }) => {
   state.items = await effects.api.fetchItems()
 }
 ```
@@ -80,11 +80,11 @@ export const search = pipe(
   ({ state }, query) => {
     state.query = query
   },
-  filter((_, query) => query.length > 2),
+  filter(({ state }) => state.query.length > 2),
   debounce(200),
-  async ({ state, effects }, query) => {
+  async ({ state, effects }) => {
     state.isSearching = true
-    state.searchResult = await effects.getSearchResult(query)
+    state.searchResult = await effects.getSearchResult(state.query)
     state.isSearching = false
   }
 )

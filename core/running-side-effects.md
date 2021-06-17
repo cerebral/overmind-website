@@ -3,7 +3,7 @@
 Developing applications is not only about managing state, but also managing side effects. A typical side effect would be an HTTP request or talking to localStorage. In Overmind we just call these **effects**. There are several reasons why you would want to use effects:
 
 1. All the code in your actions will be domain specific, no low level generic APIs
-2. Your actions will have less code and you avoid leaking out things like URLs, types etc.
+2. Your actions will have less code and you avoid leaking things like URLs, types etc.
 3. You decouple the underlying tool from its usage, meaning that you can replace it at any time without changing your application logic
 4. You can more easily expand the functionality of an effect. For example you want to introduce caching or a base URL to an HTTP effect
 5. The devtool tracks its execution
@@ -65,7 +65,7 @@ import * as axios from 'axios'
 
 export const api = {
   getCurrentUser() {
-    return axios.get<User>('/user')
+    return axios.get('/user')
   }
 }
 ```
@@ -83,6 +83,10 @@ export const loadApp = async ({ effects, state }) => {
 ```
 {% endtab %}
 {% endtabs %}
+
+{% hint style="info" %}
+An additional benefit with **TypeScript** is that your explicit typing is contained within the effect, in this case a **User**. That means when consuming the effects you get the typing for free.
+{% endhint %}
 
 ## Initializing effects
 
@@ -112,11 +116,6 @@ export const api = (() => {
 {% endtab %}
 {% endtabs %}
 
-We are doing two things here:
-
-1. We use an [IIFE](https://developer.mozilla.org/en-US/docs/Glossary/IIFE) to create a scoped internal variable to be used for that specific effect
-2. We have created an **initialize** method which we can call from the special **onInitializeOvermind** action, which runs when the Overmind instance is created
-
 Example of initializing the effect:
 
 {% tabs %}
@@ -129,6 +128,11 @@ export const onInitializeOvermind = async ({ effects }) => {
 ```
 {% endtab %}
 {% endtabs %}
+
+We are doing two things here:
+
+1. We use an [IIFE](https://developer.mozilla.org/en-US/docs/Glossary/IIFE) to create a scoped internal variable to be used for that specific effect
+2. We have created an **initialize** method which we can call from the special **onInitializeOvermind** action, which runs when the Overmind instance is created
 
 ## Effects and state
 
@@ -216,7 +220,7 @@ In our initialize\(\) we would just have to wait for the initialization to finis
 {% tab title="overmind/actions.js" %}
 ```typescript
 export const onInitializeOvermind = async ({ effects }) => {
-  await effects.api.initialize()
+  effects.api.initialize()
   state.posts = await effects.api.getPosts()
 }
 ```

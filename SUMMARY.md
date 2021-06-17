@@ -33,10 +33,10 @@
 ## Guides <a id="guides-1"></a>
 
 * [Using state machines](guides-1/using-state-machines.md)
+* [Using classes](guides-1/using-classes.md)
 * [Connecting components](guides-1/connecting-components.md)
 * [Managing lists](guides-1/managing-lists.md)
 * [State first routing](guides-1/state-first-routing.md)
-* [Move to Typescript](guides-1/move-to-typescript.md)
 * [Testing](guides-1/testing.md)
 * [Connecting to React Native](https://dev.to/brasilikum/how-to-setup-overmind-with-react-native-expo-optional-4mk5)
 
@@ -55,7 +55,7 @@
 * [lazy](api-1/lazy.md)
 * [merge](api-1/merge.md)
 * [namespaced](api-1/namespaced.md)
-* [onInitialize](api-1/oninitialize.md)
+* [onInitializeOvermind](api-1/oninitialize.md)
 * [operators](api-1/operators.md)
 * [reaction](api-1/reaction.md)
 * [rehydrate](api-1/rehydrate.md)

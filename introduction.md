@@ -331,7 +331,7 @@ Our todo has been added and we can even see how the derived state was affected b
 
 ## Managing complexity
 
-![](.gitbook/assets/image%20%281%29%20%281%29.png)
+![](.gitbook/assets/image%20%281%29%20%281%29%20%281%29.png)
 
 Overmind gives you a basic foundation with its **state**, **actions** and **effects**. As mentioned previously you can split these up into multiple namespaces to organize your code. This manages the complexity of scaling. There is also a complexity of reusability and managing execution over time. The **operators** API allows you to split your logic into many different composable parts. With operators like **debounce**, **waitUntil** etc. you are able to manage execution over time. With the latest addition of **statemachines** you have the possiblity to manage the complexity of state and interaction. What interactions should be allowed in what states. And with state values as **class instances** you are able to co-locate state with logic.
 

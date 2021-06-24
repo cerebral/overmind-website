@@ -51,7 +51,6 @@ import page from 'page'
 
 // We allow void type which is used to define "no params"
 type IParams = {
-  [param: string]: string  
 } | void
 
 export const router = {
@@ -487,7 +486,6 @@ import page from 'page'
 import queryString from 'query-string'
 
 type IParams = {
-  [param: string]: string  
 } | void
 
 export const router = {

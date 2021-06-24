@@ -18,7 +18,7 @@ export const state = statemachine({
 })
 ```
 
-Instead of only defining state, you first define a set of transitions. The key represents a transition state, here **UNAUTHENTICATED**, **AUTHENTICATING** and **AUTHENTICATED**. Then we define an array which shows the next transition state can occur in the given transition state. When **UNAUTHENTICATED** we can move into the **AUTHENTICATING** state for example. When in **AUTHENTICATING** state we can move either back to **UNAUTHENTICATED** due to an error or we might move to **AUTHENTICATED**. The point is... when you are **UNAUTHENTICATED**, you can not run logic related to being **AUTHENTICATED**. And when **AUTHENTICATING** you can not run that logic again until you are back in **UNAUTHENTICATED**. 
+Instead of only defining state, you first define a set of transitions. The key represents a transition state, here **UNAUTHENTICATED**, **AUTHENTICATING** and **AUTHENTICATED**. Then we define an array which shows the next transition state can occur in the given transition state. When **UNAUTHENTICATED** we can move into the **AUTHENTICATING** state for example. When in **AUTHENTICATING** state we can move either back to **UNAUTHENTICATED** due to an error or we might move to **AUTHENTICATED**. The point is... when you are **UNAUTHENTICATED**, you can not run logic related to being **AUTHENTICATED**. And when **AUTHENTICATING** you can not run that logic again until you are back in **UNAUTHENTICATED**.
 
 As actual state values we define the initial transition state of **UNAUTHENTICATED**.
 

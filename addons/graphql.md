@@ -31,7 +31,6 @@ export const config = {
 
 {% tab title="overmind/state.js" %}
 ```typescript
-
 export const state = {
   posts: []
 }
@@ -183,7 +182,7 @@ export const getPosts = async ({ state, effects, actions }) => {
   const { posts } = await effects.gql.queries.posts()
 
   state.posts = posts
-  
+
   effects.gql.subscriptions.onPostAdded(actions.onPostAdded)
 }
 

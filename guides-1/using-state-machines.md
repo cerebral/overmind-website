@@ -119,7 +119,7 @@ By explicitly instantiating the machine you are allowed to start it in different
 
 ## Sending events
 
-Instead of explicitly changing the state, you send an **event**.  The events is handled by the state machine and it will ensure that it is valid before moving on. That means when you change from **AUTHENTICATING** to **AUTHENTICATED** you would express it something like:
+Instead of explicitly changing the state, you send an **event**. The events is handled by the state machine and it will ensure that it is valid before moving on. That means when you change from **AUTHENTICATING** to **AUTHENTICATED** you would express it something like:
 
 ```javascript
 export const authChanged = ({ state }, user) => {
@@ -131,7 +131,7 @@ export const authChanged = ({ state }, user) => {
 }
 ```
 
-When sending the **SIGNED\_IN** event we also provide the **user**. The current transition state of the machine is what decides if the user is set or not. 
+When sending the **SIGNED\_IN** event we also provide the **user**. The current transition state of the machine is what decides if the user is set or not.
 
 ## Guarding effects
 
@@ -163,7 +163,7 @@ type States =
  | {
    current: 'LIST'
  }
- 
+
  type BaseState {
    list: Todo[]
  }
@@ -177,7 +177,7 @@ type Events =
     type: 'TODO_ADDED',
     data: Todo
   }
-  
+
 export type TodosMachine = StateMachine<States, Events BaseState>
 
 export const todos = statemachine<States, Events, BaseState>({
@@ -194,7 +194,7 @@ export const todos = statemachine<States, Events, BaseState>({
 })
 ```
 
-In this simple example we introduced a todos machine that starts in a **LOADING** state and will at some point transition into a **LIST** state when the initial todos has been loaded. The machine introduces the concept of **base state**. That means state that is available no matter what transition state the machine is in. The purpose of **base state** is that it simplifies typing and the machine will also automatically remove state related to the current transition state, when transitioning to a new state. In the example above the **user** and the **signedOutReason** is deleted when moving out of  **AUTHENTICATED** state.
+In this simple example we introduced a todos machine that starts in a **LOADING** state and will at some point transition into a **LIST** state when the initial todos has been loaded. The machine introduces the concept of **base state**. That means state that is available no matter what transition state the machine is in. The purpose of **base state** is that it simplifies typing and the machine will also automatically remove state related to the current transition state, when transitioning to a new state. In the example above the **user** and the **signedOutReason** is deleted when moving out of **AUTHENTICATED** state.
 
 ## Nesting state machines
 
@@ -266,15 +266,15 @@ All state machines has a **current** property. This can be used to evaluate what
 ```javascript
 export const App = () => {
   const { state } = useOvermind()
-  
+
   if (state.current === 'AUTHENTICATING') {
     return <div>Loading...</div>
   }
-  
+
   if (state.current === 'AUTHENTICATED') {
     return <div>You are not authenticated</div>
   }
-  
+
   return <div>Hello there!</div>
 }
 ```
@@ -284,9 +284,9 @@ When dealing with nested machines you will have to do nested checks. This might 
 ```typescript
 export const Todos = () => {
   const { state } = useOvermind()
-  
+
   if (!state.current === 'AUTHENTICATED') return null
-  
+
   return (
     <div>
       {state.todos.current === 'LOADING' ? 'Loading...' : null}

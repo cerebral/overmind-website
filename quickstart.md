@@ -4,13 +4,13 @@ From the command line install the Overmind package:
 
 {% tabs %}
 {% tab title="React" %}
-```
+```text
 npm install overmind overmind-react
 ```
 {% endtab %}
 
 {% tab title="Vue" %}
-```
+```text
 npm install overmind overmind-vue
 ```
 {% endtab %}
@@ -22,7 +22,7 @@ npm install overmind overmind-angular
 {% endtab %}
 {% endtabs %}
 
-### Setup
+## Setup
 
 Now set up a simple application like this:
 
@@ -47,7 +47,7 @@ export const config = {
 
 {% tab title="index.js" %}
 ```typescript
-import { createOvermind } from 'overmind'
+import { createOvermind } from 'overmind'
 import { config } from './overmind'
 
 const overmind = createOvermind(config)

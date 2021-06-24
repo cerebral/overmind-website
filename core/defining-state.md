@@ -197,7 +197,7 @@ The **SERIALIZE** symbol will not be part of the actual serialization done with 
 
 #### Rehydrating classes
 
-The [**rehydrate**](../api-1/rehydrate.md) _\*\*_utility of Overmind allows you to rehydrate state either by a list of mutations or a state object, like the following:
+The [**rehydrate**](../api-1/rehydrate.md) \_\*\*\_utility of Overmind allows you to rehydrate state either by a list of mutations or a state object, like the following:
 
 {% tabs %}
 {% tab title="overmind/actions.js" %}
@@ -321,7 +321,7 @@ const state = {
 
 You can not be authenticating and be authenticated at the same time. This kind of logic very often causes bugs in applications. That is why Overmind allows you to define statemachines. It sounds complicated, but is actually very simple.
 
-To properly understand state machines, please read the guide [**Using state machines**](../guides-1/using-state-machines.md). 
+To properly understand state machines, please read the guide [**Using state machines**](../guides-1/using-state-machines.md).
 
 ## References
 

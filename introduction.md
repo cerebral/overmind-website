@@ -95,7 +95,7 @@ Now we will move to a more complex example. Please have a look:
 
 {% embed url="https://codesandbox.io/s/overmind-todomvc-simple-097zs?fontsize=14&hidenavigation=1&theme=dark&view=editor&runonclick=1" %}
 
-We have now separated out the Overmind related logic into its own file, **app.js**. This file creates the Overmind instance and also exports how the components will interact with the state and the actions, the hook called **useApp**. Vue and Angular has other mechanisms conventional to those frameworks where application state and actions can be accessed.
+We have now separated out the Overmind related logic into its own file, **app.js**. This file creates the Overmind instance and also exports how the components will interact with the state and the actions, the hook called **useAppState**. Vue and Angular has other mechanisms conventional to those frameworks where application state and actions can be accessed.
 
 ## References
 
@@ -181,7 +181,7 @@ By using the **derived** function exported from Overmind you can insert a functi
 
 ## Effects
 
-Now let us move into an even more complex application. Here we have added **effects**. Specifically effects to handle routing, storing todos to local storage and producing unique ids for the todos. We have added an **onInitialize** hook which is a special function Overmind runs when the application starts.
+Now let us move into an even more complex application. Here we have added **effects**. Specifically effects to handle routing, storing todos to local storage and producing unique ids for the todos. We have added an **onInitializeOvermind** action which is a special action Overmind runs when the application starts.
 
 {% embed url="https://codesandbox.io/s/overmind-todomvc-2im6p?fontsize=14&hidenavigation=1&theme=dark&view=editor&runonclick=1" %}
 

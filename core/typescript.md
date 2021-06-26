@@ -141,6 +141,7 @@ Read the guide on [**Using state machines**](../guides-1/using-state-machines.md
 You type your actions with the **Context** and an optional value. Any return type will be inferred.
 
 ```typescript
+import { Overmind } from 'overmind'
 import { Context } from 'app/overmind'
 
 export const noArgAction = (context: Context) => {
@@ -159,6 +160,11 @@ export const noArgWithReturnTypeAction = (context: Context) => {
 export const argWithReturnTypeAction = (context: Context, value: string) => {
   // actions.argWithReturnTypeAction("foo"), requires "string" and returns "string"
   return value + '!!!'
+}
+
+// The onInitialize action
+export const onInitializeOvermind = (context: Context, instance: Overmind<Context>) => {
+
 }
 ```
 

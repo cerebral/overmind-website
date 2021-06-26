@@ -14,7 +14,12 @@ There are three approaches to connecting Overmind to Vue.
 {% tab title="overmind/index.js" %}
 ```typescript
 
-import { createHooks } from 'overmind-vue/vu3'
+import {
+  createStateHook,
+  createActionsHook,
+  createEffectsHook,
+  createReactionHook
+} from 'overmind-vue/vu3'
 
 export const config = {
   state: {
@@ -22,10 +27,16 @@ export const config = {
   },
   actions: {
     onClick() {}
-  }
+  },
+  effects: {}
 }
 
-export const hooks = createHooks()
+export const hooks = {
+  state: createStateHook(),
+  actions: createActionsHook(),
+  effects: createEffectsHook(),
+  reaction: createReactionHook()
+}
 ```
 {% endtab %}
 
@@ -149,7 +160,13 @@ With **TypeScript** you type them by:
 ```typescript
 // overmind/index.ts
 import { IContext } from 'overmind'
-import {createHooks } from 'overmind-vue/vu3'
+
+import {
+  createStateHook,
+  createActionsHook,
+  createEffectsHook,
+  createReactionHook
+} from 'overmind-vue/vu3'
 import { state } from './state'
 import * as actions from './actions'
 
@@ -163,7 +180,12 @@ export type Context = IContext<{
   actions: typeof config.actions
 }>
 
-export const hooks = createHooks<Context>()
+export const hooks = {
+  state: createStateHook<Context>(),
+  actions: createActionsHook<Context>(),
+  effects: createEffectsHook<Context>(),
+  reaction: createReactionHook<Context>()
+}
 ```
 {% endtab %}
 {% endtabs %}

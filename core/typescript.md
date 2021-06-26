@@ -13,14 +13,7 @@ import { IContext } from 'overmind'
 
 export const config = {}
 
-// Due to circular typing we have to define an
-// explicit typing of state, actions and effects since
-// TS 3.9 using a TYPE (not INTERFACE)
-export type Context = IContext<{
-  state: typeof config.state,
-  actions: typeof config.actions,
-  effects: typeof config.effects
-}>
+export type Context = IContext<typeof config>
 ```
 {% endtab %}
 {% endtabs %}

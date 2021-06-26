@@ -11,9 +11,9 @@ There are three approaches to connecting Overmind to Vue.
 ## Hooks \(experimental\)
 
 {% tabs %}
-{% tab title="overmind/index.js" %}
+{% tab title="JavaScript" %}
 ```typescript
-
+// overmind/index.js
 import {
   createStateHook,
   createActionsHook,
@@ -37,12 +37,8 @@ export const hooks = {
   effects: createEffectsHook(),
   reaction: createReactionHook()
 }
-```
-{% endtab %}
 
-{% tab title="index.js" %}
-```javascript
-import { createApp } from 'vue'
+// index.js
 import { createOvermind } from 'overmind'
 import { withOvermind } from 'overmind-vue/vu3'
 import { config } from './overmind'
@@ -53,11 +49,69 @@ const overmind = createOvermind(config)
 createApp(withOvermind(overmind, App)).mount('#app')
 
 ...
+
+// components/SomeComponent.vue
+<template>
+  <div @click="actions.onClick">
+    {{ state.foo }}
+  </div>
+</template>
+<script>
+  import { hooks } from '../overmind'
+  
+  export default {
+    setup() {
+      const state = hooks.state()
+      const actions = hooks.actions()
+      
+      return { state, actions }
+    }
+  }
+</script>
 ```
 {% endtab %}
 
-{% tab title="components/SomeComponent.vue" %}
+{% tab title="TypeScript" %}
 ```javascript
+// overmind/index.ts
+import { IContext } from 'overmind'
+
+import {
+  createStateHook,
+  createActionsHook,
+  createEffectsHook,
+  createReactionHook
+} from 'overmind-vue/vu3'
+import { state } from './state'
+import * as actions from './actions'
+
+export const config = {
+  state,
+  actions
+}
+
+export type Context = IContext<typeof config>
+
+export const hooks = {
+  state: createStateHook<Context>(),
+  actions: createActionsHook<Context>(),
+  effects: createEffectsHook<Context>(),
+  reaction: createReactionHook<Context>()
+}
+
+// index.ts
+import { createOvermind } from 'overmind'
+import { withOvermind } from 'overmind-vue/vu3'
+import { config } from './overmind'
+import App from './App.vue'
+
+const overmind = createOvermind(config)
+
+createApp(withOvermind(overmind, App)).mount('#app')
+
+...
+
+// components/SomeComponent.vue
 <template>
   <div @click="actions.onClick">
     {{ state.foo }}
@@ -149,43 +203,6 @@ If you prefer using JSX, that is also possible:
     }
   }
 </script>
-```
-{% endtab %}
-{% endtabs %}
-
-With **TypeScript** you type them by:
-
-{% tabs %}
-{% tab title="Typescript" %}
-```typescript
-// overmind/index.ts
-import { IContext } from 'overmind'
-
-import {
-  createStateHook,
-  createActionsHook,
-  createEffectsHook,
-  createReactionHook
-} from 'overmind-vue/vu3'
-import { state } from './state'
-import * as actions from './actions'
-
-export const config = {
-  state,
-  actions
-}
-
-export type Context = IContext<{
-  state: typeof config.state
-  actions: typeof config.actions
-}>
-
-export const hooks = {
-  state: createStateHook<Context>(),
-  actions: createActionsHook<Context>(),
-  effects: createEffectsHook<Context>(),
-  reaction: createReactionHook<Context>()
-}
 ```
 {% endtab %}
 {% endtabs %}

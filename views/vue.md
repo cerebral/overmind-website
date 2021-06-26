@@ -142,6 +142,32 @@ If you prefer using JSX, that is also possible:
 {% endtab %}
 {% endtabs %}
 
+With **TypeScript** you type them by:
+
+{% tabs %}
+{% tab title="Typescript" %}
+```typescript
+// overmind/index.ts
+import { IContext } from 'overmind'
+import {createHooks } from 'overmind-vue/vu3'
+import { state } from './state'
+import * as actions from './actions'
+
+export const config = {
+  state,
+  actions
+}
+
+export type Context = IContext<{
+  state: typeof config.state
+  actions: typeof config.actions
+}>
+
+export const hooks = createHooks<Context>()
+```
+{% endtab %}
+{% endtabs %}
+
 ## Plugin
 
 Vue has a plugin system that allows us to expose Overmind to all components. This allows minimum configuration and you just use state etc. from any component.

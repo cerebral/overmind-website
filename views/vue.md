@@ -40,7 +40,7 @@ export const hooks = {
 
 // index.js
 import { createOvermind } from 'overmind'
-import { withOvermind } from 'overmind-vue/vu3'
+import { withOvermind } from 'overmind-vue/vue3'
 import { config } from './overmind'
 import App from './App.vue'
 

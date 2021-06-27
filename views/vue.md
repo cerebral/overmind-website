@@ -133,7 +133,7 @@ createApp(withOvermind(overmind, App)).mount('#app')
 {% endtab %}
 {% endtabs %}
 
-The hooks also allows you to point to specific namespaces:
+### Reference specific state and actions
 
 {% tabs %}
 {% tab title="components/SomeComponent.vue" %}
@@ -159,32 +159,7 @@ The hooks also allows you to point to specific namespaces:
 {% endtab %}
 {% endtabs %}
 
-You also have **effects** and **reaction** available on your hooks:
-
-{% tabs %}
-{% tab title="components/SomeComponent.vue" %}
-```javascript
-  <div @click="actions.onClick">
-    {{ state.foo }}
-  </div>
-</template>
-<script>
-  import { hooks } from '../overmind'
-  
-  export default {
-    setup() {
-      const effects = hooks.effects()
-      const reaction = hooks.reaction()
-      
-      return { state, actions }
-    }
-  }
-</script>
-```
-{% endtab %}
-{% endtabs %}
-
-If you prefer using JSX, that is also possible:
+### Using JSX
 
 {% tabs %}
 {% tab title="components/SomeComponent.vue" %}

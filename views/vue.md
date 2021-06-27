@@ -133,33 +133,9 @@ createApp(withOvermind(overmind, App)).mount('#app')
 {% endtab %}
 {% endtabs %}
 
-### Reference specific state and actions
+### Accessing state in setup
 
-{% tabs %}
-{% tab title="components/SomeComponent.vue" %}
-```javascript
-<template>
-  <div @click="actions.onClick">
-    {{ state.foo }}
-  </div>
-</template>
-<script>
-  import { hooks } from '../overmind'
-  
-  export default {
-    setup() {
-      const state = hooks.state(state => state.admin)
-      const actions = hooks.actions(actions => actions.admin)
-      
-      return { state, actions }
-    }
-  }
-</script>
-```
-{% endtab %}
-{% endtabs %}
-
-### Using JSX
+You have to point to `.value` to access state from the hook with setup.
 
 {% tabs %}
 {% tab title="components/SomeComponent.vue" %}
@@ -172,6 +148,12 @@ createApp(withOvermind(overmind, App)).mount('#app')
       const state = hooks.state()
       const actions = hooks.actions()
       
+      return {
+        foo: state.value.foo,
+        actions
+      }
+
+      // JSX
       return () => (
         <div onClick={actions.onClick}>{state.value.foo}</div>
       )
@@ -181,6 +163,37 @@ createApp(withOvermind(overmind, App)).mount('#app')
 ```
 {% endtab %}
 {% endtabs %}
+
+### Scoped tracking
+
+You can scope the tracking to specific state. In this example we only track changes to the properties accessed on the item within the template. Any changes to the items state itself does not affect this component, like adding/removing items.
+
+{% tabs %}
+{% tab title="components/SomeComponent.vue" %}
+```javascript
+<template>
+  <div @click="actions.onClick">
+    {{ item.title }}
+  </div>
+</template>
+<script>
+  import { hooks } from '../overmind'
+  
+  export default {
+    props: ['id'],
+    setup() {
+      const item = hooks.state(state => state.items[this.id])
+      const actions = hooks.actions()
+      
+      return { item, actions }
+    }
+  }
+</script>
+```
+{% endtab %}
+{% endtabs %}
+
+### 
 
 ## Plugin
 

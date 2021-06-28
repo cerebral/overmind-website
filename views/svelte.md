@@ -1,6 +1,6 @@
 # Svelte
 
-There are two differente ways to connect Overmind to Svelte. You can use the **reactive declarations** or you can use the **reaction**.
+There are two different ways to connect Overmind to Svelte. You can use the **reactive declarations** or you can use the **reaction**.
 
 When you connect Overmind to a component you ensure that whenever any tracked state changes, only components interested in that state will re-render.
 

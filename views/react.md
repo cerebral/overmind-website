@@ -152,7 +152,7 @@ const Todos = () => {
 
   return (
     <ul>
-      {Object.keys(tate.todos).map(id => <Todo key={id} id={id} />)}
+      {Object.keys(state.todos).map(id => <Todo key={id} id={id} />)}
     </ul<
   )
 }

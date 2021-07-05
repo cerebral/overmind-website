@@ -51,10 +51,10 @@ With components you typically use reactions to manipulate DOM elements or other 
 {% tab title="React" %}
 ```typescript
 import * as React from 'react'
-import { useOvermind } from '../overmind'
+import { useReaction } from '../overmind'
 
 const App = () => {
-  const { reaction } = useOvermind()
+  const reaction = useReaction()
 
   React.useEffect(() => reaction(
     ({ currentPage }) => currentPage,

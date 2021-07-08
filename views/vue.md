@@ -395,3 +395,12 @@ export default {
 {% endtab %}
 {% endtabs %}
 
+## Boilerplates
+
+* Vue 3 + TypeScript + Overmind with hooks: https://github.com/hipertracker/vue3-overmind
+
+* Vue 3 + TypeScript + Vite + Overmind with hooks: https://github.com/hipertracker/vite-overmind
+
+* Vue 3 + TypeScript + Quasar 2 + Overmind with hooks: https://github.com/hipertracker/quasar2-overmind
+
+

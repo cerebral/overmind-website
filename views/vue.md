@@ -19,7 +19,7 @@ import {
   createActionsHook,
   createEffectsHook,
   createReactionHook
-} from 'overmind-vue/vu3'
+} from 'overmind-vue/vue3'
 
 export const config = {
   state: {
@@ -40,7 +40,7 @@ export const hooks = {
 
 // index.js
 import { createOvermind } from 'overmind'
-import { withOvermind } from 'overmind-vue/vu3'
+import { withOvermind } from 'overmind-vue/vue3'
 import { config } from './overmind'
 import App from './App.vue'
 
@@ -81,7 +81,7 @@ import {
   createActionsHook,
   createEffectsHook,
   createReactionHook
-} from 'overmind-vue/vu3'
+} from 'overmind-vue/vue3'
 import { state } from './state'
 import * as actions from './actions'
 
@@ -101,7 +101,7 @@ export const hooks = {
 
 // index.ts
 import { createOvermind } from 'overmind'
-import { withOvermind } from 'overmind-vue/vu3'
+import { withOvermind } from 'overmind-vue/vue3'
 import { config } from './overmind'
 import App from './App.vue'
 

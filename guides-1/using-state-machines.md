@@ -152,7 +152,7 @@ export const authChanged = ({ state, effects }, user) => {
 Let us introduce a new machine, a **todos** machine.
 
 ```typescript
-import { StateMachine } from 'overmind'
+import { Statemachine } from 'overmind'
 
 type Todo = { title: string, completed: boolean }
 
@@ -178,7 +178,7 @@ type Events =
     data: Todo
   }
 
-export type TodosMachine = StateMachine<States, Events BaseState>
+export type TodosMachine = Statemachine<States, Events, BaseState>
 
 export const todos = statemachine<States, Events, BaseState>({
   TODOS_LOADED: (state, todos) => {

@@ -160,10 +160,10 @@ export default async (req, res) => {
 
 The idea behind setting up overmind in `next.js` is the same as a standard express server but we have a lot of help from next to get us going.
 
-Let's start by adding a `_document.js` and this is where we will initialize the SSR version of Overmind:
+Let's start by adding a `_app.js` and this is where we will initialize the SSR version of Overmind:
 
 {% tabs %}
-{% tab title="src/\_document.js" %}
+{% tab title="src/\_app.js" %}
 ```javascript
 import App from "next/app";
 import { createOvermind, createOvermindSSR, rehydrate } from "overmind";

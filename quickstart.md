@@ -17,7 +17,7 @@ npm install overmind overmind-vue
 
 {% tab title="Angular" %}
 ```text
-
+npm install overmind overmind-angular
 ```
 {% endtab %}
 

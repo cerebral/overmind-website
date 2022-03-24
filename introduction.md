@@ -29,7 +29,7 @@ Introducing these scenarios we said: **You want**. In reality we rarely know exa
 2. **The active tab should certainly be component state?** The active tab might be part of the url query, `/user?tab=count`. That means it should rather be a hyperlink where your application handles the routing and provides state to identify the active tab.
 3. **Inputs should certainly be component state?** If the input is part of an application flow, you might want to empty out the content of that input related to other changes, or even change it to something else.
 
-How you want to go about this is totally up to you. We are not telling you exactly how to separate application and component state. What we can tell you though; **“If you lean towards application state your are more flexible to future changes”**.
+How you want to go about this is totally up to you. We are not telling you exactly how to separate application and component state. What we can tell you though; **“If you lean towards application state you are more flexible to future changes”**.
 
 ## Defining state
 

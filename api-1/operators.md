@@ -125,7 +125,7 @@ import { pipe, fork } from 'overmind'
 
 export const getUser = pipe(
   ({ effects }) => effects.api.getUser(),
-  fork((_, user) => user.type, {
+  forkUserType({
     'admin': o.doThis,
     'superuser': o.doThat
   })

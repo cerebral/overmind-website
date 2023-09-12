@@ -162,7 +162,7 @@ export const setUser = ({ state }, id) => {
 {% endtab %}
 {% endtabs %}
 
-You’d rather have a reference to the user id, and for example use a **getter** to grab the actual user:
+You’d rather have a reference to the user id, and for example use a **derived** to grab the actual user:
 
 {% tabs %}
 {% tab title="overmind/state.js" %}
@@ -170,10 +170,12 @@ You’d rather have a reference to the user id, and for example use a **getter**
 export const state = {
   users: {},
   currentUserId: null,
-  get currentUser(this) {
-    return this.users[this.currentUserId]
-  } 
-}
+  currentUser: derived((state) => {
+    if (currentUserId !== null && currentUser[currentUserId]) {
+      return currentUser[currentUserId];
+    } else return null;
+  }),
+};
 ```
 {% endtab %}
 {% endtabs %}

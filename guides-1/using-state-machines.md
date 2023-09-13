@@ -151,44 +151,45 @@ export const authChanged = ({ state, effects }, user) => {
 Let us introduce a new machine, a **todos** machine.
 
 ```typescript
-import { StateMachine } from 'overmind'
+import { Statemachine, statemachine } from 'overmind'
 
-type Todo = { title: string, completed: boolean }
+type Todo = { title: string; completed: boolean }
 
-type States = 
- | {
-   current: 'LOADING'
- }
- | {
-   current: 'LIST'
- }
+type States =
+  | {
+      current: 'LOADING'
+    }
+  | {
+      current: 'LIST'
+    }
 
- type BaseState {
-   list: Todo[]
- }
+type BaseState = {
+  list: Todo[]
+}
 
 type Events =
   | {
-    type: 'TODOS_LOADED',
-    data: Todo[]
-  }
+      type: 'TODOS_LOADED'
+      data: Todo[]
+    }
   | {
-    type: 'TODO_ADDED',
-    data: Todo
-  }
+      type: 'TODO_ADDED'
+      data: Todo
+    }
 
-export type TodosMachine = StateMachine<States, Events BaseState>
+export type TodosMachine = Statemachine<States, Events, BaseState>
 
 export const todos = statemachine<States, Events, BaseState>({
   LOADING: {
-    TODOS_LOADED: (todos) => ({ current: 'LIST', todos })
+    TODOS_LOADED: (todos) => ({ current: 'LIST', todos }),
   },
   LIST: {
     TODO_ADDED: (todo, state) => {
       state.list.push(todo)
-    }
-  }
+    },
+  },
 })
+
 ```
 
 In this simple example we introduced a todos machine that starts in a **LOADING** state and will at some point transition into a **LIST** state when the initial todos has been loaded. The machine introduces the concept of **base state**. That means state that is available no matter what transition state the machine is in. The purpose of **base state** is that it simplifies typing and the machine will also automatically remove state related to the current transition state, when transitioning to a new state. In the example earlier the **user** and the **signedOutReason** is deleted when moving out of **AUTHENTICATED** state.

@@ -18,7 +18,7 @@
 * [Server Side Rendering](core/server-side-rendering.md)
 * [Typescript](core/typescript.md)
 
-## views
+## Views
 
 * [React](views/react.md)
 * [Angular](views/angular.md)
@@ -60,4 +60,3 @@
 * [reaction](api-1/reaction.md)
 * [rehydrate](api-1/rehydrate.md)
 * [statemachine](api-1/statemachine.md)
-

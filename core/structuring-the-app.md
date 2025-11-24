@@ -4,7 +4,7 @@ Overmind is based on a core concept of:
 
 `{ state, actions, effects }`
 
-This data structure is called **the configuration** of your application. If it is a simple application you might have a single configuration, but typically you will create multiple of them and use tools to merge them together into one big configuration. But before we look at the scalability of Overmind, let’s talk about file structure.
+This data structure is called **the configuration** of your application. If it is a simple application you might have a single configuration, but typically you will create multiple of them and use tools to merge them together into one big configuration. But before we look at the scalability of Overmind, let's talk about file structure.
 
 ## Namespaces
 
@@ -47,19 +47,23 @@ You will typically define your **state** file by exporting a single constant nam
 
 {% tabs %}
 {% tab title="overmind/posts/state.js" %}
+
 ```typescript
 export const state = {
   posts: []
 }
 ```
+
 {% endtab %}
 
 {% tab title="overmind/admin/state.js" %}
+
 ```typescript
 export const state: State = {
   users: []
 }
 ```
+
 {% endtab %}
 {% endtabs %}
 
@@ -69,19 +73,23 @@ The actions are exported individually by giving them a name and a definition.
 
 {% tabs %}
 {% tab title="overmind/posts/actions.js" %}
+
 ```typescript
 export const getPosts = async () => {}
 
 export const addNewPost = async () => {}
 ```
+
 {% endtab %}
 
 {% tab title="overmind/admin/actions.js" %}
+
 ```typescript
 export const getUsers = async () => {}
 
 export const changeUserAccess = async () => {}
 ```
+
 {% endtab %}
 {% endtabs %}
 
@@ -91,19 +99,23 @@ The effects are also exported individually where you would typically organize th
 
 {% tabs %}
 {% tab title="overmind/posts/effects.js" %}
+
 ```typescript
 export const postsApi = {
   getPostsFromServer() {}
 }
 ```
+
 {% endtab %}
 
 {% tab title="overmind/admin/effects.js" %}
+
 ```typescript
 export const adminApi = {
   getUsersFromServer() {}
 }
 ```
+
 {% endtab %}
 {% endtabs %}
 
@@ -111,6 +123,7 @@ You might find it more useful to define a single effects file at the root of you
 
 {% tabs %}
 {% tab title="overmind/effects/index.js" %}
+
 ```typescript
 import * as api from './api'
 
@@ -118,14 +131,17 @@ export {
   api
 }
 ```
+
 {% endtab %}
 
 {% tab title="overmind/effects/api.js" %}
+
 ```typescript
 export const getUser = async () => {}
 
 export const getPosts = async () => {}
 ```
+
 {% endtab %}
 {% endtabs %}
 
@@ -135,6 +151,7 @@ Now let us export the state, actions and effects for each module and bring it al
 
 {% tabs %}
 {% tab title="overmind/posts/index.js" %}
+
 ```typescript
 import { state } from './state'
 import * as actions from './actions'
@@ -146,9 +163,11 @@ export {
   effects
 }
 ```
+
 {% endtab %}
 
 {% tab title="overmind/admin/index.js" %}
+
 ```typescript
 import { state } from './state'
 import * as actions from './actions'
@@ -160,9 +179,11 @@ export {
   effects
 }
 ```
+
 {% endtab %}
 
 {% tab title="overmind/index.js" %}
+
 ```typescript
 import { namespaced } from 'overmind/config'
 import * as posts from './posts'
@@ -173,6 +194,7 @@ export const config = namespaced({
   admin
 })
 ```
+
 {% endtab %}
 {% endtabs %}
 
@@ -182,6 +204,7 @@ You can also combine this with the **merge** tool to have a top level namespace.
 
 {% tabs %}
 {% tab title="overmind/index.js" %}
+
 ```typescript
 import { merge, namespaced } from 'overmind/config'
 import { state } from './state'
@@ -198,10 +221,39 @@ export const config = merge(
   })
 )
 ```
+
 {% endtab %}
 {% endtabs %}
+
+## Self-contained modules (implemented in Overmind v28.2.1)
+
+When actions within a namespaced module execute, they automatically receive **scoped access** to their own namespace. This means you can write module code without knowing or referencing the namespace it will be mounted under:
+
+{% tabs %}
+{% tab title="overmind/posts/actions.js" %}
+
+```typescript
+export const getPosts = async ({ state, effects }) => {
+  // 'state' and 'effects' are automatically scoped to the 'posts' namespace
+  // No need to reference state.posts or effects.posts
+  state.isLoading = true
+  state.posts = await effects.api.getPosts()
+  state.isLoading = false
+}
+```
+
+{% endtab %}
+{% endtabs %}
+
+This automatic scoping makes modules:
+
+- **Portable**: Can be moved or renamed without changing internal code
+- **Self-contained**: No coupling to namespace structure
+- **Easier to test**: Can be tested in isolation
+- **More maintainable**: Clear separation of concerns
+
+Modules can still access root-level shared effects and other namespaces when needed - the scoping simply provides convenient access to the module's own resources first.
 
 {% hint style="info" %}
 Even though you split up into different namespaces each namespace has access to the state, actions and effects of the whole application. This is an important feature of Overmind which allows you to scale up and explore the domains of the application without having to worry about isolation.
 {% endhint %}
-
